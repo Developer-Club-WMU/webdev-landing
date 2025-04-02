@@ -1,6 +1,41 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+
+    /* 
+    https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklch
+    OKLCH stands for:
+    •	L: Lightness (0% to 100%)
+    •	C: Chroma (color intensity, 0 to ~0.4+)
+    •	H: Hue (angle around a color wheel, in degrees — 0 to 360)
+    */
+    --color-primary: oklch(64% 0.25 260);
+    --color-secondary: oklch(72% 0.15 180);
+    --color-accent: oklch(80% 0.20 40);
+
+    --color-bg: oklch(100% 0 0);
+    --color-bg-muted: oklch(95% 0.01 270);
+    --color-bg-inverted: oklch(30% 0.05 270);
+
+    --color-text: oklch(20% 0 0);
+    --color-text-muted: oklch(40% 0.02 270);
+    --color-text-inverted: oklch(98% 0 0);
+    --color-link: oklch(60% 0.2 250);
+
+    --color-border: oklch(85% 0.02 270);
+    --color-border-muted: oklch(90% 0.01 270);
+    --color-border-focus: oklch(65% 0.20 260);
+
+    --color-success: oklch(70% 0.25 140);
+    --color-warning: oklch(85% 0.22 80);
+    --color-error: oklch(70% 0.22 20);
+    --color-info: oklch(75% 0.18 230);
+    --color-disabled: oklch(88% 0.01 270);
+}
+
+body {
+    @apply bg-bg;
 }

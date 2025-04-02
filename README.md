@@ -1,29 +1,127 @@
 # Create T3 App
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+This is a [T3 Stack](https://create.t3.gg/)
 
-## What's next? How do I make an app with this?
+## Getting Started
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+Follow these steps to download, install dependencies, and run the project locally.
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+### 1. Clone the Repository
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+```bash
+git clone https://github.com/WMU-Developer-Club-Web-Development/webdev-landing.git
+cd webdev-landing
+```
 
-## Learn More
+### 2. Install Dependencies
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+Make sure you have Node.js and pnpm installed. Then run:
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+```bash
+pnpm install
+```
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+If you are using npm or yarn instead, you can run:
 
-## How do I deploy this?
+```bash
+npm install
+# or
+yarn install
+```
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+### 3. Set Up Environment Variables
+
+Copy the example environment file and set your environment-specific variables:
+
+```bash
+cp .env.example .env
+```
+
+Open `.env` in your editor and fill in the required values (e.g., database URL, authentication secrets, etc.).
+
+### 4. Run the Development Server
+
+```bash
+pnpm dev
+```
+
+Once the server is running, open [http://localhost:3000](http://localhost:3000) in your browser to view the app.
+
+## Deployment
+
+Refer to these deployment guides for specific instructions:
+
+- [Vercel](https://create.t3.gg/en/deployment/vercel)
+- [Netlify](https://create.t3.gg/en/deployment/netlify)
+- [Docker](https://create.t3.gg/en/deployment/docker)
+
+
+# Club Website - Project Overview
+
+This website will serve as the official platform for our student club. Its primary purpose is to inform visitors about the club, help students join or contact us, and support internal members with updates, resources, and announcements.
+
+## Purpose
+
+The club website will:
+
+- Inform new visitors about what the club is and why they should join
+- Showcase events, projects, and team members
+- Provide a central hub for member communication and collaboration
+- Possibly include private or internal-use features as the club grows
+
+## Public-Facing Requirements
+
+### Home Page
+- Club name and branding
+- Short description of the club
+- Countdown to the next meeting or event
+- Call-to-action for joining or contacting the club
+
+### About Page
+- Club mission, goals, and origin story
+- Information on who the club is for
+
+### Meet the Team
+- List of core members and their roles
+- Optional links to GitHub or LinkedIn
+
+### Events or Activities
+- List of upcoming and past events
+- Event descriptions, media (photos/videos), and calendar integration
+
+### Join or Contact Page
+- Interest form (name, email, reason for joining)
+- Contact information and links to social media
+- Invite to the club's Discord, Slack, or other platform
+
+## Member-Facing Features (Optional)
+
+- Member login or portal
+- Project tracking or portfolio showcase
+- Internal resources or documentation
+- Announcements or updates section
+- Meeting notes archive
+- Job/internship board
+- Points or achievement system for members
+
+## Technical Stack (Suggested)
+
+- Next.js for fast development and routing
+- Tailwind CSS for styling
+- Hosting is still a WIP
+- GitHub for collaboration and version control
+
+## Potential Enhancements
+
+- Blog or news section
+- Testimonials or member highlights
+- Video or animation on the homepage
+- Newsletter signup
+
+## Getting Started
+
+1. Plan and write content for each page
+2. Design the layout (Figma or sketch)
+3. Choose the tech stack and set up the project
+4. Build the pages and components
+5. Deploy to a platform like Vercel
