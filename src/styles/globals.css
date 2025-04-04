@@ -18,7 +18,7 @@
 
     --color-bg: oklch(100% 0 0);
     --color-bg-muted: oklch(95% 0.01 270);
-    --color-bg-inverted: oklch(30% 0.05 270);
+    --color-bg-inverted: oklch(0% 0.05 270);
 
     --color-text: oklch(20% 0 0);
     --color-text-muted: oklch(40% 0.02 270);
@@ -34,6 +34,22 @@
     --color-error: oklch(70% 0.22 20);
     --color-info: oklch(75% 0.18 230);
     --color-disabled: oklch(88% 0.01 270);
+
+    --color-web: oklch(75% 0.25 250);  /* Vibrant blue-purple */
+    --color-ai: oklch(82% 0.29 145);   /* Electric green */
+    --color-app: oklch(80% 0.31 35);   /* Bright orange */
+}
+
+.text-web {
+  color: var(--color-web);
+}
+
+.text-ai {
+  color: var(--color-ai);
+}
+
+.text-app {
+  color: var(--color-app);
 }
 
 body {
