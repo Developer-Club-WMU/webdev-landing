@@ -1,6 +1,14 @@
 # Create T3 App
 
 This is a [T3 Stack](https://create.t3.gg/)
+We will be using
+[React](https://react.dev/reference/react)
+[NextJS](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
+[NodeJS](https://nodejs.org/en)
+[TailwindCSS](https://tailwindcss.com/)
+
+Our reference in terms of UI
+[TanStack](https://tanstack.com/)
 
 ## Getting Started
 
