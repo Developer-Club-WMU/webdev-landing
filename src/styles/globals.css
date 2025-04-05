@@ -4,7 +4,6 @@
     --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
         "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
-
     /* 
     https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklch
     OKLCH stands for:
@@ -79,6 +78,7 @@
     color: var(--color-dark-brown);
 }
 
+/* Custom tailwind classes */
 @layer components {
     .page {
         @apply flex flex-col w-full gap-20 md:gap-32 px-2 py-32 bg-bg dark:bg-bg-inverted

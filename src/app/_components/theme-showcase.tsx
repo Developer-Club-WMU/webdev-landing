@@ -1,5 +1,8 @@
 import React from "react";
 
+/**
+ * For showcasing purposes only, delete when we release in prod
+ */
 interface ColorThemeExample {
     name: string;
     className: string;
