@@ -35,21 +35,58 @@
     --color-info: oklch(75% 0.18 230);
     --color-disabled: oklch(88% 0.01 270);
 
+    /* Club Colors */
+    --color-light-brown: #9c9391;
+    --color-mid-brown: #60524f;
+    --color-dark-brown: #49403e;
+    --color-bright-yellow: #ffe665;
+    --color-light-yellow: #ffec8b;
+
     --color-web: oklch(75% 0.25 250);  /* Vibrant blue-purple */
     --color-ai: oklch(82% 0.29 145);   /* Electric green */
     --color-app: oklch(80% 0.31 35);   /* Bright orange */
 }
 
 .text-web {
-  color: var(--color-web);
+    color: var(--color-web);
 }
 
 .text-ai {
-  color: var(--color-ai);
+    color: var(--color-ai);
 }
 
 .text-app {
-  color: var(--color-app);
+    color: var(--color-app);
+}
+
+.text-bright-yellow {
+    color: var(--color-bright-yellow);
+}
+
+.text-light-yellow {
+    color: var(--color-light-yellow);
+}
+
+.text-light-brown {
+    color: var(--color-light-brown);
+}
+
+.text-mid-brown {
+    color: var(--color-mid-brown);
+}
+
+.text-dark-brown {
+    color: var(--color-dark-brown);
+}
+
+@layer components {
+    .page {
+        @apply flex flex-col w-full gap-20 md:gap-32 px-2 py-32 bg-bg dark:bg-bg-inverted
+    }
+
+    .info-page {
+        @apply flex flex-col w-full gap-20 bg-bg dark:bg-bg-inverted
+    }
 }
 
 body {

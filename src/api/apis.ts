@@ -87,7 +87,86 @@ export type SidebarButtonProps = {
     link: SideBarLink;
 };
 
+/**
+ * Represents the content and styling information used in a hero section component.
+ * 
+ * This is commonly used at the top of community pages (e.g., Web, AI, Apps) to 
+ * display the community's name, short description, and styling based on the 
+ * associated club color.
+ */
 export interface HeroDetails {
+    /**
+     * The main heading text (usually rendered inside an <h1>).
+     * 
+     * This is the prominent title for the hero section.
+     * 
+     * @example "Build the Future of the Web"
+     */
     title: string;
+
+    /**
+     * A short supporting description (usually rendered inside an <h2>).
+     * 
+     * This provides a brief explanation of the page or section.
+     * 
+     * @example "We craft modern, accessible experiences using the latest web technologies."
+     */
     description: string;
+
+    /**
+     * The color token associated with the community.
+     * 
+     * @example "web", "ai", "app"
+     */
+    color: string;
+
+    /**
+     * (Optional) Additional paragraph text rendered inside a <p> tag.
+     * 
+     * This is useful for giving more context or a longer explanation
+     * below the main title and description.
+     * 
+     * @example "From React to full-stack TypeScript — explore how we turn ideas into impactful websites."
+     */
+    secondDescription?: string;
+}
+
+
+export type SidebarListener = (openKey: string) => void;
+
+/**
+ * Defines the contract for managing the state of an expandable sidebar.
+ * 
+ * This protocol allows sidebar components to subscribe to and react
+ * to changes in the currently open sidebar section (e.g., "Web", "AI").
+ * Only one top-level section is open at a time.
+ */
+export interface SideBarProtocol {
+    /**
+     * Subscribes a listener that will be notified whenever the open key changes.
+     * 
+     * @param listener - A function that receives the updated open key.
+     */
+    subscribe: (listener: SidebarListener) => void;
+
+    /**
+     * Unsubscribes a previously registered listener.
+     * 
+     * @param listener - The listener to remove.
+     */
+    unsubscribe: (listener: SidebarListener) => void;
+
+    /**
+     * Returns the currently open sidebar key.
+     * 
+     * @returns A string representing the active key. An empty string means none are open.
+     */
+    getOpenKey: () => string;
+
+    /**
+     * Sets the active open key and notifies all subscribers.
+     * 
+     * @param key - The new open key. Pass an empty string to close all sections.
+     */
+    setOpenKey: (key: string) => void;
 }
