@@ -22,7 +22,7 @@ export default function RootLayout({
     return (
         <html lang="en" className={`${geist.variable}`}>
             <body className="min-h-screen flex flex-col min-w-0 lg:flex-row w-full transition-all duration-300">
-                <SideBar enforceVisibility={false} />
+                <SideBar/>
                 <TopNav/>
                 {children}
             </body>
