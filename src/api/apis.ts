@@ -173,7 +173,7 @@ export interface SideBarProtocol {
 
 export type EventID = string | null;
 
-export interface DataObserver<T = any> {
+export interface DataObserver<T = unknown> {
 
     /**
      * Used to listen for an event, usually the value changes
