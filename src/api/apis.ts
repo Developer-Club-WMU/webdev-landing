@@ -170,3 +170,25 @@ export interface SideBarProtocol {
      */
     setOpenKey: (key: string) => void;
 }
+
+export type EventID = string | null;
+
+export interface DataObserver<T = any> {
+
+    /**
+     * Used to listen for an event, usually the value changes
+     */
+    addChangeListener: (listener: (value: T) => void) => EventID;
+
+    /**
+     * Function that is used to unsubscribe from an event
+     * 
+     * @param ID of the event that needs to be removed
+     */
+    removeListener: (ID: EventID) => void;
+
+    /**
+     * The observable value
+     */
+    value: T;
+}
