@@ -44,6 +44,8 @@
     --color-web: oklch(75% 0.25 250);  /* Vibrant blue-purple */
     --color-ai: oklch(82% 0.29 145);   /* Electric green */
     --color-app: oklch(80% 0.31 35);   /* Bright orange */
+    --color-games: oklch(70% 0.28 330);  /* Playful magenta-purple */
+    --color-systems: oklch(78% 0.23 200);  /* Cool steel blue */
 }
 
 .text-web {
@@ -56,6 +58,14 @@
 
 .text-app {
     color: var(--color-app);
+}
+
+.text-games {
+    color: var(--color-games);
+}
+
+.text-systems {
+    color: var(--color-systems);
 }
 
 .text-bright-yellow {
