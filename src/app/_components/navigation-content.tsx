@@ -8,10 +8,11 @@ import SearchBar from "./search-input.component";
 const NavigationContent = () => {
 
     /* Links to communities, change icons to more appropriate when possible */
+    /* More relevant leaf links for student communities */
     const leafs: SideBarLinkLeaf[] = [
-        { title: "Dashboard", icon: "📊", link: "/" },
-        { title: "Reports", icon: "📈", link: "/" },
-        { title: "Settings", icon: "⚙️", link: "/" }
+        { title: "Resources", icon: "📚", link: "/" },       // Learning materials, tools, etc.
+        { title: "Projects", icon: "🛠️", link: "/" },        // Current or past projects
+        { title: "Get Involved", icon: "🤝", link: "/" },    // Info on how to join or contribute
     ];
 
     const links: SideBarLink[] = [
@@ -32,6 +33,18 @@ const NavigationContent = () => {
             titleColor: "app",
             childLinks: leafs,
             link: "/app"
+        },
+        {
+            title: "Games",
+            titleColor: "games",
+            childLinks: leafs,
+            link: "/games"
+        },
+        {
+            title: "Systems",
+            titleColor: "systems",
+            childLinks: leafs,
+            link: "/systems"
         },
     ];
 
