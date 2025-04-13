@@ -12,7 +12,6 @@ export default function HomePage() {
     return (
         <main className="page">
             <CommunityHero details={clubHero}/>
-            <ThemeColorShowcase/>
         </main>
     );
 }
