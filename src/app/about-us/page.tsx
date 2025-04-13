@@ -131,7 +131,7 @@ const AboutUsPage = () => {
   const originStory = {
     subtitle: "📖 Our Origin Story",
     description:
-      "A few curious students at Western Michigan University came together with a shared passion for tech and a dream to build cool stuff. What started as casual coding sessions turned into a thriving community of developers pushing boundaries in Web, AI, and App development.",
+      "A few curious students at Western Michigan University came together with a shared passion for tech and a dream to build cool stuff. What started as casual coding sessions turned into a thriving community of developers pushing boundaries in Web, AI, and App development."
   };
 
   return (
