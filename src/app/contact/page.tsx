@@ -107,8 +107,8 @@ export default function ContactPage() {
 
                 <p className="mt-5 mb-10 text-base leading-relaxed opacity-90 sm:text-lg md:text-xl lg:max-w-[600px]">
                     Interested in joining the club, have a question, an idea, or want to
-                    collaborate — or even just want to drop a hi? Let us know what you're
-                    thinking, and we'll make sure it reaches the right team.
+                    collaborate — or even just want to drop a hi? Let us know what you&apos;re
+                    thinking, and we&apos;ll make sure it reaches the right team.
                 </p>
 
                 {!submitted ? (

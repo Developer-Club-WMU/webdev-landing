@@ -28,7 +28,7 @@ const EventsPage = () => {
                             Hello Everyone,
                         </p>
                         <p className="text-gray-400 mb-4">
-                            I'm excited to announce the launch of a brand new student organization at Western Michigan University — <span className="text-white font-semibold">Developer Club</span> — a community for computer science students who want to bridge the gap between academia and the tech industry.
+                            I&apos;m excited to announce the launch of a brand new student organization at Western Michigan University — <span className="text-white font-semibold">Developer Club</span> — a community for computer science students who want to bridge the gap between academia and the tech industry.
                         </p>
                         <p className="text-gray-400 mb-4">
                             One of the biggest challenges for students in tech is that college often focuses heavily on theory—covering algorithms and concepts—without offering enough real-world, hands-on experience. This gap makes it tough to land jobs that require practical skills like building full-stack apps, deploying machine learning models, or collaborating with teams using industry tools.
@@ -55,7 +55,7 @@ const EventsPage = () => {
                                 <li>Exclusive developer resources — including Mac Minis, servers, and more!</li>
                             </ul>
                             <br />
-                            No matter your experience level, if you're passionate about building, learning, and collaborating, there’s a spot for you in Dev Club.
+                            No matter your experience level, if you&apos;re passionate about building, learning, and collaborating, there’s a spot for you in Dev Club.
                         </div>
                     </div>
                 </div>
