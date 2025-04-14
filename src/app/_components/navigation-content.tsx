@@ -10,7 +10,7 @@ const NavigationContent = () => {
     /* Links to communities, change icons to more appropriate when possible */
     /* More relevant leaf links for student communities */
     const leafs: SideBarLinkLeaf[] = [
-        { title: "Resources", icon: "📚", link: "/" },       // Learning materials, tools, etc.
+        { title: "Team Leads", icon: "📚", link: "/" },       // Page about team members
         { title: "Projects", icon: "🛠️", link: "/" },        // Current or past projects
         { title: "Get Involved", icon: "🤝", link: "/" },    // Info on how to join or contribute
     ];
@@ -49,7 +49,7 @@ const NavigationContent = () => {
     ];
 
     const simpleLinks: SideBarLinkLeaf[] = [
-        { title: "Merch", icon: "📊", link: "/merch" },
+        // { title: "Merch", icon: "📊", link: "/merch" },
         { title: "Contact", icon: "📊", link: "/contact" },
         { title: "About Us", icon: "📊", link: "/about-us" },
         { title: "Events", icon: "📊", link: "/events" },
@@ -58,14 +58,14 @@ const NavigationContent = () => {
     return (
         <div>
             <SearchBar/>
-            <div className="p-2 flex flex-col gap-1 border-b border-gray-500/10 dark:border-gray-500/20">
+            <div className="p-2 flex flex-col gap-1 border-b border-gray-500/10 dark:border-gray-500/50">
                 {links.map((link, index) => (
                     <div key={index}>
                         <NavigationLinkContainer link={link} />
                     </div>
                 ))}
             </div>
-            <div className="p-2 flex flex-col gap-1 border-b border-gray-500/10 dark:border-gray-500/20">
+            <div className="p-2 flex flex-col gap-1 border-b border-gray-500/10 dark:border-gray-500/50">
                 {simpleLinks.map((link, index) => (
                     <div key={index}>
                         <SimpleNavigationLink value={link} index={index}/>

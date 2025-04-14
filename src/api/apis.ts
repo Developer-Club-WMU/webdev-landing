@@ -1,3 +1,4 @@
+
 /**
  * Represents a top-level sidebar navigation item.
  * 
@@ -191,4 +192,29 @@ export interface DataObserver<T = unknown> {
      * The observable value
      */
     value: T;
+}
+
+export interface InfoNightContactInformation {
+    name: string;
+    email: string;
+    department: string;
+    message: string;
+}
+
+export const DEPARTMENTS = [
+    "General",
+    "Web",
+    "AI",
+    "Games",
+    "Systems",
+    "App",
+    "Automation",
+    "VR/AR",
+    "Hackathon",
+];
+
+export interface SocialInformation {
+    name: string;
+    href: string;
+    icon: React.ComponentType<{ size: number }>;
 }
