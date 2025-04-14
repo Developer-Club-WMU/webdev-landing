@@ -114,7 +114,7 @@ export default function ContactPage() {
                 {!submitted ? (
                     <form onSubmit={handleSubmit} className="w-full max-w-xl space-y-6">
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="name" className="text-base font-medium text-text">
+                            <label htmlFor="name" className="text-base font-medium text-text dark:text-text-inverted">
                                 Name
                             </label>
 
