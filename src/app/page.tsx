@@ -1,6 +1,5 @@
-import type { HeroDetails } from "@/api/apis";
-import CommunityHero from "./_components/community-hero";
-import ThemeColorShowcase from "./_components/theme-showcase";
+import CommunityHero from "@/features/public/CommunityHero/CommunityHero";
+import type { HeroDetails } from "@/models";
 
 export default function HomePage() {
     const clubHero: HeroDetails = {

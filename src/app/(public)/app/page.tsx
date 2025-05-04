@@ -1,5 +1,5 @@
-import type { HeroDetails } from "@/api/apis";
-import CommunityHero from "../_components/community-hero";
+import CommunityHero from "@/features/public/CommunityHero/CommunityHero";
+import type { HeroDetails } from "@/models";
 
 const AppPage = () => {
     const appsHero: HeroDetails = {

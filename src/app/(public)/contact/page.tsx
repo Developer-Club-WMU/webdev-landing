@@ -1,7 +1,8 @@
 "use client";
 
+import type { SocialInformation } from "@/models";
+import { DEPARTMENTS } from "@/models";
 import { useState } from "react";
-import { DEPARTMENTS, type SocialInformation } from "@/api/apis";
 import { FaDiscord, FaLinkedin, FaInstagram } from "react-icons/fa";
 
 const GOOGLE_FORM_ENDPOINT = "https://script.google.com/macros/s/AKfycbyZ9-JLkEmfcH2N8ucdX_LSh0ZgtHqEp1AlO5YBLgCdi8f-hMgLj8HF-Jkq8TJ6j-lX1A/exec";
