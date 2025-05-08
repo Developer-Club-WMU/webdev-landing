@@ -2,8 +2,8 @@ import "@/styles/globals.css";
 
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
-import SideBar from "../features/public/Sidebar/SideBar";
-import TopNav from "../features/public/TopNav/TopNav";
+import SideBar from "../../features/public/Sidebar/SideBar";
+import TopNav from "../../features/public/TopNav/TopNav";
 
 export const metadata: Metadata = {
     title: "WMU Developer Club",

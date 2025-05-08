@@ -9,7 +9,7 @@ import type { SideBarProtocol, SidebarListener } from "@/models";
  *
  * Useful for controlling UI behavior such as collapsible sidebar sections.
  */
-export class PublicSideBarManager implements SideBarProtocol {
+export class SideBarManager implements SideBarProtocol {
     /**
      * The currently open key (typically a section title).
      * An empty string indicates that no section is open.
