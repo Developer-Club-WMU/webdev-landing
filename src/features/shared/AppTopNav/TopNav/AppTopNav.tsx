@@ -1,10 +1,10 @@
 
 "use client";
 
-import NavigationContent from "@/features/public/NavigationContent/NavigationContent";
 import Link from "next/link";
 import { useAppTopNav } from "./useAppTopNav";
 import { appTopNavEmoji, appTopNavTitle } from "./app-top-nav.config";
+import OfficerNavigationContent from "../../AppSideBar/OfficerNavigationContent/OfficerNavigationContent";
 
 
 const AppTopNav = () => {
@@ -33,7 +33,7 @@ const AppTopNav = () => {
             {/* Mobile Drawer */}
             {isOpen && (
                 <div className="fixed lg:hidden inset-x-0 top-[64px] bottom-0 z-20 bg-bg/80 dark:bg-bg-inverted/80 backdrop-blur-md p-4 overflow-y-auto">
-                    <NavigationContent />
+                    <OfficerNavigationContent />
                 </div>
             )}
         </>
