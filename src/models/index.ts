@@ -1,3 +1,40 @@
+export type UUID = string;
+export type currency = number;
+export type username = string;
+
+// ─── String Literal Enums & Helper Types ─────────────────────
+export type ActivityType = "call" | "email" | "meeting" | "note";
+
+export type LeadStatus = "new" | "working" | "qualified" | "unqualified";
+
+export type TaskStatus = "open" | "in_progress" | "completed" | "deferred";
+
+export type TodoStatus = "open" | "in_progress" | "completed" | "archived";
+
+export type TodoPriority = "low" | "normal" | "high" | "urgent"
+
+export type DealStage =
+| "prospecting"
+| "qualification"
+| "proposal"
+| "negotiation"
+| "closed_won"
+| "closed_lost";
+
+// Generic target type for cross‑entity relations.
+// Extend or narrow this union as your data model grows.
+export type EntityType =
+  | "contact"
+  | "account"
+  | "deal"
+  | "user"
+  | "task"
+  | "product"
+  | "campaign"
+  | "custom"
+;
+
+
 /**
 * Represents a top-level sidebar navigation item.
 *
@@ -237,7 +274,7 @@ export interface AppSideBarProtocol {
 export type UserRole = "officer" | "member" | "client";
 
 export interface UserInfo {
-    id: string; //UUID
+    ID: UUID; //UUID
     firstName: string;
     lastName: string;
     username: string;
