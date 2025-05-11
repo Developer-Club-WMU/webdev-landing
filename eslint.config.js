@@ -30,7 +30,6 @@ export default tseslint.config(
       "@typescript-eslint/no-inferrable-types": "off",
       "@typescript-eslint/require-await": "off",
       "@typescript-eslint/no-unsafe-assignment": "off",
-
       "@typescript-eslint/no-unused-vars": [
         "warn",
         { argsIgnorePattern: "^_" },
@@ -56,5 +55,5 @@ export default tseslint.config(
         projectService: true,
       },
     },
-  }
+  },
 );

@@ -2,32 +2,32 @@ import type { HeroDetails } from "@/models";
 import { textSizes } from "./community-hero.config";
 
 const CommunityHero = ({ details }: { details: HeroDetails }) => {
-    return (
-        <div className="font-black flex flex-col gap-2 items-center text-text dark:text-text-inverted text-center">
-            <h1 className={`[letter-spacing:-.05em] ${textSizes.title}`}>
-                <span>Developer </span>
-                <span
-                    className="inline-block leading-snug text-transparent bg-clip-text bg-gradient-to-r"
-                    style={{
-                        color: `var(--color-${details.color})`,
-                        fontWeight: "bold",
-                    }}
-                >
-                    {details.title}
-                </span>
-            </h1>
-            <h2
-                className={`font-bold max-w-md md:max-w-xl lg:max-w-2xl [letter-spacing:-.05em] ${textSizes.description}`}
-            >
-                {details.description}
-            </h2>
-            <p
-                className={`opacity-90 max-w-[500px] mt-8 lg:max-w-[600px] ${textSizes.secondDescription}`}
-            >
-                {details.secondDescription}
-            </p>
-        </div>
-    );
+  return (
+    <div className="text-text dark:text-text-inverted flex flex-col items-center gap-2 text-center font-black">
+      <h1 className={`[letter-spacing:-.05em] ${textSizes.title}`}>
+        <span>Developer </span>
+        <span
+          className="inline-block bg-gradient-to-r bg-clip-text leading-snug text-transparent"
+          style={{
+            color: `var(--color-${details.color})`,
+            fontWeight: "bold",
+          }}
+        >
+          {details.title}
+        </span>
+      </h1>
+      <h2
+        className={`max-w-md font-bold [letter-spacing:-.05em] md:max-w-xl lg:max-w-2xl ${textSizes.description}`}
+      >
+        {details.description}
+      </h2>
+      <p
+        className={`mt-8 max-w-[500px] opacity-90 lg:max-w-[600px] ${textSizes.secondDescription}`}
+      >
+        {details.secondDescription}
+      </p>
+    </div>
+  );
 };
 
 export default CommunityHero;

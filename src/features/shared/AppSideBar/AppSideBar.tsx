@@ -12,32 +12,37 @@ import { signOut } from "next-auth/react";
  * and used at the layout level based on context
  */
 const AppSideBar = () => {
-    const pathname = usePathname();
-    const config: AppSideBarProtocol = new AppSideBarConfig(pathname);
+  const pathname = usePathname();
+  const config: AppSideBarProtocol = new AppSideBarConfig(pathname);
 
-    return (
-        <div className="min-w-[300px] hidden lg:flex flex-col h-screen sticky top-0 z-20 bg-bg dark:bg-bg-inverted shadow-xl dark:border-r border-gray-500/50">
-          <div className="flex flex-col gap-2 justify-between">
-            <div>
-            <div className="p-4 flex gap-2 items-center text-2xl border-b border-gray-500/10 dark:border-gray-500/50 text-text dark:text-text-inverted">
-                <Link href="/officer" className="flex items-center gap-1.5">
-                    <button onClick={() => config.clearOpenKey()} className="cursor-pointer">
-                        {config.emoji}{" "}
-                        <span className="font-black text-xl uppercase">{config.title}</span>
-                    </button>
-                </Link>
-            </div>
-            {<OfficerNavigationContent/>}
-            </div>
-            <button
-              className="text-white"
-              onClick={() => signOut({ callbackUrl: "/"})}
-            >
-              sign out
-            </button>
+  return (
+    <div className="bg-bg dark:bg-bg-inverted sticky top-0 z-20 hidden h-screen min-w-[300px] flex-col border-gray-500/50 shadow-xl lg:flex dark:border-r">
+      <div className="flex flex-col justify-between gap-2">
+        <div>
+          <div className="text-text dark:text-text-inverted flex items-center gap-2 border-b border-gray-500/10 p-4 text-2xl dark:border-gray-500/50">
+            <Link href="/officer" className="flex items-center gap-1.5">
+              <button
+                onClick={() => config.clearOpenKey()}
+                className="cursor-pointer"
+              >
+                {config.emoji}{" "}
+                <span className="text-xl font-black uppercase">
+                  {config.title}
+                </span>
+              </button>
+            </Link>
           </div>
+          {<OfficerNavigationContent />}
         </div>
-    );
+        <button
+          className="text-white"
+          onClick={() => signOut({ callbackUrl: "/" })}
+        >
+          sign out
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default AppSideBar;

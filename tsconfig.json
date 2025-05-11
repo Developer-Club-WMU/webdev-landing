@@ -39,7 +39,8 @@
     "**/*.tsx",
     "**/*.cjs",
     "**/*.js",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "src/features/shared/AppSideBar/AppSideBarButton"
   ],
   "exclude": ["node_modules"]
 }

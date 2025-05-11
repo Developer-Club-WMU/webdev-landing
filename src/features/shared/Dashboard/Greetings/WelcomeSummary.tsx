@@ -6,17 +6,17 @@ const WelcomeSummary = () => {
   return (
     <div className="space-y-8">
       {/* Greeting Section */}
-      <header className="pb-4 border-b border-border-muted dark:border-[#333]">
-        <h1 className="text-3xl sm:text-4xl font-semibold text-text dark:text-gray-100">
+      <header className="border-border-muted border-b pb-4 dark:border-[#333]">
+        <h1 className="text-text text-3xl font-semibold sm:text-4xl dark:text-gray-100">
           Welcome back, {user.firstName}
         </h1>
-        <p className="text-text-muted dark:text-gray-400 mt-1">
+        <p className="text-text-muted mt-1 dark:text-gray-400">
           Here&apos;s a quick snapshot of your officer activity.
         </p>
       </header>
 
       {/* Summary Cards */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <SummaryCard
           title="Pending Tasks"
           value="4"
@@ -63,10 +63,10 @@ const SummaryCard = ({
   };
 
   return (
-    <div className="rounded-md bg-[#121212] border border-[#333] p-5 shadow-md transition-all hover:border-[#555]">
+    <div className="rounded-md border border-[#333] bg-[#121212] p-5 shadow-md transition-all hover:border-[#555]">
       <h3 className={`text-sm font-medium text-gray-400`}>{title}</h3>
-      <p className="text-2xl font-semibold text-gray-100 mt-1">{value}</p>
-      <p className={`text-xs mt-2 ${accentMap[accent]}`}>{description}</p>
+      <p className="mt-1 text-2xl font-semibold text-gray-100">{value}</p>
+      <p className={`mt-2 text-xs ${accentMap[accent]}`}>{description}</p>
     </div>
   );
 };

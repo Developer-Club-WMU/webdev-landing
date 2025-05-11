@@ -6,41 +6,37 @@ import SimpleNavigationLink from "./SimpleNavigationLink";
 import type { SideBarLink } from "@/models";
 
 const NavigationContent = () => {
-    return (
-        <div>
-            <div className="p-2 flex flex-col gap-1 border-b border-gray-500/10 dark:border-gray-500/50">
-                {links.map((link, index) => (
-                    <NavigationLinkContainer key={index} link={link} />
-                ))}
-            </div>
-            <div className="p-2 flex flex-col gap-1 border-b border-gray-500/10 dark:border-gray-500/50">
-                {simpleLinks.map((link, index) => (
-                    <SimpleNavigationLink key={index} value={link} />
-                ))}
-            </div>
-        </div>
-    );
+  return (
+    <div>
+      <div className="flex flex-col gap-1 border-b border-gray-500/10 p-2 dark:border-gray-500/50">
+        {links.map((link, index) => (
+          <NavigationLinkContainer key={index} link={link} />
+        ))}
+      </div>
+      <div className="flex flex-col gap-1 border-b border-gray-500/10 p-2 dark:border-gray-500/50">
+        {simpleLinks.map((link, index) => (
+          <SimpleNavigationLink key={index} value={link} />
+        ))}
+      </div>
+    </div>
+  );
 };
 
 const NavigationLinkContainer = ({ link }: { link: SideBarLink }) => {
-    const { isOpen, handleOpen } = useNavigationLinkOpenState(link.title);
+  const { isOpen, handleOpen } = useNavigationLinkOpenState(link.title);
 
-    return (
-        <div>
-            <SidebarButton
-                isOpen={isOpen}
-                onClick={handleOpen}
-                link={link}
-            />
-            {isOpen && (
-                <div className="block ml-4 mt-1">
-                    {link.childLinks?.map((child, i) => (
-                        <SimpleNavigationLink key={i} value={child} />
-                    ))}
-                </div>
-            )}
+  return (
+    <div>
+      <SidebarButton isOpen={isOpen} onClick={handleOpen} link={link} />
+      {isOpen && (
+        <div className="mt-1 ml-4 block">
+          {link.childLinks?.map((child, i) => (
+            <SimpleNavigationLink key={i} value={child} />
+          ))}
         </div>
-    );
+      )}
+    </div>
+  );
 };
 
 export default NavigationContent;
