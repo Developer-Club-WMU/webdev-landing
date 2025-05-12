@@ -57,13 +57,12 @@ export interface ConversationMessageInfo extends BaseEntity {
   isEdited?: boolean;
 }
 
-export interface UserInfo {
+export interface UserInfo extends BaseEntity {
   ID: UUID;
   fullName: string;
   role: UserRole;
   email: string;
   username?: string;
-  createdAt: string;
   lastActiveAt?: string;
   avatarUrl?: string;
   department?: string;
@@ -139,11 +138,14 @@ export interface PipelineStageInfo {
   probability: number; // 0–1 (e.g. 0.25=25%)
 }
 
+/**
+ * Not considering
+ */
 export interface ProductInfo {
   ID: UUID;
   name: string;
   sku: string;
-  price: number; // unit price
+  price: number;
   description?: string;
   createdAt: string;
   updatedAt: string;

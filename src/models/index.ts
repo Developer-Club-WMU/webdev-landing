@@ -1,3 +1,5 @@
+import type { KanbanColumnViewModel } from "@/features/shared/Kanban/KanbanColumn/KanbanColumnViewModel";
+
 export type UUID = string;
 export type currency = number;
 export type username = string;
@@ -5,7 +7,24 @@ export type username = string;
 // ─── String Literal Enums & Helper Types ─────────────────────
 export type ActivityType = "call" | "email" | "meeting" | "note";
 
-export type LeadStatus = "new" | "working" | "qualified" | "unqualified";
+export type LeadStatus =
+  | "new"
+  | "working"
+  | "qualified"
+  | "unqualified"
+  | "closed"
+  | "negotiation"
+  | "closed_won"
+  | "closed_lost"
+  | "proposal";
+
+export type LeadType =
+  | "individual"
+  | "company"
+  | "customer"
+  | "partner"
+  | "other"
+  | "vendor";
 
 export type TaskStatus = "open" | "in_progress" | "completed" | "deferred";
 
@@ -294,4 +313,91 @@ export interface BaseEntity {
  */
 export interface BaseUtility<T> {
   getInstance(): T;
+}
+
+/**
+ * Basic Kanban interaction props shared across column cell components.
+ */
+export interface KanbanColumnCellProps {
+  /**
+   * Triggered when the user clicks on the card.
+   * Typically used to open detail views or dialogs.
+   */
+  onClick?: (dealId: string) => void;
+
+  /**
+   * Called when a card starts dragging.
+   * Provides the deal ID and its current pipeline stage.
+   */
+  // onDragStart?: (dealId: string, stage: string) => void;
+
+  /**
+   * Indicates whether the card is currently being dragged.
+   * Can be used to apply visual styles.
+   */
+  isDragging?: boolean;
+}
+
+/**
+ * Props for rendering a CRM pipeline card inside a Kanban column.
+ * Represents a lead or deal with relevant metadata.
+ */
+export interface PipelineCellProps extends KanbanColumnCellProps {
+  ID: string;
+  /**
+   * Primary title for the card — typically the deal or opportunity name.
+   */
+  title: string;
+
+  /**
+   * Supporting detail that summarizes the opportunity or contact.
+   */
+  description: string;
+
+  /**
+   * The financial value associated with this deal or lead.
+   * Represented in a formatted currency string (e.g., "$10,000").
+   */
+  capital?: string;
+
+  /**
+   * Optional avatar image (e.g., lead owner or company logo).
+   */
+  avatarURL?: string;
+
+  /**
+   * Name of the lead person or main contact.
+   */
+  leadName: string;
+
+  /**
+   * Company or organization associated with the lead.
+   */
+  companyName: string;
+
+  /**
+   * ISO timestamp or formatted string representing when this card was added.
+   */
+  addedOn: Date;
+
+  /**
+   * ISO timestamp or formatted string for when this item is due or expected to close.
+   */
+  dueDate: Date;
+
+  /**
+   * Status of the lead (e.g., "qualified", "working", "closed").
+   */
+  status: LeadStatus;
+
+  /**
+   * Category or classification of this lead (e.g., "customer", "partner", "vendor").
+   */
+  leadType: LeadType;
+}
+
+export interface KanbanColumnProps {
+  viewModel: KanbanColumnViewModel;
+  onCardClick?: (dealId: string) => void;
+  onCardDropped?: (dealId: string, newStage: string) => void;
 }
