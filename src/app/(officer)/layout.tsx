@@ -9,12 +9,15 @@ export default function OfficerLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="flex min-h-screen w-full min-w-0 flex-col overflow-hidden transition-all duration-300 lg:flex-row">
+    <html lang="en" className="h-full">
+      <body className="flex h-screen w-full min-w-0 flex-col overflow-hidden lg:flex-row">
         <AppSideBar />
-        <div className="flex min-w-0 flex-grow flex-col overflow-x-auto overflow-y-auto">
+
+        {/* Main Content Area */}
+        <div className="flex min-w-0 flex-grow flex-col overflow-hidden">
           <AppTopNav />
-          <main className="min-w-0 flex-grow">
+          {/* Scrollable main area */}
+          <main className="flex-grow overflow-auto px-4 py-6">
             <SessionProvider>
               <TRPCReactProvider>{children}</TRPCReactProvider>
             </SessionProvider>

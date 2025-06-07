@@ -11,6 +11,10 @@ export class PipelineCellViewModel {
     return this.props.title;
   }
 
+  get lead() {
+    return this.props.leadInfo;
+  }
+
   get description() {
     return this.props.description;
   }

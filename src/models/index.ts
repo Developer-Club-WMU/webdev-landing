@@ -1,4 +1,6 @@
 import type { KanbanColumnViewModel } from "@/features/shared/Kanban/KanbanColumn/KanbanColumnViewModel";
+import type { Observe } from "@/state/observe/Observe";
+import type { LeadInfo } from "./schema";
 
 export type UUID = string;
 export type currency = number;
@@ -46,6 +48,7 @@ export type EntityType =
   | "contact"
   | "account"
   | "deal"
+  | "lead"
   | "user"
   | "task"
   | "product"
@@ -394,10 +397,34 @@ export interface PipelineCellProps extends KanbanColumnCellProps {
    * Category or classification of this lead (e.g., "customer", "partner", "vendor").
    */
   leadType: LeadType;
+
+  leadInfo: LeadInfo;
 }
 
 export interface KanbanColumnProps {
   viewModel: KanbanColumnViewModel;
-  onCardClick?: (dealId: string) => void;
-  onCardDropped?: (dealId: string, newStage: string) => void;
+  header: KanbanColumnHeader;
+  onCardDrop?: (dealId: string, newStage: LeadStatus) => void;
+}
+
+export interface KanbanBoard {
+  title: Observe<string>;
+  columnConfig: string;
+}
+
+export interface KanbanColumnHeader {
+  title: string;
+  color: string;
+  totalItems: number;
+  control: ControlConfig;
+}
+
+export interface ControlConfig {
+  icon: string;
+  onClick: () => void;
+}
+
+export interface LeadFormProps {
+  initialValues?: Partial<LeadInfo>;
+  onSubmit: (data: LeadInfo) => void;
 }

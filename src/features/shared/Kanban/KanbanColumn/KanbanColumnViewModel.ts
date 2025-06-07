@@ -1,13 +1,26 @@
-import type { PipelineCellProps, LeadStatus } from "@/models";
+import type {
+  KanbanColumnHeader,
+  LeadStatus,
+  PipelineCellProps,
+} from "@/models";
 
 export class KanbanColumnViewModel {
   readonly stage: LeadStatus;
-  readonly title: string;
+  readonly header: KanbanColumnHeader;
   private deals: PipelineCellProps[];
 
-  constructor(stage: LeadStatus, title: string, deals: PipelineCellProps[]) {
+  constructor(
+    stage: LeadStatus,
+    header: KanbanColumnHeader,
+    deals: PipelineCellProps[],
+  ) {
     this.stage = stage;
-    this.title = title;
+    this.header = {
+      ...header,
+      totalItems: deals.filter(
+        (deal: PipelineCellProps) => deal.status === stage,
+      ).length,
+    };
     this.deals = deals;
   }
 

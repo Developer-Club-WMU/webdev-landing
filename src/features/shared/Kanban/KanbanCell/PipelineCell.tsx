@@ -4,17 +4,21 @@ import type { PipelineCellProps } from "@/models";
 import { PipelineCellViewModel } from "./PipelineCellViewModel";
 import { DateUtils } from "@/lib/date";
 import Image from "next/image";
+import { useState } from "react";
+import SidePanel from "../../SidePanel/Panel/SidePanel";
+import LeadSummaryPanel from "../../SidePanel/PipelineSummaryPanel/PipelineSummaryPanel";
 
 const PipelineCell = (props: PipelineCellProps) => {
   const vm = new PipelineCellViewModel(props);
+  const [isOpen, openPanel] = useState<boolean>(false);
 
   return (
     <div
-      className={`border-border-muted bg-bg dark:bg-bg-inverted/20 cursor-pointer rounded-xl border p-4 shadow-md transition-transform dark:border-gray-500/50 ${
+      className={`border-border-muted bg-bg dark:bg-github-lbg cursor-pointer rounded-xl border p-4 shadow-md transition-transform dark:border-gray-500/50 ${
         vm.isDragging ? "opacity-50" : "hover:scale-[1.01]"
       }`}
       draggable
-      onClick={vm.onClick}
+      onClick={() => openPanel((val) => !val)}
       onDragStart={(e) => {
         e.dataTransfer.setData("text/plain", vm.ID);
       }}
@@ -53,6 +57,10 @@ const PipelineCell = (props: PipelineCellProps) => {
           {vm.leadType} • {vm.status}
         </span>
       </div>
+
+      <SidePanel isOpen={isOpen} onClose={() => openPanel(false)}>
+        <LeadSummaryPanel lead={vm.lead} />
+      </SidePanel>
     </div>
   );
 };

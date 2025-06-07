@@ -1,4 +1,156 @@
-import type { LeadStatus, PipelineCellProps } from "@/models";
+import type {
+  KanbanColumnHeader,
+  LeadStatus,
+  PipelineCellProps,
+} from "@/models";
+import type { LeadInfo } from "@/models/schema";
+
+export const leadInfoList: LeadInfo[] = [
+  {
+    id: "1",
+    title: "Website Redesign",
+    description: "Full revamp for e-commerce platform",
+    capitalValue: 15000,
+    contactName: "Alice Thompson",
+    companyName: "Bluewave Digital",
+    avatarURL: "https://placehold.co/40x40/4A90E2/FFFFFF.webp?text=AT",
+    addedOn: new Date("2025-04-01").toISOString(),
+    dueDate: new Date("2025-05-01").toISOString(),
+    status: "working",
+    leadType: "individual",
+    pipelineStage: undefined,
+    isArchived: false,
+    source: undefined,
+    tags: [],
+    ownerID: undefined,
+  },
+  {
+    id: "2",
+    title: "AI Lead Scoring Integration",
+    description: "Machine learning model proposal",
+    capitalValue: 7200,
+    contactName: "John Rivera",
+    companyName: "NeuralCore Labs",
+    avatarURL: "https://placehold.co/40x40/00C896/FFFFFF.webp?text=JR",
+    addedOn: new Date("2025-03-25").toISOString(),
+    dueDate: new Date("2025-04-20").toISOString(),
+    status: "qualified",
+    leadType: "partner",
+    pipelineStage: undefined,
+    isArchived: false,
+    source: undefined,
+    tags: [],
+    ownerID: undefined,
+  },
+  {
+    id: "3",
+    title: "Cloud Migration",
+    description: "Enterprise data platform migration",
+    capitalValue: 32000,
+    contactName: "Mei Lin",
+    companyName: "SkyNet Solutions",
+    avatarURL: "https://placehold.co/40x40/FF9800/FFFFFF.webp?text=ML",
+    addedOn: new Date("2025-02-15").toISOString(),
+    dueDate: new Date("2025-04-15").toISOString(),
+    status: "working",
+    leadType: "vendor",
+    pipelineStage: undefined,
+    isArchived: false,
+    source: undefined,
+    tags: [],
+    ownerID: undefined,
+  },
+  {
+    id: "4",
+    title: "Prospecting Call",
+    description: "Initial outreach call scheduled",
+    capitalValue: 0,
+    contactName: "Bryan Kim",
+    companyName: "Elevate Agency",
+    avatarURL: "https://placehold.co/40x40/673AB7/FFFFFF.webp?text=BK",
+    addedOn: new Date("2025-04-10").toISOString(),
+    dueDate: new Date("2025-05-01").toISOString(),
+    status: "new",
+    leadType: "customer",
+    pipelineStage: undefined,
+    isArchived: false,
+    source: undefined,
+    tags: [],
+    ownerID: undefined,
+  },
+  {
+    id: "5",
+    title: "UX Overhaul Pitch",
+    description: "Waiting on proposal approval",
+    capitalValue: 5500,
+    contactName: "Samantha Voss",
+    companyName: "PixelPond",
+    avatarURL: "https://placehold.co/40x40/E91E63/FFFFFF.webp?text=SV",
+    addedOn: new Date("2025-03-18").toISOString(),
+    dueDate: new Date("2025-04-30").toISOString(),
+    status: "proposal",
+    leadType: "individual",
+    pipelineStage: undefined,
+    isArchived: false,
+    source: undefined,
+    tags: [],
+    ownerID: undefined,
+  },
+  {
+    id: "6",
+    title: "Security Audit",
+    description: "Mid-negotiation over scope and terms",
+    capitalValue: 11200,
+    contactName: "Carlos Mendes",
+    companyName: "SecureLayer",
+    avatarURL: "https://placehold.co/40x40/009688/FFFFFF.webp?text=CM",
+    addedOn: new Date("2025-02-28").toISOString(),
+    dueDate: new Date("2025-04-25").toISOString(),
+    status: "negotiation",
+    leadType: "vendor",
+    pipelineStage: undefined,
+    isArchived: false,
+    source: undefined,
+    tags: [],
+    ownerID: undefined,
+  },
+  {
+    id: "7",
+    title: "Annual Service Contract",
+    description: "Deal closed and signed",
+    capitalValue: 20000,
+    contactName: "Rachel Ng",
+    companyName: "Orbital Tech",
+    avatarURL: "https://placehold.co/40x40/03A9F4/FFFFFF.webp?text=RN",
+    addedOn: new Date("2025-01-20").toISOString(),
+    dueDate: new Date("2025-03-01").toISOString(),
+    status: "closed_won",
+    leadType: "customer",
+    pipelineStage: undefined,
+    isArchived: false,
+    source: undefined,
+    tags: [],
+    ownerID: undefined,
+  },
+  {
+    id: "8",
+    title: "Custom Analytics Platform",
+    description: "Client dropped out mid-negotiation",
+    capitalValue: 18000,
+    contactName: "Liam Shah",
+    companyName: "InsightIQ",
+    avatarURL: "https://placehold.co/40x40/F44336/FFFFFF.webp?text=LS",
+    addedOn: new Date("2025-02-10").toISOString(),
+    dueDate: new Date("2025-03-20").toISOString(),
+    status: "closed_lost",
+    leadType: "customer",
+    pipelineStage: undefined,
+    isArchived: false,
+    source: undefined,
+    tags: [],
+    ownerID: undefined,
+  },
+];
 
 export const pipelineDeals: PipelineCellProps[] = [
   {
@@ -14,6 +166,7 @@ export const pipelineDeals: PipelineCellProps[] = [
     status: "working",
     leadType: "individual",
     isDragging: false,
+    leadInfo: leadInfoList[0]!,
   },
   {
     ID: "2",
@@ -28,6 +181,7 @@ export const pipelineDeals: PipelineCellProps[] = [
     status: "qualified",
     leadType: "partner",
     isDragging: false,
+    leadInfo: leadInfoList[1]!,
   },
   {
     ID: "3",
@@ -42,6 +196,7 @@ export const pipelineDeals: PipelineCellProps[] = [
     status: "working",
     leadType: "vendor",
     isDragging: false,
+    leadInfo: leadInfoList[2]!,
   },
   {
     ID: "4",
@@ -56,6 +211,7 @@ export const pipelineDeals: PipelineCellProps[] = [
     status: "new",
     leadType: "customer",
     isDragging: false,
+    leadInfo: leadInfoList[3]!,
   },
   {
     ID: "5",
@@ -70,6 +226,7 @@ export const pipelineDeals: PipelineCellProps[] = [
     status: "proposal",
     leadType: "individual",
     isDragging: false,
+    leadInfo: leadInfoList[4]!,
   },
   {
     ID: "6",
@@ -84,6 +241,7 @@ export const pipelineDeals: PipelineCellProps[] = [
     status: "negotiation",
     leadType: "vendor",
     isDragging: false,
+    leadInfo: leadInfoList[5]!,
   },
   {
     ID: "7",
@@ -98,6 +256,7 @@ export const pipelineDeals: PipelineCellProps[] = [
     status: "closed_won",
     leadType: "customer",
     isDragging: false,
+    leadInfo: leadInfoList[6]!,
   },
   {
     ID: "8",
@@ -112,15 +271,96 @@ export const pipelineDeals: PipelineCellProps[] = [
     status: "closed_lost",
     leadType: "customer",
     isDragging: false,
+    leadInfo: leadInfoList[7]!,
   },
 ];
 
-export const pipelineStages: { status: LeadStatus; title: string }[] = [
-  { status: "new", title: "New" },
-  { status: "working", title: "Working" },
-  { status: "qualified", title: "Qualified" },
-  { status: "proposal", title: "Proposal Sent" },
-  { status: "negotiation", title: "Negotiation" },
-  { status: "closed_won", title: "Won" },
-  { status: "closed_lost", title: "Lost" },
+export const pipelineStages: {
+  status: LeadStatus;
+  header: KanbanColumnHeader;
+}[] = [
+  {
+    status: "new",
+    header: {
+      title: "New",
+      totalItems: 0,
+      control: {
+        onClick: () => console.log("Clicked New!"),
+        icon: "🆕",
+      },
+      color: "#E0F2FE", // light blue
+    },
+  },
+  {
+    status: "working",
+    header: {
+      title: "Working",
+      totalItems: 0,
+      control: {
+        onClick: () => console.log("Clicked Working!"),
+        icon: "⚙️",
+      },
+      color: "#FEF9C3", // pale yellow
+    },
+  },
+  {
+    status: "qualified",
+    header: {
+      title: "Qualified",
+      totalItems: 0,
+      control: {
+        onClick: () => console.log("Clicked Qualified!"),
+        icon: "✅",
+      },
+      color: "#DCFCE7", // light green
+    },
+  },
+  {
+    status: "proposal",
+    header: {
+      title: "Proposal Sent",
+      totalItems: 0,
+      control: {
+        onClick: () => console.log("Clicked Proposal Sent!"),
+        icon: "📄",
+      },
+      color: "#F0F9FF", // very light blue
+    },
+  },
+  {
+    status: "negotiation",
+    header: {
+      title: "Negotiation",
+      totalItems: 0,
+      control: {
+        onClick: () => console.log("Clicked Negotiation!"),
+        icon: "🤝",
+      },
+      color: "#FDE68A", // amber
+    },
+  },
+  {
+    status: "closed_won",
+    header: {
+      title: "Won",
+      totalItems: 0,
+      control: {
+        onClick: () => console.log("Clicked Won!"),
+        icon: "🏆",
+      },
+      color: "#BBF7D0", // light green
+    },
+  },
+  {
+    status: "closed_lost",
+    header: {
+      title: "Lost",
+      totalItems: 0,
+      control: {
+        onClick: () => console.log("Clicked Lost!"),
+        icon: "❌",
+      },
+      color: "#FECACA", // light red
+    },
+  },
 ];

@@ -21,7 +21,7 @@
   --color-bg-inverted: oklch(0% 0.05 270);
 
   --color-text: oklch(20% 0 0);
-  --color-text-muted: oklch(40% 0.02 270);
+  --color-text-muted: oklch(70% 0.02 270);
   --color-text-inverted: oklch(98% 0 0);
   --color-link: oklch(60% 0.2 250);
 
@@ -34,6 +34,11 @@
   --color-error: oklch(70% 0.22 20);
   --color-info: oklch(75% 0.18 230);
   --color-disabled: oklch(88% 0.01 270);
+
+  /* GitHub colors */
+  --color-github-lbg: oklch(18.33% 0.0055 264.75);
+  --color-github-dbg: oklch(10.17% 0.0035 263.83);
+  --color-github-muted: oklch(10.17% 0.0035 263.83);
 
   /* Club Colors */
   --color-light-brown: #9c9391;
@@ -92,15 +97,26 @@
 /* Custom tailwind classes */
 @layer components {
   .page {
-    @apply bg-bg dark:bg-bg-inverted flex w-full flex-col gap-20 px-2 py-32 md:gap-32;
+    /* @apply bg-bg dark:bg-bg-inverted flex w-full flex-col gap-20 px-2 py-32 md:gap-32; */
+    @apply bg-bg dark:bg-github-dbg flex w-full flex-col gap-20 px-2 py-32 md:gap-32;
   }
 
   .info-page {
-    @apply bg-bg dark:bg-bg-inverted flex w-full flex-col gap-5 px-4 py-10 sm:px-6 md:px-10;
+    /* @apply bg-bg dark:bg-bg-inverted flex w-full flex-col gap-5 px-4 py-10 sm:px-6 md:px-10; */
+    @apply bg-bg dark:bg-github-dbg flex w-full flex-col gap-5 px-4 py-10 sm:px-6 md:px-10;
   }
 
   .title {
     @apply text-4xl font-extrabold [letter-spacing:-.05em] uppercase md:text-6xl lg:text-7xl xl:text-8xl;
+  }
+
+  .side-panel {
+    @apply fixed top-0 right-0 z-50 h-full w-80 bg-white shadow-lg transition-transform duration-300;
+    transform: translateX(100%);
+  }
+
+  .side-panel.visible {
+    transform: translateX(0);
   }
 }
 

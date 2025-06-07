@@ -4,6 +4,7 @@ import type {
   DealStage,
   EntityType,
   LeadStatus,
+  LeadType,
   TaskStatus,
   TodoPriority,
   TodoStatus,
@@ -179,6 +180,91 @@ export interface CampaignInfo {
   budget?: number;
   ownerID: UUID;
   createdAt: string;
+}
+
+export interface LeadInfo {
+  /**
+   * Unique identifier for the lead or deal.
+   */
+  id: UUID;
+
+  /**
+   * The title or name of the deal/opportunity.
+   */
+  title: string;
+
+  /**
+   * A short summary or note about this lead.
+   */
+  description: string;
+
+  /**
+   * The monetary value associated with the deal.
+   * Stored as a number for computation, formatted elsewhere.
+   */
+  capitalValue?: number;
+
+  /**
+   * Optional URL to an avatar image for the contact or company.
+   */
+  avatarURL?: string;
+
+  /**
+   * Name of the person primarily associated with the lead.
+   */
+  contactName: string;
+
+  /**
+   * Name of the associated company or organization.
+   */
+  companyName: string;
+
+  /**
+   * Date the lead was added to the system (ISO string).
+   */
+  addedOn: string;
+
+  /**
+   * Due date or estimated close date for the lead (ISO string).
+   */
+  dueDate: string;
+
+  /**
+   * Status of the lead in the sales pipeline.
+   * Example: "qualified", "working", "closed".
+   */
+  status: LeadStatus;
+
+  /**
+   * Category or type of lead.
+   * Example: "customer", "partner", "vendor".
+   */
+  leadType: LeadType;
+
+  /**
+   * Stage in the pipeline (optional for positioning in UI).
+   */
+  pipelineStage?: string;
+
+  /**
+   * Whether the lead is archived or no longer active.
+   */
+  isArchived?: boolean;
+
+  /**
+   * Optional source info: where the lead came from (e.g., referral, ad).
+   */
+  source?: string;
+
+  /**
+   * Tags or labels assigned to the lead.
+   */
+  tags?: string[];
+
+  /**
+   * Assigned sales rep or user ID.
+   */
+  ownerID?: UUID;
 }
 
 /* ZOD SCHEMAS */
