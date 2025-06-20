@@ -8,7 +8,8 @@ export default async function OfficerPage() {
   const session = await auth();
 
   if (!session?.user) {
-    redirect("/auth/signin");
+    console.log("TEST: no session found");
+    // redirect("/auth/signin");
   }
 
   return <OfficerClient />;
