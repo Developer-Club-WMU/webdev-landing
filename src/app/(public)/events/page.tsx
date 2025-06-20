@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
-import { db } from "../../../lib/firebase";
+import { fdb } from "../../../lib/firebase";
 
 type Event = {
   id: string;
@@ -25,7 +25,7 @@ const EventsPage = () => {
       setLoading(true);
       setError(null);
       try {
-        const q = query(collection(db, "events"), orderBy("date", "asc"));
+        const q = query(collection(fdb, "events"), orderBy("date", "asc"));
         const querySnapshot = await getDocs(q);
 
         const eventsData = querySnapshot.docs.map((doc) => ({
