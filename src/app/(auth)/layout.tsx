@@ -1,0 +1,33 @@
+import "@/styles/globals.css";
+
+import { type Metadata } from "next";
+import { Geist } from "next/font/google";
+
+import { TRPCReactProvider } from "@/trpc/react";
+
+export const metadata: Metadata = {
+  title: "Club - Signin",
+  description: "Signin",
+  icons: [{ rel: "icon", url: "/favicon.ico" }],
+};
+
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist-sans",
+});
+
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <html lang="en" className={`${geist.variable}`}>
+      <body className="min-h-screen bg-gray-50 font-sans antialiased">
+        <TRPCReactProvider>
+          <main className="flex min-h-screen items-center justify-center px-4 sm:px-6">
+            {children}
+          </main>
+        </TRPCReactProvider>
+      </body>
+    </html>
+  );
+}
