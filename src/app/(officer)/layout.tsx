@@ -1,5 +1,6 @@
 import AppSideBar from "@/features/shared/AppSideBar/AppSideBar";
 import AppTopNav from "@/features/shared/AppTopNav/TopNav/AppTopNav";
+import "@/styles/globals.css";
 import { TRPCReactProvider } from "@/trpc/react";
 import { SessionProvider } from "next-auth/react";
 
