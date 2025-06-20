@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { AppSideBarConfig } from "./useAppSideBar";
 import type { AppSideBarProtocol } from "@/models";
 import OfficerNavigationContent from "./OfficerNavigationContent/OfficerNavigationContent";
+import { signOut } from "next-auth/react";
 
 /**
  * Defines a reusable side bar that can be configured
@@ -16,6 +17,8 @@ const AppSideBar = () => {
 
     return (
         <div className="min-w-[300px] hidden lg:flex flex-col h-screen sticky top-0 z-20 bg-bg dark:bg-bg-inverted shadow-xl dark:border-r border-gray-500/50">
+          <div className="flex flex-col gap-2 justify-between">
+            <div>
             <div className="p-4 flex gap-2 items-center text-2xl border-b border-gray-500/10 dark:border-gray-500/50 text-text dark:text-text-inverted">
                 <Link href="/officer" className="flex items-center gap-1.5">
                     <button onClick={() => config.clearOpenKey()} className="cursor-pointer">
@@ -25,6 +28,14 @@ const AppSideBar = () => {
                 </Link>
             </div>
             {<OfficerNavigationContent/>}
+            </div>
+            <button
+              className="text-white"
+              onClick={() => signOut({ callbackUrl: "/"})}
+            >
+              sign out
+            </button>
+          </div>
         </div>
     );
 };

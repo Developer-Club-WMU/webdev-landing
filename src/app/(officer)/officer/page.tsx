@@ -1,13 +1,15 @@
-"use client";
+import { auth } from "@/server/auth";
+import { redirect } from "next/navigation";
+import OfficerClient from "./_components/OfficerClient";
 
-import WelcomeSummary from "@/features/shared/Dashboard/Greetings/WelcomeSummary";
+export const dynamic = "force-dynamic";
 
-const OfficerPage = () => {
-    return (
-        <div className="info-page">
-            <WelcomeSummary/>
-        </div>
-    );
-};
+export default async function OfficerPage() {
+  const session = await auth();
 
-export default OfficerPage;
+  if (!session?.user) {
+    redirect("/auth/signin");
+  }
+
+  return <OfficerClient />;
+}

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { db } from '../../../lib/firebase';
+import { useEffect, useState } from "react";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { db } from "../../../lib/firebase";
 
 type Event = {
   id: string;
@@ -25,24 +25,27 @@ const EventsPage = () => {
       setLoading(true);
       setError(null);
       try {
-        const q = query(collection(db, 'events'), orderBy('date', 'asc'));
+        const q = query(collection(db, "events"), orderBy("date", "asc"));
         const querySnapshot = await getDocs(q);
 
-        const eventsData = querySnapshot.docs.map(doc => ({
+        const eventsData = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         })) as Event[];
 
         setEvents(eventsData);
-      } catch (err: any) {
-        console.error('Error fetching events:', err);
-        setError('Failed to load events. Please try again later.');
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        console.error("Error fetching events:", errorMessage);
+        setError("Failed to load events. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchEvents();
+    fetchEvents().catch((err) => {
+      console.error("Unexpected error in fetchEvents:", err);
+    });
   }, []);
 
   return (
@@ -56,15 +59,16 @@ const EventsPage = () => {
 
       {/* Type of Events */}
       <div>
-        <h2 className="text-3xl font-bold mb-2">TYPE OF EVENTS</h2>
-        <p className="text-lg text-text dark:text-text-inverted">
-          Bi-weekly meetings with workshops, guest speakers, hackathons, competitions, and company tours.
+        <h2 className="mb-2 text-3xl font-bold">TYPE OF EVENTS</h2>
+        <p className="text-text dark:text-text-inverted text-lg">
+          Bi-weekly meetings with workshops, guest speakers, hackathons,
+          competitions, and company tours.
         </p>
       </div>
 
       {/* Upcoming Events */}
       <div>
-        <h2 className="text-3xl font-bold mb-6">UPCOMING EVENTS</h2>
+        <h2 className="mb-6 text-3xl font-bold">UPCOMING EVENTS</h2>
 
         <div className="space-y-6">
           {loading && <p className="text-gray-400">Loading events...</p>}
@@ -73,21 +77,25 @@ const EventsPage = () => {
             <p className="text-gray-400">No upcoming events available.</p>
           )}
 
-          {!loading && !error && events.map(event => (
-            <div
-              key={event.id}
-              className="bg-gray-900 rounded-2xl border border-blue-500 p-6"
-            >
-              <h3 className="text-2xl font-bold mb-2 text-blue-400">{event.title}</h3>
-              <p className="text-yellow-300 mb-1">{event.location}</p>
-              {event.date && (
-                <p className="text-sm text-gray-400 mb-2">
-                  {new Date(event.date.seconds * 1000).toLocaleString()}
-                </p>
-              )}
-              <p className="text-gray-300">{event.description}</p>
-            </div>
-          ))}
+          {!loading &&
+            !error &&
+            events.map((event) => (
+              <div
+                key={event.id}
+                className="rounded-2xl border border-blue-500 bg-gray-900 p-6"
+              >
+                <h3 className="mb-2 text-2xl font-bold text-blue-400">
+                  {event.title}
+                </h3>
+                <p className="mb-1 text-yellow-300">{event.location}</p>
+                {event.date && (
+                  <p className="mb-2 text-sm text-gray-400">
+                    {new Date(event.date.seconds * 1000).toLocaleString()}
+                  </p>
+                )}
+                <p className="text-gray-300">{event.description}</p>
+              </div>
+            ))}
         </div>
       </div>
     </div>

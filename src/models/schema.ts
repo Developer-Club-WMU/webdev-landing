@@ -179,3 +179,5 @@ export interface CampaignInfo {
     ownerID: UUID;
     createdAt: string;
 }
+
+/* ZOD SCHEMAS */

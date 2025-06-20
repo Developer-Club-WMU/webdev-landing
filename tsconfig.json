@@ -12,6 +12,7 @@
 
     /* Strictness */
     "strict": true,
+    "strictNullChecks": true,
     "noUncheckedIndexedAccess": true,
     "checkJs": true,
 
@@ -27,7 +28,8 @@
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@zod/*": ["./prisma/generated/zod/*"]
     }
   },
   "include": [
