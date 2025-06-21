@@ -1,15 +1,14 @@
-import { auth } from "@/server/auth";
+import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { env } from "@/env"; // Make sure this points to your env setup
 
 export async function middleware(req: NextRequest) {
-  const session = await auth();
+  const token = await getToken({ req, secret: env.AUTH_SECRET });
 
-  // Check if the route is protected (officer routes)
   const isProtectedRoute = req.nextUrl.pathname.startsWith("/officer");
 
-  // If accessing a protected route without authentication, redirect to signin
-  if (isProtectedRoute && !session?.user) {
+  if (isProtectedRoute && !token) {
     const signInUrl = new URL("/auth/signin", req.url);
     signInUrl.searchParams.set("callbackUrl", req.nextUrl.pathname);
     return NextResponse.redirect(signInUrl);
@@ -19,9 +18,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/officer",
-    "/officer/:path*",
-    // Add other protected routes here as needed
-  ],
+  matcher: ["/officer", "/officer/:path*"],
 };
