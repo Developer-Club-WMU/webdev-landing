@@ -1,15 +1,78 @@
-import type { LeadFormProps } from "@/models";
 import type { LeadInfo } from "@/models/schema";
+import type { LeadStatus } from "@/models";
 import React, { useState } from "react";
+import { api } from "@/trpc/react";
 
-const LeadForm: React.FC<LeadFormProps> = ({
+interface LeadFormPropsExtended {
+  initialValues?: Partial<LeadInfo>;
+  onSubmit?: (lead: LeadInfo) => void;
+  pipelineId?: string;
+  segmentId?: number;
+  segmentName?: string;
+}
+
+const LeadForm: React.FC<LeadFormPropsExtended> = ({
   initialValues = {},
   onSubmit,
+  pipelineId,
+  segmentId,
+  segmentName,
 }) => {
   const [form, setForm] = useState<Partial<LeadInfo>>({
     ...initialValues,
     tags: initialValues.tags ?? [],
     isArchived: initialValues.isArchived ?? false,
+    status: initialValues.status ?? (segmentName as LeadStatus) ?? "new",
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const utils = api.useUtils();
+
+  // Create lead mutation
+  const createLead = api.crm.leads.create.useMutation({
+    onSuccess: (createdLead) => {
+      setIsSubmitting(false);
+      setSubmitError(null);
+
+      // Invalidate relevant queries to refresh the UI
+      if (pipelineId) {
+        void utils.crm.leads.getByPipelineId.invalidate({ pipelineId });
+      }
+      void utils.crm.leads.getAll.invalidate();
+
+      // Convert database lead to LeadInfo format
+      const leadInfo: LeadInfo = {
+        id: createdLead.id,
+        title: createdLead.title,
+        description: createdLead.description ?? "",
+        capitalValue: createdLead.capitalValue ?? 0,
+        contactName: createdLead.contactName,
+        companyName: createdLead.companyName,
+        avatarURL: createdLead.avatarURL ?? undefined,
+        addedOn: createdLead.addedOn.toISOString(),
+        dueDate: createdLead.dueDate?.toISOString() ?? new Date().toISOString(),
+        status: createdLead.status as LeadStatus,
+        leadType: createdLead.leadType as
+          | "customer"
+          | "partner"
+          | "vendor"
+          | "individual",
+        pipelineStage: createdLead.pipelineStage ?? undefined,
+        isArchived: createdLead.isArchived,
+        source: createdLead.source ?? undefined,
+        tags: createdLead.tags,
+        ownerID: createdLead.createdById,
+      };
+
+      if (onSubmit) {
+        onSubmit(leadInfo);
+      }
+    },
+    onError: (error) => {
+      setIsSubmitting(false);
+      setSubmitError(error.message);
+    },
   });
 
   const handleChange = (
@@ -37,29 +100,43 @@ const LeadForm: React.FC<LeadFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitError(null);
 
-    const payload: LeadInfo = {
-      ...form,
-      id: form.id ?? crypto.randomUUID(), // fallback if not set
+    // Prepare data for API
+    const leadData = {
       title: form.title ?? "",
       description: form.description ?? "",
       capitalValue: Number(form.capitalValue) || 0,
       contactName: form.contactName ?? "",
       companyName: form.companyName ?? "",
-      addedOn: form.addedOn ?? new Date().toISOString(),
-      dueDate: form.dueDate ?? new Date().toISOString(),
-      status: form.status ?? "new",
+      avatarURL: form.avatarURL ?? undefined,
+      dueDate: form.dueDate ? new Date(form.dueDate).toISOString() : undefined,
+      status: form.status ?? segmentName ?? "new",
       leadType: form.leadType ?? "customer",
-      isArchived: form.isArchived ?? false,
+      pipelineStage: form.pipelineStage,
+      source: form.source,
       tags: form.tags ?? [],
+      pipelineId,
+      segmentId,
     };
 
-    onSubmit(payload);
+    createLead.mutate(leadData);
   };
 
   return (
-    // <div className="h-3/5">
     <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-4">
+      {submitError && (
+        <div className="rounded-md bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
+          Error: {submitError}
+        </div>
+      )}
+
+      {pipelineId && segmentName && (
+        <div className="rounded-md bg-blue-50 p-3 text-sm text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
+          Adding lead to: <strong>{segmentName}</strong>
+        </div>
+      )}
       <Input
         name="title"
         label="Title"
@@ -181,12 +258,12 @@ const LeadForm: React.FC<LeadFormProps> = ({
 
       <button
         type="submit"
-        className="mt-4 w-full rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        disabled={isSubmitting}
+        className="mt-4 w-full rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        Save Lead
+        {isSubmitting ? "Saving..." : "Save Lead"}
       </button>
     </form>
-    // </div>
   );
 };
 

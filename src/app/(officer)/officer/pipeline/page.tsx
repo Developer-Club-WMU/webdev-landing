@@ -1,11 +1,13 @@
 "use client";
 
-import PipelineContainer from "@/features/shared/Kanban/KanbanContainer/PipelineContainer/PipelineContainer";
+import { PipelineHeader } from "@/features/officer/pipeline/header";
+import { PipelineTable } from "@/features/officer/pipeline/pipeline-table";
 
 const PipelinePage = () => {
   return (
     <div className="info-page">
-      <PipelineContainer />
+      <PipelineHeader />
+      <PipelineTable />
     </div>
   );
 };

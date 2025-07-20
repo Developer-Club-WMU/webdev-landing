@@ -7,14 +7,17 @@ import type {
 export class KanbanColumnViewModel {
   readonly stage: LeadStatus;
   readonly header: KanbanColumnHeader;
+  readonly segmentId?: number;
   private deals: PipelineCellProps[];
 
   constructor(
     stage: LeadStatus,
     header: KanbanColumnHeader,
     deals: PipelineCellProps[],
+    segmentId?: number,
   ) {
     this.stage = stage;
+    this.segmentId = segmentId;
     this.header = {
       ...header,
       totalItems: deals.filter(

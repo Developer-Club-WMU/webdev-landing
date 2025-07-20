@@ -6,7 +6,18 @@ import LeadForm from "../../Forms/LeadInfoForm/LeadInfoForm";
 import LeadInfoCapture from "../../Modal/LeadInfoCapture/LeadInfoCapture";
 import PipelineCell from "../KanbanCell/PipelineCell";
 
-const KanbanColumn = ({ viewModel, onCardDrop, header }: KanbanColumnProps) => {
+interface KanbanColumnPropsExtended extends KanbanColumnProps {
+  pipelineId?: string;
+  segmentId?: number;
+}
+
+const KanbanColumn = ({
+  viewModel,
+  onCardDrop,
+  header,
+  pipelineId,
+  segmentId,
+}: KanbanColumnPropsExtended) => {
   const handleDrop = (e: React.DragEvent) => {
     const dealId = e.dataTransfer.getData("text");
     if (dealId && onCardDrop) {
@@ -29,7 +40,12 @@ const KanbanColumn = ({ viewModel, onCardDrop, header }: KanbanColumnProps) => {
         {/* <h2 className="text-text dark:text-text-inverted mb-2 text-lg font-bold">
           {viewModel.title} ({viewModel.filteredDeals.length})
         </h2> */}
-        <ColumnHeader config={header} />
+        <ColumnHeader
+          config={header}
+          pipelineId={pipelineId}
+          segmentId={segmentId}
+          segmentName={viewModel.stage}
+        />
       </div>
       {viewModel.filteredDeals.map((deal) => (
         <PipelineCell key={deal.ID} {...deal} />
@@ -40,7 +56,17 @@ const KanbanColumn = ({ viewModel, onCardDrop, header }: KanbanColumnProps) => {
 
 export default KanbanColumn;
 
-const ColumnHeader = ({ config }: { config: KanbanColumnHeader }) => {
+const ColumnHeader = ({
+  config,
+  pipelineId,
+  segmentId,
+  segmentName,
+}: {
+  config: KanbanColumnHeader;
+  pipelineId?: string;
+  segmentId?: number;
+  segmentName?: string;
+}) => {
   const [isLeadFormOpen, setLeadFormOpenState] = useState<boolean>(false);
   return (
     <div className="bg-bg-subtle flex flex-row items-center justify-between rounded-xl shadow-sm">
@@ -74,6 +100,9 @@ const ColumnHeader = ({ config }: { config: KanbanColumnHeader }) => {
         <LeadForm
           initialValues={{}}
           onSubmit={() => setLeadFormOpenState(false)}
+          pipelineId={pipelineId}
+          segmentId={segmentId}
+          segmentName={segmentName}
         />
       </LeadInfoCapture>
     </div>

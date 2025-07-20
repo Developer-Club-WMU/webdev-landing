@@ -24,6 +24,14 @@ export const VerificationTokenScalarFieldEnumSchema = z.enum(['identifier','toke
 
 export const TaskScalarFieldEnumSchema = z.enum(['id','title','description','status','priority','dueDate','createdAt','updatedAt','createdById']);
 
+export const PipelineScalarFieldEnumSchema = z.enum(['id','name','createdAt','updatedAt','createdById']);
+
+export const PipelineSegmentScalarFieldEnumSchema = z.enum(['id','name','deleted','pipelineId']);
+
+export const PipelineSegmentDataScalarFieldEnumSchema = z.enum(['id','pipelineId','segmentId','completedAt','notes','createdAt','updatedAt']);
+
+export const LeadScalarFieldEnumSchema = z.enum(['id','title','description','capitalValue','contactName','companyName','avatarURL','addedOn','dueDate','status','leadType','pipelineStage','isArchived','source','tags','createdById','pipelineId','segmentId','createdAt','updatedAt']);
+
 export const SortOrderSchema = z.enum(['asc','desc']);
 
 export const QueryModeSchema = z.enum(['default','insensitive']);
@@ -136,6 +144,78 @@ export const TaskSchema = z.object({
 export type Task = z.infer<typeof TaskSchema>
 
 /////////////////////////////////////////
+// PIPELINE SCHEMA
+/////////////////////////////////////////
+
+export const PipelineSchema = z.object({
+  id: z.string().cuid(),
+  name: z.string(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+  createdById: z.string(),
+})
+
+export type Pipeline = z.infer<typeof PipelineSchema>
+
+/////////////////////////////////////////
+// PIPELINE SEGMENT SCHEMA
+/////////////////////////////////////////
+
+export const PipelineSegmentSchema = z.object({
+  id: z.number().int(),
+  name: z.string(),
+  deleted: z.boolean(),
+  pipelineId: z.string(),
+})
+
+export type PipelineSegment = z.infer<typeof PipelineSegmentSchema>
+
+/////////////////////////////////////////
+// PIPELINE SEGMENT DATA SCHEMA
+/////////////////////////////////////////
+
+export const PipelineSegmentDataSchema = z.object({
+  id: z.number().int(),
+  pipelineId: z.string(),
+  segmentId: z.number().int(),
+  completedAt: z.coerce.date().nullable(),
+  notes: z.string().nullable(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+})
+
+export type PipelineSegmentData = z.infer<typeof PipelineSegmentDataSchema>
+
+/////////////////////////////////////////
+// LEAD SCHEMA
+/////////////////////////////////////////
+
+export const LeadSchema = z.object({
+  id: z.string().cuid(),
+  title: z.string(),
+  description: z.string().nullable(),
+  capitalValue: z.number().int().nullable(),
+  contactName: z.string(),
+  companyName: z.string(),
+  avatarURL: z.string().nullable(),
+  addedOn: z.coerce.date(),
+  dueDate: z.coerce.date().nullable(),
+  status: z.string(),
+  leadType: z.string(),
+  pipelineStage: z.string().nullable(),
+  isArchived: z.boolean(),
+  source: z.string().nullable(),
+  tags: z.string().array(),
+  createdById: z.string(),
+  pipelineId: z.string().nullable(),
+  segmentId: z.number().int().nullable(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+})
+
+export type Lead = z.infer<typeof LeadSchema>
+
+/////////////////////////////////////////
 // SELECT & INCLUDE
 /////////////////////////////////////////
 
@@ -217,6 +297,8 @@ export const UserIncludeSchema: z.ZodType<Prisma.UserInclude> = z.object({
   sessions: z.union([z.boolean(),z.lazy(() => SessionFindManyArgsSchema)]).optional(),
   posts: z.union([z.boolean(),z.lazy(() => PostFindManyArgsSchema)]).optional(),
   tasks: z.union([z.boolean(),z.lazy(() => TaskFindManyArgsSchema)]).optional(),
+  Pipeline: z.union([z.boolean(),z.lazy(() => PipelineFindManyArgsSchema)]).optional(),
+  Lead: z.union([z.boolean(),z.lazy(() => LeadFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => UserCountOutputTypeArgsSchema)]).optional(),
 }).strict()
 
@@ -234,6 +316,8 @@ export const UserCountOutputTypeSelectSchema: z.ZodType<Prisma.UserCountOutputTy
   sessions: z.boolean().optional(),
   posts: z.boolean().optional(),
   tasks: z.boolean().optional(),
+  Pipeline: z.boolean().optional(),
+  Lead: z.boolean().optional(),
 }).strict();
 
 export const UserSelectSchema: z.ZodType<Prisma.UserSelect> = z.object({
@@ -246,6 +330,8 @@ export const UserSelectSchema: z.ZodType<Prisma.UserSelect> = z.object({
   sessions: z.union([z.boolean(),z.lazy(() => SessionFindManyArgsSchema)]).optional(),
   posts: z.union([z.boolean(),z.lazy(() => PostFindManyArgsSchema)]).optional(),
   tasks: z.union([z.boolean(),z.lazy(() => TaskFindManyArgsSchema)]).optional(),
+  Pipeline: z.union([z.boolean(),z.lazy(() => PipelineFindManyArgsSchema)]).optional(),
+  Lead: z.union([z.boolean(),z.lazy(() => LeadFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => UserCountOutputTypeArgsSchema)]).optional(),
 }).strict()
 
@@ -281,6 +367,145 @@ export const TaskSelectSchema: z.ZodType<Prisma.TaskSelect> = z.object({
   updatedAt: z.boolean().optional(),
   createdById: z.boolean().optional(),
   createdBy: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
+}).strict()
+
+// PIPELINE
+//------------------------------------------------------
+
+export const PipelineIncludeSchema: z.ZodType<Prisma.PipelineInclude> = z.object({
+  createdBy: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
+  segmentData: z.union([z.boolean(),z.lazy(() => PipelineSegmentDataFindManyArgsSchema)]).optional(),
+  segments: z.union([z.boolean(),z.lazy(() => PipelineSegmentFindManyArgsSchema)]).optional(),
+  Lead: z.union([z.boolean(),z.lazy(() => LeadFindManyArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => PipelineCountOutputTypeArgsSchema)]).optional(),
+}).strict()
+
+export const PipelineArgsSchema: z.ZodType<Prisma.PipelineDefaultArgs> = z.object({
+  select: z.lazy(() => PipelineSelectSchema).optional(),
+  include: z.lazy(() => PipelineIncludeSchema).optional(),
+}).strict();
+
+export const PipelineCountOutputTypeArgsSchema: z.ZodType<Prisma.PipelineCountOutputTypeDefaultArgs> = z.object({
+  select: z.lazy(() => PipelineCountOutputTypeSelectSchema).nullish(),
+}).strict();
+
+export const PipelineCountOutputTypeSelectSchema: z.ZodType<Prisma.PipelineCountOutputTypeSelect> = z.object({
+  segmentData: z.boolean().optional(),
+  segments: z.boolean().optional(),
+  Lead: z.boolean().optional(),
+}).strict();
+
+export const PipelineSelectSchema: z.ZodType<Prisma.PipelineSelect> = z.object({
+  id: z.boolean().optional(),
+  name: z.boolean().optional(),
+  createdAt: z.boolean().optional(),
+  updatedAt: z.boolean().optional(),
+  createdById: z.boolean().optional(),
+  createdBy: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
+  segmentData: z.union([z.boolean(),z.lazy(() => PipelineSegmentDataFindManyArgsSchema)]).optional(),
+  segments: z.union([z.boolean(),z.lazy(() => PipelineSegmentFindManyArgsSchema)]).optional(),
+  Lead: z.union([z.boolean(),z.lazy(() => LeadFindManyArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => PipelineCountOutputTypeArgsSchema)]).optional(),
+}).strict()
+
+// PIPELINE SEGMENT
+//------------------------------------------------------
+
+export const PipelineSegmentIncludeSchema: z.ZodType<Prisma.PipelineSegmentInclude> = z.object({
+  pipeline: z.union([z.boolean(),z.lazy(() => PipelineArgsSchema)]).optional(),
+  segmentData: z.union([z.boolean(),z.lazy(() => PipelineSegmentDataFindManyArgsSchema)]).optional(),
+  Lead: z.union([z.boolean(),z.lazy(() => LeadFindManyArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => PipelineSegmentCountOutputTypeArgsSchema)]).optional(),
+}).strict()
+
+export const PipelineSegmentArgsSchema: z.ZodType<Prisma.PipelineSegmentDefaultArgs> = z.object({
+  select: z.lazy(() => PipelineSegmentSelectSchema).optional(),
+  include: z.lazy(() => PipelineSegmentIncludeSchema).optional(),
+}).strict();
+
+export const PipelineSegmentCountOutputTypeArgsSchema: z.ZodType<Prisma.PipelineSegmentCountOutputTypeDefaultArgs> = z.object({
+  select: z.lazy(() => PipelineSegmentCountOutputTypeSelectSchema).nullish(),
+}).strict();
+
+export const PipelineSegmentCountOutputTypeSelectSchema: z.ZodType<Prisma.PipelineSegmentCountOutputTypeSelect> = z.object({
+  segmentData: z.boolean().optional(),
+  Lead: z.boolean().optional(),
+}).strict();
+
+export const PipelineSegmentSelectSchema: z.ZodType<Prisma.PipelineSegmentSelect> = z.object({
+  id: z.boolean().optional(),
+  name: z.boolean().optional(),
+  deleted: z.boolean().optional(),
+  pipelineId: z.boolean().optional(),
+  pipeline: z.union([z.boolean(),z.lazy(() => PipelineArgsSchema)]).optional(),
+  segmentData: z.union([z.boolean(),z.lazy(() => PipelineSegmentDataFindManyArgsSchema)]).optional(),
+  Lead: z.union([z.boolean(),z.lazy(() => LeadFindManyArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => PipelineSegmentCountOutputTypeArgsSchema)]).optional(),
+}).strict()
+
+// PIPELINE SEGMENT DATA
+//------------------------------------------------------
+
+export const PipelineSegmentDataIncludeSchema: z.ZodType<Prisma.PipelineSegmentDataInclude> = z.object({
+  pipeline: z.union([z.boolean(),z.lazy(() => PipelineArgsSchema)]).optional(),
+  segment: z.union([z.boolean(),z.lazy(() => PipelineSegmentArgsSchema)]).optional(),
+}).strict()
+
+export const PipelineSegmentDataArgsSchema: z.ZodType<Prisma.PipelineSegmentDataDefaultArgs> = z.object({
+  select: z.lazy(() => PipelineSegmentDataSelectSchema).optional(),
+  include: z.lazy(() => PipelineSegmentDataIncludeSchema).optional(),
+}).strict();
+
+export const PipelineSegmentDataSelectSchema: z.ZodType<Prisma.PipelineSegmentDataSelect> = z.object({
+  id: z.boolean().optional(),
+  pipelineId: z.boolean().optional(),
+  segmentId: z.boolean().optional(),
+  completedAt: z.boolean().optional(),
+  notes: z.boolean().optional(),
+  createdAt: z.boolean().optional(),
+  updatedAt: z.boolean().optional(),
+  pipeline: z.union([z.boolean(),z.lazy(() => PipelineArgsSchema)]).optional(),
+  segment: z.union([z.boolean(),z.lazy(() => PipelineSegmentArgsSchema)]).optional(),
+}).strict()
+
+// LEAD
+//------------------------------------------------------
+
+export const LeadIncludeSchema: z.ZodType<Prisma.LeadInclude> = z.object({
+  createdBy: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
+  pipeline: z.union([z.boolean(),z.lazy(() => PipelineArgsSchema)]).optional(),
+  segment: z.union([z.boolean(),z.lazy(() => PipelineSegmentArgsSchema)]).optional(),
+}).strict()
+
+export const LeadArgsSchema: z.ZodType<Prisma.LeadDefaultArgs> = z.object({
+  select: z.lazy(() => LeadSelectSchema).optional(),
+  include: z.lazy(() => LeadIncludeSchema).optional(),
+}).strict();
+
+export const LeadSelectSchema: z.ZodType<Prisma.LeadSelect> = z.object({
+  id: z.boolean().optional(),
+  title: z.boolean().optional(),
+  description: z.boolean().optional(),
+  capitalValue: z.boolean().optional(),
+  contactName: z.boolean().optional(),
+  companyName: z.boolean().optional(),
+  avatarURL: z.boolean().optional(),
+  addedOn: z.boolean().optional(),
+  dueDate: z.boolean().optional(),
+  status: z.boolean().optional(),
+  leadType: z.boolean().optional(),
+  pipelineStage: z.boolean().optional(),
+  isArchived: z.boolean().optional(),
+  source: z.boolean().optional(),
+  tags: z.boolean().optional(),
+  createdById: z.boolean().optional(),
+  pipelineId: z.boolean().optional(),
+  segmentId: z.boolean().optional(),
+  createdAt: z.boolean().optional(),
+  updatedAt: z.boolean().optional(),
+  createdBy: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
+  pipeline: z.union([z.boolean(),z.lazy(() => PipelineArgsSchema)]).optional(),
+  segment: z.union([z.boolean(),z.lazy(() => PipelineSegmentArgsSchema)]).optional(),
 }).strict()
 
 
@@ -532,7 +757,9 @@ export const UserWhereInputSchema: z.ZodType<Prisma.UserWhereInput> = z.object({
   accounts: z.lazy(() => AccountListRelationFilterSchema).optional(),
   sessions: z.lazy(() => SessionListRelationFilterSchema).optional(),
   posts: z.lazy(() => PostListRelationFilterSchema).optional(),
-  tasks: z.lazy(() => TaskListRelationFilterSchema).optional()
+  tasks: z.lazy(() => TaskListRelationFilterSchema).optional(),
+  Pipeline: z.lazy(() => PipelineListRelationFilterSchema).optional(),
+  Lead: z.lazy(() => LeadListRelationFilterSchema).optional()
 }).strict();
 
 export const UserOrderByWithRelationInputSchema: z.ZodType<Prisma.UserOrderByWithRelationInput> = z.object({
@@ -544,7 +771,9 @@ export const UserOrderByWithRelationInputSchema: z.ZodType<Prisma.UserOrderByWit
   accounts: z.lazy(() => AccountOrderByRelationAggregateInputSchema).optional(),
   sessions: z.lazy(() => SessionOrderByRelationAggregateInputSchema).optional(),
   posts: z.lazy(() => PostOrderByRelationAggregateInputSchema).optional(),
-  tasks: z.lazy(() => TaskOrderByRelationAggregateInputSchema).optional()
+  tasks: z.lazy(() => TaskOrderByRelationAggregateInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineOrderByRelationAggregateInputSchema).optional(),
+  Lead: z.lazy(() => LeadOrderByRelationAggregateInputSchema).optional()
 }).strict();
 
 export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> = z.union([
@@ -571,7 +800,9 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
   accounts: z.lazy(() => AccountListRelationFilterSchema).optional(),
   sessions: z.lazy(() => SessionListRelationFilterSchema).optional(),
   posts: z.lazy(() => PostListRelationFilterSchema).optional(),
-  tasks: z.lazy(() => TaskListRelationFilterSchema).optional()
+  tasks: z.lazy(() => TaskListRelationFilterSchema).optional(),
+  Pipeline: z.lazy(() => PipelineListRelationFilterSchema).optional(),
+  Lead: z.lazy(() => LeadListRelationFilterSchema).optional()
 }).strict());
 
 export const UserOrderByWithAggregationInputSchema: z.ZodType<Prisma.UserOrderByWithAggregationInput> = z.object({
@@ -729,6 +960,368 @@ export const TaskScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.TaskScal
   createdAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
   createdById: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+}).strict();
+
+export const PipelineWhereInputSchema: z.ZodType<Prisma.PipelineWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => PipelineWhereInputSchema),z.lazy(() => PipelineWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => PipelineWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => PipelineWhereInputSchema),z.lazy(() => PipelineWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  name: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  createdById: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  createdBy: z.union([ z.lazy(() => UserScalarRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataListRelationFilterSchema).optional(),
+  segments: z.lazy(() => PipelineSegmentListRelationFilterSchema).optional(),
+  Lead: z.lazy(() => LeadListRelationFilterSchema).optional()
+}).strict();
+
+export const PipelineOrderByWithRelationInputSchema: z.ZodType<Prisma.PipelineOrderByWithRelationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  createdById: z.lazy(() => SortOrderSchema).optional(),
+  createdBy: z.lazy(() => UserOrderByWithRelationInputSchema).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataOrderByRelationAggregateInputSchema).optional(),
+  segments: z.lazy(() => PipelineSegmentOrderByRelationAggregateInputSchema).optional(),
+  Lead: z.lazy(() => LeadOrderByRelationAggregateInputSchema).optional()
+}).strict();
+
+export const PipelineWhereUniqueInputSchema: z.ZodType<Prisma.PipelineWhereUniqueInput> = z.object({
+  id: z.string().cuid()
+})
+.and(z.object({
+  id: z.string().cuid().optional(),
+  AND: z.union([ z.lazy(() => PipelineWhereInputSchema),z.lazy(() => PipelineWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => PipelineWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => PipelineWhereInputSchema),z.lazy(() => PipelineWhereInputSchema).array() ]).optional(),
+  name: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  createdById: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  createdBy: z.union([ z.lazy(() => UserScalarRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataListRelationFilterSchema).optional(),
+  segments: z.lazy(() => PipelineSegmentListRelationFilterSchema).optional(),
+  Lead: z.lazy(() => LeadListRelationFilterSchema).optional()
+}).strict());
+
+export const PipelineOrderByWithAggregationInputSchema: z.ZodType<Prisma.PipelineOrderByWithAggregationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  createdById: z.lazy(() => SortOrderSchema).optional(),
+  _count: z.lazy(() => PipelineCountOrderByAggregateInputSchema).optional(),
+  _max: z.lazy(() => PipelineMaxOrderByAggregateInputSchema).optional(),
+  _min: z.lazy(() => PipelineMinOrderByAggregateInputSchema).optional()
+}).strict();
+
+export const PipelineScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.PipelineScalarWhereWithAggregatesInput> = z.object({
+  AND: z.union([ z.lazy(() => PipelineScalarWhereWithAggregatesInputSchema),z.lazy(() => PipelineScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  OR: z.lazy(() => PipelineScalarWhereWithAggregatesInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => PipelineScalarWhereWithAggregatesInputSchema),z.lazy(() => PipelineScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  name: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  createdAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
+  createdById: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+}).strict();
+
+export const PipelineSegmentWhereInputSchema: z.ZodType<Prisma.PipelineSegmentWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => PipelineSegmentWhereInputSchema),z.lazy(() => PipelineSegmentWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => PipelineSegmentWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => PipelineSegmentWhereInputSchema),z.lazy(() => PipelineSegmentWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
+  name: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  deleted: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
+  pipelineId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  pipeline: z.union([ z.lazy(() => PipelineScalarRelationFilterSchema),z.lazy(() => PipelineWhereInputSchema) ]).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataListRelationFilterSchema).optional(),
+  Lead: z.lazy(() => LeadListRelationFilterSchema).optional()
+}).strict();
+
+export const PipelineSegmentOrderByWithRelationInputSchema: z.ZodType<Prisma.PipelineSegmentOrderByWithRelationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  deleted: z.lazy(() => SortOrderSchema).optional(),
+  pipelineId: z.lazy(() => SortOrderSchema).optional(),
+  pipeline: z.lazy(() => PipelineOrderByWithRelationInputSchema).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataOrderByRelationAggregateInputSchema).optional(),
+  Lead: z.lazy(() => LeadOrderByRelationAggregateInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentWhereUniqueInputSchema: z.ZodType<Prisma.PipelineSegmentWhereUniqueInput> = z.union([
+  z.object({
+    id: z.number().int(),
+    pipelineId_name: z.lazy(() => PipelineSegmentPipelineIdNameCompoundUniqueInputSchema)
+  }),
+  z.object({
+    id: z.number().int(),
+  }),
+  z.object({
+    pipelineId_name: z.lazy(() => PipelineSegmentPipelineIdNameCompoundUniqueInputSchema),
+  }),
+])
+.and(z.object({
+  id: z.number().int().optional(),
+  pipelineId_name: z.lazy(() => PipelineSegmentPipelineIdNameCompoundUniqueInputSchema).optional(),
+  AND: z.union([ z.lazy(() => PipelineSegmentWhereInputSchema),z.lazy(() => PipelineSegmentWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => PipelineSegmentWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => PipelineSegmentWhereInputSchema),z.lazy(() => PipelineSegmentWhereInputSchema).array() ]).optional(),
+  name: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  deleted: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
+  pipelineId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  pipeline: z.union([ z.lazy(() => PipelineScalarRelationFilterSchema),z.lazy(() => PipelineWhereInputSchema) ]).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataListRelationFilterSchema).optional(),
+  Lead: z.lazy(() => LeadListRelationFilterSchema).optional()
+}).strict());
+
+export const PipelineSegmentOrderByWithAggregationInputSchema: z.ZodType<Prisma.PipelineSegmentOrderByWithAggregationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  deleted: z.lazy(() => SortOrderSchema).optional(),
+  pipelineId: z.lazy(() => SortOrderSchema).optional(),
+  _count: z.lazy(() => PipelineSegmentCountOrderByAggregateInputSchema).optional(),
+  _avg: z.lazy(() => PipelineSegmentAvgOrderByAggregateInputSchema).optional(),
+  _max: z.lazy(() => PipelineSegmentMaxOrderByAggregateInputSchema).optional(),
+  _min: z.lazy(() => PipelineSegmentMinOrderByAggregateInputSchema).optional(),
+  _sum: z.lazy(() => PipelineSegmentSumOrderByAggregateInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.PipelineSegmentScalarWhereWithAggregatesInput> = z.object({
+  AND: z.union([ z.lazy(() => PipelineSegmentScalarWhereWithAggregatesInputSchema),z.lazy(() => PipelineSegmentScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  OR: z.lazy(() => PipelineSegmentScalarWhereWithAggregatesInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => PipelineSegmentScalarWhereWithAggregatesInputSchema),z.lazy(() => PipelineSegmentScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => IntWithAggregatesFilterSchema),z.number() ]).optional(),
+  name: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  deleted: z.union([ z.lazy(() => BoolWithAggregatesFilterSchema),z.boolean() ]).optional(),
+  pipelineId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+}).strict();
+
+export const PipelineSegmentDataWhereInputSchema: z.ZodType<Prisma.PipelineSegmentDataWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => PipelineSegmentDataWhereInputSchema),z.lazy(() => PipelineSegmentDataWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => PipelineSegmentDataWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => PipelineSegmentDataWhereInputSchema),z.lazy(() => PipelineSegmentDataWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
+  pipelineId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  segmentId: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
+  completedAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
+  notes: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  pipeline: z.union([ z.lazy(() => PipelineScalarRelationFilterSchema),z.lazy(() => PipelineWhereInputSchema) ]).optional(),
+  segment: z.union([ z.lazy(() => PipelineSegmentScalarRelationFilterSchema),z.lazy(() => PipelineSegmentWhereInputSchema) ]).optional(),
+}).strict();
+
+export const PipelineSegmentDataOrderByWithRelationInputSchema: z.ZodType<Prisma.PipelineSegmentDataOrderByWithRelationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  pipelineId: z.lazy(() => SortOrderSchema).optional(),
+  segmentId: z.lazy(() => SortOrderSchema).optional(),
+  completedAt: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  notes: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  pipeline: z.lazy(() => PipelineOrderByWithRelationInputSchema).optional(),
+  segment: z.lazy(() => PipelineSegmentOrderByWithRelationInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentDataWhereUniqueInputSchema: z.ZodType<Prisma.PipelineSegmentDataWhereUniqueInput> = z.union([
+  z.object({
+    id: z.number().int(),
+    pipelineId_segmentId: z.lazy(() => PipelineSegmentDataPipelineIdSegmentIdCompoundUniqueInputSchema)
+  }),
+  z.object({
+    id: z.number().int(),
+  }),
+  z.object({
+    pipelineId_segmentId: z.lazy(() => PipelineSegmentDataPipelineIdSegmentIdCompoundUniqueInputSchema),
+  }),
+])
+.and(z.object({
+  id: z.number().int().optional(),
+  pipelineId_segmentId: z.lazy(() => PipelineSegmentDataPipelineIdSegmentIdCompoundUniqueInputSchema).optional(),
+  AND: z.union([ z.lazy(() => PipelineSegmentDataWhereInputSchema),z.lazy(() => PipelineSegmentDataWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => PipelineSegmentDataWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => PipelineSegmentDataWhereInputSchema),z.lazy(() => PipelineSegmentDataWhereInputSchema).array() ]).optional(),
+  pipelineId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  segmentId: z.union([ z.lazy(() => IntFilterSchema),z.number().int() ]).optional(),
+  completedAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
+  notes: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  pipeline: z.union([ z.lazy(() => PipelineScalarRelationFilterSchema),z.lazy(() => PipelineWhereInputSchema) ]).optional(),
+  segment: z.union([ z.lazy(() => PipelineSegmentScalarRelationFilterSchema),z.lazy(() => PipelineSegmentWhereInputSchema) ]).optional(),
+}).strict());
+
+export const PipelineSegmentDataOrderByWithAggregationInputSchema: z.ZodType<Prisma.PipelineSegmentDataOrderByWithAggregationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  pipelineId: z.lazy(() => SortOrderSchema).optional(),
+  segmentId: z.lazy(() => SortOrderSchema).optional(),
+  completedAt: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  notes: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  _count: z.lazy(() => PipelineSegmentDataCountOrderByAggregateInputSchema).optional(),
+  _avg: z.lazy(() => PipelineSegmentDataAvgOrderByAggregateInputSchema).optional(),
+  _max: z.lazy(() => PipelineSegmentDataMaxOrderByAggregateInputSchema).optional(),
+  _min: z.lazy(() => PipelineSegmentDataMinOrderByAggregateInputSchema).optional(),
+  _sum: z.lazy(() => PipelineSegmentDataSumOrderByAggregateInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentDataScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.PipelineSegmentDataScalarWhereWithAggregatesInput> = z.object({
+  AND: z.union([ z.lazy(() => PipelineSegmentDataScalarWhereWithAggregatesInputSchema),z.lazy(() => PipelineSegmentDataScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  OR: z.lazy(() => PipelineSegmentDataScalarWhereWithAggregatesInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => PipelineSegmentDataScalarWhereWithAggregatesInputSchema),z.lazy(() => PipelineSegmentDataScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => IntWithAggregatesFilterSchema),z.number() ]).optional(),
+  pipelineId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  segmentId: z.union([ z.lazy(() => IntWithAggregatesFilterSchema),z.number() ]).optional(),
+  completedAt: z.union([ z.lazy(() => DateTimeNullableWithAggregatesFilterSchema),z.coerce.date() ]).optional().nullable(),
+  notes: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
+  createdAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
+}).strict();
+
+export const LeadWhereInputSchema: z.ZodType<Prisma.LeadWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => LeadWhereInputSchema),z.lazy(() => LeadWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => LeadWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => LeadWhereInputSchema),z.lazy(() => LeadWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  title: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  capitalValue: z.union([ z.lazy(() => IntNullableFilterSchema),z.number() ]).optional().nullable(),
+  contactName: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  companyName: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  avatarURL: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  addedOn: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  dueDate: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
+  status: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  leadType: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  pipelineStage: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  isArchived: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
+  source: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  tags: z.lazy(() => StringNullableListFilterSchema).optional(),
+  createdById: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  pipelineId: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  segmentId: z.union([ z.lazy(() => IntNullableFilterSchema),z.number() ]).optional().nullable(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  createdBy: z.union([ z.lazy(() => UserScalarRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
+  pipeline: z.union([ z.lazy(() => PipelineNullableScalarRelationFilterSchema),z.lazy(() => PipelineWhereInputSchema) ]).optional().nullable(),
+  segment: z.union([ z.lazy(() => PipelineSegmentNullableScalarRelationFilterSchema),z.lazy(() => PipelineSegmentWhereInputSchema) ]).optional().nullable(),
+}).strict();
+
+export const LeadOrderByWithRelationInputSchema: z.ZodType<Prisma.LeadOrderByWithRelationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  title: z.lazy(() => SortOrderSchema).optional(),
+  description: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  capitalValue: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  contactName: z.lazy(() => SortOrderSchema).optional(),
+  companyName: z.lazy(() => SortOrderSchema).optional(),
+  avatarURL: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  addedOn: z.lazy(() => SortOrderSchema).optional(),
+  dueDate: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  leadType: z.lazy(() => SortOrderSchema).optional(),
+  pipelineStage: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  isArchived: z.lazy(() => SortOrderSchema).optional(),
+  source: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  tags: z.lazy(() => SortOrderSchema).optional(),
+  createdById: z.lazy(() => SortOrderSchema).optional(),
+  pipelineId: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  segmentId: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  createdBy: z.lazy(() => UserOrderByWithRelationInputSchema).optional(),
+  pipeline: z.lazy(() => PipelineOrderByWithRelationInputSchema).optional(),
+  segment: z.lazy(() => PipelineSegmentOrderByWithRelationInputSchema).optional()
+}).strict();
+
+export const LeadWhereUniqueInputSchema: z.ZodType<Prisma.LeadWhereUniqueInput> = z.object({
+  id: z.string().cuid()
+})
+.and(z.object({
+  id: z.string().cuid().optional(),
+  AND: z.union([ z.lazy(() => LeadWhereInputSchema),z.lazy(() => LeadWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => LeadWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => LeadWhereInputSchema),z.lazy(() => LeadWhereInputSchema).array() ]).optional(),
+  title: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  capitalValue: z.union([ z.lazy(() => IntNullableFilterSchema),z.number().int() ]).optional().nullable(),
+  contactName: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  companyName: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  avatarURL: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  addedOn: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  dueDate: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
+  status: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  leadType: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  pipelineStage: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  isArchived: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
+  source: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  tags: z.lazy(() => StringNullableListFilterSchema).optional(),
+  createdById: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  pipelineId: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  segmentId: z.union([ z.lazy(() => IntNullableFilterSchema),z.number().int() ]).optional().nullable(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  createdBy: z.union([ z.lazy(() => UserScalarRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
+  pipeline: z.union([ z.lazy(() => PipelineNullableScalarRelationFilterSchema),z.lazy(() => PipelineWhereInputSchema) ]).optional().nullable(),
+  segment: z.union([ z.lazy(() => PipelineSegmentNullableScalarRelationFilterSchema),z.lazy(() => PipelineSegmentWhereInputSchema) ]).optional().nullable(),
+}).strict());
+
+export const LeadOrderByWithAggregationInputSchema: z.ZodType<Prisma.LeadOrderByWithAggregationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  title: z.lazy(() => SortOrderSchema).optional(),
+  description: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  capitalValue: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  contactName: z.lazy(() => SortOrderSchema).optional(),
+  companyName: z.lazy(() => SortOrderSchema).optional(),
+  avatarURL: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  addedOn: z.lazy(() => SortOrderSchema).optional(),
+  dueDate: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  leadType: z.lazy(() => SortOrderSchema).optional(),
+  pipelineStage: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  isArchived: z.lazy(() => SortOrderSchema).optional(),
+  source: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  tags: z.lazy(() => SortOrderSchema).optional(),
+  createdById: z.lazy(() => SortOrderSchema).optional(),
+  pipelineId: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  segmentId: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  _count: z.lazy(() => LeadCountOrderByAggregateInputSchema).optional(),
+  _avg: z.lazy(() => LeadAvgOrderByAggregateInputSchema).optional(),
+  _max: z.lazy(() => LeadMaxOrderByAggregateInputSchema).optional(),
+  _min: z.lazy(() => LeadMinOrderByAggregateInputSchema).optional(),
+  _sum: z.lazy(() => LeadSumOrderByAggregateInputSchema).optional()
+}).strict();
+
+export const LeadScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.LeadScalarWhereWithAggregatesInput> = z.object({
+  AND: z.union([ z.lazy(() => LeadScalarWhereWithAggregatesInputSchema),z.lazy(() => LeadScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  OR: z.lazy(() => LeadScalarWhereWithAggregatesInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => LeadScalarWhereWithAggregatesInputSchema),z.lazy(() => LeadScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  title: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
+  capitalValue: z.union([ z.lazy(() => IntNullableWithAggregatesFilterSchema),z.number() ]).optional().nullable(),
+  contactName: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  companyName: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  avatarURL: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
+  addedOn: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
+  dueDate: z.union([ z.lazy(() => DateTimeNullableWithAggregatesFilterSchema),z.coerce.date() ]).optional().nullable(),
+  status: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  leadType: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  pipelineStage: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
+  isArchived: z.union([ z.lazy(() => BoolWithAggregatesFilterSchema),z.boolean() ]).optional(),
+  source: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
+  tags: z.lazy(() => StringNullableListFilterSchema).optional(),
+  createdById: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  pipelineId: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
+  segmentId: z.union([ z.lazy(() => IntNullableWithAggregatesFilterSchema),z.number() ]).optional().nullable(),
+  createdAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
 }).strict();
 
 export const PostCreateInputSchema: z.ZodType<Prisma.PostCreateInput> = z.object({
@@ -951,7 +1544,9 @@ export const UserCreateInputSchema: z.ZodType<Prisma.UserCreateInput> = z.object
   accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
   posts: z.lazy(() => PostCreateNestedManyWithoutCreatedByInputSchema).optional(),
-  tasks: z.lazy(() => TaskCreateNestedManyWithoutCreatedByInputSchema).optional()
+  tasks: z.lazy(() => TaskCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Lead: z.lazy(() => LeadCreateNestedManyWithoutCreatedByInputSchema).optional()
 }).strict();
 
 export const UserUncheckedCreateInputSchema: z.ZodType<Prisma.UserUncheckedCreateInput> = z.object({
@@ -963,7 +1558,9 @@ export const UserUncheckedCreateInputSchema: z.ZodType<Prisma.UserUncheckedCreat
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   posts: z.lazy(() => PostUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
-  tasks: z.lazy(() => TaskUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional()
+  tasks: z.lazy(() => TaskUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional()
 }).strict();
 
 export const UserUpdateInputSchema: z.ZodType<Prisma.UserUpdateInput> = z.object({
@@ -975,7 +1572,9 @@ export const UserUpdateInputSchema: z.ZodType<Prisma.UserUpdateInput> = z.object
   accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
   posts: z.lazy(() => PostUpdateManyWithoutCreatedByNestedInputSchema).optional(),
-  tasks: z.lazy(() => TaskUpdateManyWithoutCreatedByNestedInputSchema).optional()
+  tasks: z.lazy(() => TaskUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUpdateManyWithoutCreatedByNestedInputSchema).optional()
 }).strict();
 
 export const UserUncheckedUpdateInputSchema: z.ZodType<Prisma.UserUncheckedUpdateInput> = z.object({
@@ -987,7 +1586,9 @@ export const UserUncheckedUpdateInputSchema: z.ZodType<Prisma.UserUncheckedUpdat
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   posts: z.lazy(() => PostUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
-  tasks: z.lazy(() => TaskUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional()
+  tasks: z.lazy(() => TaskUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional()
 }).strict();
 
 export const UserCreateManyInputSchema: z.ZodType<Prisma.UserCreateManyInput> = z.object({
@@ -1134,6 +1735,349 @@ export const TaskUncheckedUpdateManyInputSchema: z.ZodType<Prisma.TaskUncheckedU
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   createdById: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const PipelineCreateInputSchema: z.ZodType<Prisma.PipelineCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  createdBy: z.lazy(() => UserCreateNestedOneWithoutPipelineInputSchema),
+  segmentData: z.lazy(() => PipelineSegmentDataCreateNestedManyWithoutPipelineInputSchema).optional(),
+  segments: z.lazy(() => PipelineSegmentCreateNestedManyWithoutPipelineInputSchema).optional(),
+  Lead: z.lazy(() => LeadCreateNestedManyWithoutPipelineInputSchema).optional()
+}).strict();
+
+export const PipelineUncheckedCreateInputSchema: z.ZodType<Prisma.PipelineUncheckedCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  createdById: z.string(),
+  segmentData: z.lazy(() => PipelineSegmentDataUncheckedCreateNestedManyWithoutPipelineInputSchema).optional(),
+  segments: z.lazy(() => PipelineSegmentUncheckedCreateNestedManyWithoutPipelineInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedCreateNestedManyWithoutPipelineInputSchema).optional()
+}).strict();
+
+export const PipelineUpdateInputSchema: z.ZodType<Prisma.PipelineUpdateInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  createdBy: z.lazy(() => UserUpdateOneRequiredWithoutPipelineNestedInputSchema).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataUpdateManyWithoutPipelineNestedInputSchema).optional(),
+  segments: z.lazy(() => PipelineSegmentUpdateManyWithoutPipelineNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUpdateManyWithoutPipelineNestedInputSchema).optional()
+}).strict();
+
+export const PipelineUncheckedUpdateInputSchema: z.ZodType<Prisma.PipelineUncheckedUpdateInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  createdById: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataUncheckedUpdateManyWithoutPipelineNestedInputSchema).optional(),
+  segments: z.lazy(() => PipelineSegmentUncheckedUpdateManyWithoutPipelineNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedUpdateManyWithoutPipelineNestedInputSchema).optional()
+}).strict();
+
+export const PipelineCreateManyInputSchema: z.ZodType<Prisma.PipelineCreateManyInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  createdById: z.string()
+}).strict();
+
+export const PipelineUpdateManyMutationInputSchema: z.ZodType<Prisma.PipelineUpdateManyMutationInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const PipelineUncheckedUpdateManyInputSchema: z.ZodType<Prisma.PipelineUncheckedUpdateManyInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  createdById: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const PipelineSegmentCreateInputSchema: z.ZodType<Prisma.PipelineSegmentCreateInput> = z.object({
+  name: z.string(),
+  deleted: z.boolean().optional(),
+  pipeline: z.lazy(() => PipelineCreateNestedOneWithoutSegmentsInputSchema),
+  segmentData: z.lazy(() => PipelineSegmentDataCreateNestedManyWithoutSegmentInputSchema).optional(),
+  Lead: z.lazy(() => LeadCreateNestedManyWithoutSegmentInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentUncheckedCreateInputSchema: z.ZodType<Prisma.PipelineSegmentUncheckedCreateInput> = z.object({
+  id: z.number().int().optional(),
+  name: z.string(),
+  deleted: z.boolean().optional(),
+  pipelineId: z.string(),
+  segmentData: z.lazy(() => PipelineSegmentDataUncheckedCreateNestedManyWithoutSegmentInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedCreateNestedManyWithoutSegmentInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentUpdateInputSchema: z.ZodType<Prisma.PipelineSegmentUpdateInput> = z.object({
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  deleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  pipeline: z.lazy(() => PipelineUpdateOneRequiredWithoutSegmentsNestedInputSchema).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataUpdateManyWithoutSegmentNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUpdateManyWithoutSegmentNestedInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentUncheckedUpdateInputSchema: z.ZodType<Prisma.PipelineSegmentUncheckedUpdateInput> = z.object({
+  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  deleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataUncheckedUpdateManyWithoutSegmentNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedUpdateManyWithoutSegmentNestedInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentCreateManyInputSchema: z.ZodType<Prisma.PipelineSegmentCreateManyInput> = z.object({
+  id: z.number().int().optional(),
+  name: z.string(),
+  deleted: z.boolean().optional(),
+  pipelineId: z.string()
+}).strict();
+
+export const PipelineSegmentUpdateManyMutationInputSchema: z.ZodType<Prisma.PipelineSegmentUpdateManyMutationInput> = z.object({
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  deleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const PipelineSegmentUncheckedUpdateManyInputSchema: z.ZodType<Prisma.PipelineSegmentUncheckedUpdateManyInput> = z.object({
+  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  deleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const PipelineSegmentDataCreateInputSchema: z.ZodType<Prisma.PipelineSegmentDataCreateInput> = z.object({
+  completedAt: z.coerce.date().optional().nullable(),
+  notes: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  pipeline: z.lazy(() => PipelineCreateNestedOneWithoutSegmentDataInputSchema),
+  segment: z.lazy(() => PipelineSegmentCreateNestedOneWithoutSegmentDataInputSchema)
+}).strict();
+
+export const PipelineSegmentDataUncheckedCreateInputSchema: z.ZodType<Prisma.PipelineSegmentDataUncheckedCreateInput> = z.object({
+  id: z.number().int().optional(),
+  pipelineId: z.string(),
+  segmentId: z.number().int(),
+  completedAt: z.coerce.date().optional().nullable(),
+  notes: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const PipelineSegmentDataUpdateInputSchema: z.ZodType<Prisma.PipelineSegmentDataUpdateInput> = z.object({
+  completedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  notes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  pipeline: z.lazy(() => PipelineUpdateOneRequiredWithoutSegmentDataNestedInputSchema).optional(),
+  segment: z.lazy(() => PipelineSegmentUpdateOneRequiredWithoutSegmentDataNestedInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentDataUncheckedUpdateInputSchema: z.ZodType<Prisma.PipelineSegmentDataUncheckedUpdateInput> = z.object({
+  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  segmentId: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  completedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  notes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const PipelineSegmentDataCreateManyInputSchema: z.ZodType<Prisma.PipelineSegmentDataCreateManyInput> = z.object({
+  id: z.number().int().optional(),
+  pipelineId: z.string(),
+  segmentId: z.number().int(),
+  completedAt: z.coerce.date().optional().nullable(),
+  notes: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const PipelineSegmentDataUpdateManyMutationInputSchema: z.ZodType<Prisma.PipelineSegmentDataUpdateManyMutationInput> = z.object({
+  completedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  notes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const PipelineSegmentDataUncheckedUpdateManyInputSchema: z.ZodType<Prisma.PipelineSegmentDataUncheckedUpdateManyInput> = z.object({
+  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  segmentId: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  completedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  notes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const LeadCreateInputSchema: z.ZodType<Prisma.LeadCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  title: z.string(),
+  description: z.string().optional().nullable(),
+  capitalValue: z.number().int().optional().nullable(),
+  contactName: z.string(),
+  companyName: z.string(),
+  avatarURL: z.string().optional().nullable(),
+  addedOn: z.coerce.date().optional(),
+  dueDate: z.coerce.date().optional().nullable(),
+  status: z.string().optional(),
+  leadType: z.string().optional(),
+  pipelineStage: z.string().optional().nullable(),
+  isArchived: z.boolean().optional(),
+  source: z.string().optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadCreatetagsInputSchema),z.string().array() ]).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  createdBy: z.lazy(() => UserCreateNestedOneWithoutLeadInputSchema),
+  pipeline: z.lazy(() => PipelineCreateNestedOneWithoutLeadInputSchema).optional(),
+  segment: z.lazy(() => PipelineSegmentCreateNestedOneWithoutLeadInputSchema).optional()
+}).strict();
+
+export const LeadUncheckedCreateInputSchema: z.ZodType<Prisma.LeadUncheckedCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  title: z.string(),
+  description: z.string().optional().nullable(),
+  capitalValue: z.number().int().optional().nullable(),
+  contactName: z.string(),
+  companyName: z.string(),
+  avatarURL: z.string().optional().nullable(),
+  addedOn: z.coerce.date().optional(),
+  dueDate: z.coerce.date().optional().nullable(),
+  status: z.string().optional(),
+  leadType: z.string().optional(),
+  pipelineStage: z.string().optional().nullable(),
+  isArchived: z.boolean().optional(),
+  source: z.string().optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadCreatetagsInputSchema),z.string().array() ]).optional(),
+  createdById: z.string(),
+  pipelineId: z.string().optional().nullable(),
+  segmentId: z.number().int().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const LeadUpdateInputSchema: z.ZodType<Prisma.LeadUpdateInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  capitalValue: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  contactName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  companyName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  avatarURL: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  addedOn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  dueDate: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  leadType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineStage: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  isArchived: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  source: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadUpdatetagsInputSchema),z.string().array() ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  createdBy: z.lazy(() => UserUpdateOneRequiredWithoutLeadNestedInputSchema).optional(),
+  pipeline: z.lazy(() => PipelineUpdateOneWithoutLeadNestedInputSchema).optional(),
+  segment: z.lazy(() => PipelineSegmentUpdateOneWithoutLeadNestedInputSchema).optional()
+}).strict();
+
+export const LeadUncheckedUpdateInputSchema: z.ZodType<Prisma.LeadUncheckedUpdateInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  capitalValue: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  contactName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  companyName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  avatarURL: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  addedOn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  dueDate: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  leadType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineStage: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  isArchived: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  source: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadUpdatetagsInputSchema),z.string().array() ]).optional(),
+  createdById: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  segmentId: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const LeadCreateManyInputSchema: z.ZodType<Prisma.LeadCreateManyInput> = z.object({
+  id: z.string().cuid().optional(),
+  title: z.string(),
+  description: z.string().optional().nullable(),
+  capitalValue: z.number().int().optional().nullable(),
+  contactName: z.string(),
+  companyName: z.string(),
+  avatarURL: z.string().optional().nullable(),
+  addedOn: z.coerce.date().optional(),
+  dueDate: z.coerce.date().optional().nullable(),
+  status: z.string().optional(),
+  leadType: z.string().optional(),
+  pipelineStage: z.string().optional().nullable(),
+  isArchived: z.boolean().optional(),
+  source: z.string().optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadCreatetagsInputSchema),z.string().array() ]).optional(),
+  createdById: z.string(),
+  pipelineId: z.string().optional().nullable(),
+  segmentId: z.number().int().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const LeadUpdateManyMutationInputSchema: z.ZodType<Prisma.LeadUpdateManyMutationInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  capitalValue: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  contactName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  companyName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  avatarURL: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  addedOn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  dueDate: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  leadType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineStage: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  isArchived: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  source: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadUpdatetagsInputSchema),z.string().array() ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const LeadUncheckedUpdateManyInputSchema: z.ZodType<Prisma.LeadUncheckedUpdateManyInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  capitalValue: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  contactName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  companyName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  avatarURL: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  addedOn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  dueDate: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  leadType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineStage: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  isArchived: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  source: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadUpdatetagsInputSchema),z.string().array() ]).optional(),
+  createdById: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  segmentId: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const IntFilterSchema: z.ZodType<Prisma.IntFilter> = z.object({
@@ -1442,6 +2386,18 @@ export const TaskListRelationFilterSchema: z.ZodType<Prisma.TaskListRelationFilt
   none: z.lazy(() => TaskWhereInputSchema).optional()
 }).strict();
 
+export const PipelineListRelationFilterSchema: z.ZodType<Prisma.PipelineListRelationFilter> = z.object({
+  every: z.lazy(() => PipelineWhereInputSchema).optional(),
+  some: z.lazy(() => PipelineWhereInputSchema).optional(),
+  none: z.lazy(() => PipelineWhereInputSchema).optional()
+}).strict();
+
+export const LeadListRelationFilterSchema: z.ZodType<Prisma.LeadListRelationFilter> = z.object({
+  every: z.lazy(() => LeadWhereInputSchema).optional(),
+  some: z.lazy(() => LeadWhereInputSchema).optional(),
+  none: z.lazy(() => LeadWhereInputSchema).optional()
+}).strict();
+
 export const AccountOrderByRelationAggregateInputSchema: z.ZodType<Prisma.AccountOrderByRelationAggregateInput> = z.object({
   _count: z.lazy(() => SortOrderSchema).optional()
 }).strict();
@@ -1455,6 +2411,14 @@ export const PostOrderByRelationAggregateInputSchema: z.ZodType<Prisma.PostOrder
 }).strict();
 
 export const TaskOrderByRelationAggregateInputSchema: z.ZodType<Prisma.TaskOrderByRelationAggregateInput> = z.object({
+  _count: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const PipelineOrderByRelationAggregateInputSchema: z.ZodType<Prisma.PipelineOrderByRelationAggregateInput> = z.object({
+  _count: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const LeadOrderByRelationAggregateInputSchema: z.ZodType<Prisma.LeadOrderByRelationAggregateInput> = z.object({
   _count: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
@@ -1597,6 +2561,247 @@ export const EnumTaskPriorityWithAggregatesFilterSchema: z.ZodType<Prisma.EnumTa
   _max: z.lazy(() => NestedEnumTaskPriorityFilterSchema).optional()
 }).strict();
 
+export const PipelineSegmentDataListRelationFilterSchema: z.ZodType<Prisma.PipelineSegmentDataListRelationFilter> = z.object({
+  every: z.lazy(() => PipelineSegmentDataWhereInputSchema).optional(),
+  some: z.lazy(() => PipelineSegmentDataWhereInputSchema).optional(),
+  none: z.lazy(() => PipelineSegmentDataWhereInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentListRelationFilterSchema: z.ZodType<Prisma.PipelineSegmentListRelationFilter> = z.object({
+  every: z.lazy(() => PipelineSegmentWhereInputSchema).optional(),
+  some: z.lazy(() => PipelineSegmentWhereInputSchema).optional(),
+  none: z.lazy(() => PipelineSegmentWhereInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentDataOrderByRelationAggregateInputSchema: z.ZodType<Prisma.PipelineSegmentDataOrderByRelationAggregateInput> = z.object({
+  _count: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const PipelineSegmentOrderByRelationAggregateInputSchema: z.ZodType<Prisma.PipelineSegmentOrderByRelationAggregateInput> = z.object({
+  _count: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const PipelineCountOrderByAggregateInputSchema: z.ZodType<Prisma.PipelineCountOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  createdById: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const PipelineMaxOrderByAggregateInputSchema: z.ZodType<Prisma.PipelineMaxOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  createdById: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const PipelineMinOrderByAggregateInputSchema: z.ZodType<Prisma.PipelineMinOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  createdById: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const BoolFilterSchema: z.ZodType<Prisma.BoolFilter> = z.object({
+  equals: z.boolean().optional(),
+  not: z.union([ z.boolean(),z.lazy(() => NestedBoolFilterSchema) ]).optional(),
+}).strict();
+
+export const PipelineScalarRelationFilterSchema: z.ZodType<Prisma.PipelineScalarRelationFilter> = z.object({
+  is: z.lazy(() => PipelineWhereInputSchema).optional(),
+  isNot: z.lazy(() => PipelineWhereInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentPipelineIdNameCompoundUniqueInputSchema: z.ZodType<Prisma.PipelineSegmentPipelineIdNameCompoundUniqueInput> = z.object({
+  pipelineId: z.string(),
+  name: z.string()
+}).strict();
+
+export const PipelineSegmentCountOrderByAggregateInputSchema: z.ZodType<Prisma.PipelineSegmentCountOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  deleted: z.lazy(() => SortOrderSchema).optional(),
+  pipelineId: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const PipelineSegmentAvgOrderByAggregateInputSchema: z.ZodType<Prisma.PipelineSegmentAvgOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const PipelineSegmentMaxOrderByAggregateInputSchema: z.ZodType<Prisma.PipelineSegmentMaxOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  deleted: z.lazy(() => SortOrderSchema).optional(),
+  pipelineId: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const PipelineSegmentMinOrderByAggregateInputSchema: z.ZodType<Prisma.PipelineSegmentMinOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  deleted: z.lazy(() => SortOrderSchema).optional(),
+  pipelineId: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const PipelineSegmentSumOrderByAggregateInputSchema: z.ZodType<Prisma.PipelineSegmentSumOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const BoolWithAggregatesFilterSchema: z.ZodType<Prisma.BoolWithAggregatesFilter> = z.object({
+  equals: z.boolean().optional(),
+  not: z.union([ z.boolean(),z.lazy(() => NestedBoolWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedBoolFilterSchema).optional(),
+  _max: z.lazy(() => NestedBoolFilterSchema).optional()
+}).strict();
+
+export const PipelineSegmentScalarRelationFilterSchema: z.ZodType<Prisma.PipelineSegmentScalarRelationFilter> = z.object({
+  is: z.lazy(() => PipelineSegmentWhereInputSchema).optional(),
+  isNot: z.lazy(() => PipelineSegmentWhereInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentDataPipelineIdSegmentIdCompoundUniqueInputSchema: z.ZodType<Prisma.PipelineSegmentDataPipelineIdSegmentIdCompoundUniqueInput> = z.object({
+  pipelineId: z.string(),
+  segmentId: z.number()
+}).strict();
+
+export const PipelineSegmentDataCountOrderByAggregateInputSchema: z.ZodType<Prisma.PipelineSegmentDataCountOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  pipelineId: z.lazy(() => SortOrderSchema).optional(),
+  segmentId: z.lazy(() => SortOrderSchema).optional(),
+  completedAt: z.lazy(() => SortOrderSchema).optional(),
+  notes: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const PipelineSegmentDataAvgOrderByAggregateInputSchema: z.ZodType<Prisma.PipelineSegmentDataAvgOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  segmentId: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const PipelineSegmentDataMaxOrderByAggregateInputSchema: z.ZodType<Prisma.PipelineSegmentDataMaxOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  pipelineId: z.lazy(() => SortOrderSchema).optional(),
+  segmentId: z.lazy(() => SortOrderSchema).optional(),
+  completedAt: z.lazy(() => SortOrderSchema).optional(),
+  notes: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const PipelineSegmentDataMinOrderByAggregateInputSchema: z.ZodType<Prisma.PipelineSegmentDataMinOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  pipelineId: z.lazy(() => SortOrderSchema).optional(),
+  segmentId: z.lazy(() => SortOrderSchema).optional(),
+  completedAt: z.lazy(() => SortOrderSchema).optional(),
+  notes: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const PipelineSegmentDataSumOrderByAggregateInputSchema: z.ZodType<Prisma.PipelineSegmentDataSumOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  segmentId: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const StringNullableListFilterSchema: z.ZodType<Prisma.StringNullableListFilter> = z.object({
+  equals: z.string().array().optional().nullable(),
+  has: z.string().optional().nullable(),
+  hasEvery: z.string().array().optional(),
+  hasSome: z.string().array().optional(),
+  isEmpty: z.boolean().optional()
+}).strict();
+
+export const PipelineNullableScalarRelationFilterSchema: z.ZodType<Prisma.PipelineNullableScalarRelationFilter> = z.object({
+  is: z.lazy(() => PipelineWhereInputSchema).optional().nullable(),
+  isNot: z.lazy(() => PipelineWhereInputSchema).optional().nullable()
+}).strict();
+
+export const PipelineSegmentNullableScalarRelationFilterSchema: z.ZodType<Prisma.PipelineSegmentNullableScalarRelationFilter> = z.object({
+  is: z.lazy(() => PipelineSegmentWhereInputSchema).optional().nullable(),
+  isNot: z.lazy(() => PipelineSegmentWhereInputSchema).optional().nullable()
+}).strict();
+
+export const LeadCountOrderByAggregateInputSchema: z.ZodType<Prisma.LeadCountOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  title: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+  capitalValue: z.lazy(() => SortOrderSchema).optional(),
+  contactName: z.lazy(() => SortOrderSchema).optional(),
+  companyName: z.lazy(() => SortOrderSchema).optional(),
+  avatarURL: z.lazy(() => SortOrderSchema).optional(),
+  addedOn: z.lazy(() => SortOrderSchema).optional(),
+  dueDate: z.lazy(() => SortOrderSchema).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  leadType: z.lazy(() => SortOrderSchema).optional(),
+  pipelineStage: z.lazy(() => SortOrderSchema).optional(),
+  isArchived: z.lazy(() => SortOrderSchema).optional(),
+  source: z.lazy(() => SortOrderSchema).optional(),
+  tags: z.lazy(() => SortOrderSchema).optional(),
+  createdById: z.lazy(() => SortOrderSchema).optional(),
+  pipelineId: z.lazy(() => SortOrderSchema).optional(),
+  segmentId: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const LeadAvgOrderByAggregateInputSchema: z.ZodType<Prisma.LeadAvgOrderByAggregateInput> = z.object({
+  capitalValue: z.lazy(() => SortOrderSchema).optional(),
+  segmentId: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const LeadMaxOrderByAggregateInputSchema: z.ZodType<Prisma.LeadMaxOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  title: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+  capitalValue: z.lazy(() => SortOrderSchema).optional(),
+  contactName: z.lazy(() => SortOrderSchema).optional(),
+  companyName: z.lazy(() => SortOrderSchema).optional(),
+  avatarURL: z.lazy(() => SortOrderSchema).optional(),
+  addedOn: z.lazy(() => SortOrderSchema).optional(),
+  dueDate: z.lazy(() => SortOrderSchema).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  leadType: z.lazy(() => SortOrderSchema).optional(),
+  pipelineStage: z.lazy(() => SortOrderSchema).optional(),
+  isArchived: z.lazy(() => SortOrderSchema).optional(),
+  source: z.lazy(() => SortOrderSchema).optional(),
+  createdById: z.lazy(() => SortOrderSchema).optional(),
+  pipelineId: z.lazy(() => SortOrderSchema).optional(),
+  segmentId: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const LeadMinOrderByAggregateInputSchema: z.ZodType<Prisma.LeadMinOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  title: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+  capitalValue: z.lazy(() => SortOrderSchema).optional(),
+  contactName: z.lazy(() => SortOrderSchema).optional(),
+  companyName: z.lazy(() => SortOrderSchema).optional(),
+  avatarURL: z.lazy(() => SortOrderSchema).optional(),
+  addedOn: z.lazy(() => SortOrderSchema).optional(),
+  dueDate: z.lazy(() => SortOrderSchema).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
+  leadType: z.lazy(() => SortOrderSchema).optional(),
+  pipelineStage: z.lazy(() => SortOrderSchema).optional(),
+  isArchived: z.lazy(() => SortOrderSchema).optional(),
+  source: z.lazy(() => SortOrderSchema).optional(),
+  createdById: z.lazy(() => SortOrderSchema).optional(),
+  pipelineId: z.lazy(() => SortOrderSchema).optional(),
+  segmentId: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const LeadSumOrderByAggregateInputSchema: z.ZodType<Prisma.LeadSumOrderByAggregateInput> = z.object({
+  capitalValue: z.lazy(() => SortOrderSchema).optional(),
+  segmentId: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
 export const UserCreateNestedOneWithoutPostsInputSchema: z.ZodType<Prisma.UserCreateNestedOneWithoutPostsInput> = z.object({
   create: z.union([ z.lazy(() => UserCreateWithoutPostsInputSchema),z.lazy(() => UserUncheckedCreateWithoutPostsInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutPostsInputSchema).optional(),
@@ -1695,6 +2900,20 @@ export const TaskCreateNestedManyWithoutCreatedByInputSchema: z.ZodType<Prisma.T
   connect: z.union([ z.lazy(() => TaskWhereUniqueInputSchema),z.lazy(() => TaskWhereUniqueInputSchema).array() ]).optional(),
 }).strict();
 
+export const PipelineCreateNestedManyWithoutCreatedByInputSchema: z.ZodType<Prisma.PipelineCreateNestedManyWithoutCreatedByInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineCreateWithoutCreatedByInputSchema),z.lazy(() => PipelineCreateWithoutCreatedByInputSchema).array(),z.lazy(() => PipelineUncheckedCreateWithoutCreatedByInputSchema),z.lazy(() => PipelineUncheckedCreateWithoutCreatedByInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PipelineCreateOrConnectWithoutCreatedByInputSchema),z.lazy(() => PipelineCreateOrConnectWithoutCreatedByInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PipelineCreateManyCreatedByInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => PipelineWhereUniqueInputSchema),z.lazy(() => PipelineWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const LeadCreateNestedManyWithoutCreatedByInputSchema: z.ZodType<Prisma.LeadCreateNestedManyWithoutCreatedByInput> = z.object({
+  create: z.union([ z.lazy(() => LeadCreateWithoutCreatedByInputSchema),z.lazy(() => LeadCreateWithoutCreatedByInputSchema).array(),z.lazy(() => LeadUncheckedCreateWithoutCreatedByInputSchema),z.lazy(() => LeadUncheckedCreateWithoutCreatedByInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => LeadCreateOrConnectWithoutCreatedByInputSchema),z.lazy(() => LeadCreateOrConnectWithoutCreatedByInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => LeadCreateManyCreatedByInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
 export const AccountUncheckedCreateNestedManyWithoutUserInputSchema: z.ZodType<Prisma.AccountUncheckedCreateNestedManyWithoutUserInput> = z.object({
   create: z.union([ z.lazy(() => AccountCreateWithoutUserInputSchema),z.lazy(() => AccountCreateWithoutUserInputSchema).array(),z.lazy(() => AccountUncheckedCreateWithoutUserInputSchema),z.lazy(() => AccountUncheckedCreateWithoutUserInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => AccountCreateOrConnectWithoutUserInputSchema),z.lazy(() => AccountCreateOrConnectWithoutUserInputSchema).array() ]).optional(),
@@ -1721,6 +2940,20 @@ export const TaskUncheckedCreateNestedManyWithoutCreatedByInputSchema: z.ZodType
   connectOrCreate: z.union([ z.lazy(() => TaskCreateOrConnectWithoutCreatedByInputSchema),z.lazy(() => TaskCreateOrConnectWithoutCreatedByInputSchema).array() ]).optional(),
   createMany: z.lazy(() => TaskCreateManyCreatedByInputEnvelopeSchema).optional(),
   connect: z.union([ z.lazy(() => TaskWhereUniqueInputSchema),z.lazy(() => TaskWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const PipelineUncheckedCreateNestedManyWithoutCreatedByInputSchema: z.ZodType<Prisma.PipelineUncheckedCreateNestedManyWithoutCreatedByInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineCreateWithoutCreatedByInputSchema),z.lazy(() => PipelineCreateWithoutCreatedByInputSchema).array(),z.lazy(() => PipelineUncheckedCreateWithoutCreatedByInputSchema),z.lazy(() => PipelineUncheckedCreateWithoutCreatedByInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PipelineCreateOrConnectWithoutCreatedByInputSchema),z.lazy(() => PipelineCreateOrConnectWithoutCreatedByInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PipelineCreateManyCreatedByInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => PipelineWhereUniqueInputSchema),z.lazy(() => PipelineWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const LeadUncheckedCreateNestedManyWithoutCreatedByInputSchema: z.ZodType<Prisma.LeadUncheckedCreateNestedManyWithoutCreatedByInput> = z.object({
+  create: z.union([ z.lazy(() => LeadCreateWithoutCreatedByInputSchema),z.lazy(() => LeadCreateWithoutCreatedByInputSchema).array(),z.lazy(() => LeadUncheckedCreateWithoutCreatedByInputSchema),z.lazy(() => LeadUncheckedCreateWithoutCreatedByInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => LeadCreateOrConnectWithoutCreatedByInputSchema),z.lazy(() => LeadCreateOrConnectWithoutCreatedByInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => LeadCreateManyCreatedByInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
 }).strict();
 
 export const NullableDateTimeFieldUpdateOperationsInputSchema: z.ZodType<Prisma.NullableDateTimeFieldUpdateOperationsInput> = z.object({
@@ -1783,6 +3016,34 @@ export const TaskUpdateManyWithoutCreatedByNestedInputSchema: z.ZodType<Prisma.T
   deleteMany: z.union([ z.lazy(() => TaskScalarWhereInputSchema),z.lazy(() => TaskScalarWhereInputSchema).array() ]).optional(),
 }).strict();
 
+export const PipelineUpdateManyWithoutCreatedByNestedInputSchema: z.ZodType<Prisma.PipelineUpdateManyWithoutCreatedByNestedInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineCreateWithoutCreatedByInputSchema),z.lazy(() => PipelineCreateWithoutCreatedByInputSchema).array(),z.lazy(() => PipelineUncheckedCreateWithoutCreatedByInputSchema),z.lazy(() => PipelineUncheckedCreateWithoutCreatedByInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PipelineCreateOrConnectWithoutCreatedByInputSchema),z.lazy(() => PipelineCreateOrConnectWithoutCreatedByInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => PipelineUpsertWithWhereUniqueWithoutCreatedByInputSchema),z.lazy(() => PipelineUpsertWithWhereUniqueWithoutCreatedByInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PipelineCreateManyCreatedByInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => PipelineWhereUniqueInputSchema),z.lazy(() => PipelineWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => PipelineWhereUniqueInputSchema),z.lazy(() => PipelineWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => PipelineWhereUniqueInputSchema),z.lazy(() => PipelineWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => PipelineWhereUniqueInputSchema),z.lazy(() => PipelineWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => PipelineUpdateWithWhereUniqueWithoutCreatedByInputSchema),z.lazy(() => PipelineUpdateWithWhereUniqueWithoutCreatedByInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => PipelineUpdateManyWithWhereWithoutCreatedByInputSchema),z.lazy(() => PipelineUpdateManyWithWhereWithoutCreatedByInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => PipelineScalarWhereInputSchema),z.lazy(() => PipelineScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const LeadUpdateManyWithoutCreatedByNestedInputSchema: z.ZodType<Prisma.LeadUpdateManyWithoutCreatedByNestedInput> = z.object({
+  create: z.union([ z.lazy(() => LeadCreateWithoutCreatedByInputSchema),z.lazy(() => LeadCreateWithoutCreatedByInputSchema).array(),z.lazy(() => LeadUncheckedCreateWithoutCreatedByInputSchema),z.lazy(() => LeadUncheckedCreateWithoutCreatedByInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => LeadCreateOrConnectWithoutCreatedByInputSchema),z.lazy(() => LeadCreateOrConnectWithoutCreatedByInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => LeadUpsertWithWhereUniqueWithoutCreatedByInputSchema),z.lazy(() => LeadUpsertWithWhereUniqueWithoutCreatedByInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => LeadCreateManyCreatedByInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => LeadUpdateWithWhereUniqueWithoutCreatedByInputSchema),z.lazy(() => LeadUpdateWithWhereUniqueWithoutCreatedByInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => LeadUpdateManyWithWhereWithoutCreatedByInputSchema),z.lazy(() => LeadUpdateManyWithWhereWithoutCreatedByInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => LeadScalarWhereInputSchema),z.lazy(() => LeadScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
 export const AccountUncheckedUpdateManyWithoutUserNestedInputSchema: z.ZodType<Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput> = z.object({
   create: z.union([ z.lazy(() => AccountCreateWithoutUserInputSchema),z.lazy(() => AccountCreateWithoutUserInputSchema).array(),z.lazy(() => AccountUncheckedCreateWithoutUserInputSchema),z.lazy(() => AccountUncheckedCreateWithoutUserInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => AccountCreateOrConnectWithoutUserInputSchema),z.lazy(() => AccountCreateOrConnectWithoutUserInputSchema).array() ]).optional(),
@@ -1839,6 +3100,34 @@ export const TaskUncheckedUpdateManyWithoutCreatedByNestedInputSchema: z.ZodType
   deleteMany: z.union([ z.lazy(() => TaskScalarWhereInputSchema),z.lazy(() => TaskScalarWhereInputSchema).array() ]).optional(),
 }).strict();
 
+export const PipelineUncheckedUpdateManyWithoutCreatedByNestedInputSchema: z.ZodType<Prisma.PipelineUncheckedUpdateManyWithoutCreatedByNestedInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineCreateWithoutCreatedByInputSchema),z.lazy(() => PipelineCreateWithoutCreatedByInputSchema).array(),z.lazy(() => PipelineUncheckedCreateWithoutCreatedByInputSchema),z.lazy(() => PipelineUncheckedCreateWithoutCreatedByInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PipelineCreateOrConnectWithoutCreatedByInputSchema),z.lazy(() => PipelineCreateOrConnectWithoutCreatedByInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => PipelineUpsertWithWhereUniqueWithoutCreatedByInputSchema),z.lazy(() => PipelineUpsertWithWhereUniqueWithoutCreatedByInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PipelineCreateManyCreatedByInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => PipelineWhereUniqueInputSchema),z.lazy(() => PipelineWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => PipelineWhereUniqueInputSchema),z.lazy(() => PipelineWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => PipelineWhereUniqueInputSchema),z.lazy(() => PipelineWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => PipelineWhereUniqueInputSchema),z.lazy(() => PipelineWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => PipelineUpdateWithWhereUniqueWithoutCreatedByInputSchema),z.lazy(() => PipelineUpdateWithWhereUniqueWithoutCreatedByInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => PipelineUpdateManyWithWhereWithoutCreatedByInputSchema),z.lazy(() => PipelineUpdateManyWithWhereWithoutCreatedByInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => PipelineScalarWhereInputSchema),z.lazy(() => PipelineScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const LeadUncheckedUpdateManyWithoutCreatedByNestedInputSchema: z.ZodType<Prisma.LeadUncheckedUpdateManyWithoutCreatedByNestedInput> = z.object({
+  create: z.union([ z.lazy(() => LeadCreateWithoutCreatedByInputSchema),z.lazy(() => LeadCreateWithoutCreatedByInputSchema).array(),z.lazy(() => LeadUncheckedCreateWithoutCreatedByInputSchema),z.lazy(() => LeadUncheckedCreateWithoutCreatedByInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => LeadCreateOrConnectWithoutCreatedByInputSchema),z.lazy(() => LeadCreateOrConnectWithoutCreatedByInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => LeadUpsertWithWhereUniqueWithoutCreatedByInputSchema),z.lazy(() => LeadUpsertWithWhereUniqueWithoutCreatedByInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => LeadCreateManyCreatedByInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => LeadUpdateWithWhereUniqueWithoutCreatedByInputSchema),z.lazy(() => LeadUpdateWithWhereUniqueWithoutCreatedByInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => LeadUpdateManyWithWhereWithoutCreatedByInputSchema),z.lazy(() => LeadUpdateManyWithWhereWithoutCreatedByInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => LeadScalarWhereInputSchema),z.lazy(() => LeadScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
 export const UserCreateNestedOneWithoutTasksInputSchema: z.ZodType<Prisma.UserCreateNestedOneWithoutTasksInput> = z.object({
   create: z.union([ z.lazy(() => UserCreateWithoutTasksInputSchema),z.lazy(() => UserUncheckedCreateWithoutTasksInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutTasksInputSchema).optional(),
@@ -1859,6 +3148,331 @@ export const UserUpdateOneRequiredWithoutTasksNestedInputSchema: z.ZodType<Prism
   upsert: z.lazy(() => UserUpsertWithoutTasksInputSchema).optional(),
   connect: z.lazy(() => UserWhereUniqueInputSchema).optional(),
   update: z.union([ z.lazy(() => UserUpdateToOneWithWhereWithoutTasksInputSchema),z.lazy(() => UserUpdateWithoutTasksInputSchema),z.lazy(() => UserUncheckedUpdateWithoutTasksInputSchema) ]).optional(),
+}).strict();
+
+export const UserCreateNestedOneWithoutPipelineInputSchema: z.ZodType<Prisma.UserCreateNestedOneWithoutPipelineInput> = z.object({
+  create: z.union([ z.lazy(() => UserCreateWithoutPipelineInputSchema),z.lazy(() => UserUncheckedCreateWithoutPipelineInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutPipelineInputSchema).optional(),
+  connect: z.lazy(() => UserWhereUniqueInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentDataCreateNestedManyWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentDataCreateNestedManyWithoutPipelineInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineSegmentDataCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataCreateWithoutPipelineInputSchema).array(),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutPipelineInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PipelineSegmentDataCreateOrConnectWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataCreateOrConnectWithoutPipelineInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PipelineSegmentDataCreateManyPipelineInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const PipelineSegmentCreateNestedManyWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentCreateNestedManyWithoutPipelineInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineSegmentCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentCreateWithoutPipelineInputSchema).array(),z.lazy(() => PipelineSegmentUncheckedCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentUncheckedCreateWithoutPipelineInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PipelineSegmentCreateOrConnectWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentCreateOrConnectWithoutPipelineInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PipelineSegmentCreateManyPipelineInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => PipelineSegmentWhereUniqueInputSchema),z.lazy(() => PipelineSegmentWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const LeadCreateNestedManyWithoutPipelineInputSchema: z.ZodType<Prisma.LeadCreateNestedManyWithoutPipelineInput> = z.object({
+  create: z.union([ z.lazy(() => LeadCreateWithoutPipelineInputSchema),z.lazy(() => LeadCreateWithoutPipelineInputSchema).array(),z.lazy(() => LeadUncheckedCreateWithoutPipelineInputSchema),z.lazy(() => LeadUncheckedCreateWithoutPipelineInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => LeadCreateOrConnectWithoutPipelineInputSchema),z.lazy(() => LeadCreateOrConnectWithoutPipelineInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => LeadCreateManyPipelineInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const PipelineSegmentDataUncheckedCreateNestedManyWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentDataUncheckedCreateNestedManyWithoutPipelineInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineSegmentDataCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataCreateWithoutPipelineInputSchema).array(),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutPipelineInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PipelineSegmentDataCreateOrConnectWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataCreateOrConnectWithoutPipelineInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PipelineSegmentDataCreateManyPipelineInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const PipelineSegmentUncheckedCreateNestedManyWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentUncheckedCreateNestedManyWithoutPipelineInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineSegmentCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentCreateWithoutPipelineInputSchema).array(),z.lazy(() => PipelineSegmentUncheckedCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentUncheckedCreateWithoutPipelineInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PipelineSegmentCreateOrConnectWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentCreateOrConnectWithoutPipelineInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PipelineSegmentCreateManyPipelineInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => PipelineSegmentWhereUniqueInputSchema),z.lazy(() => PipelineSegmentWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const LeadUncheckedCreateNestedManyWithoutPipelineInputSchema: z.ZodType<Prisma.LeadUncheckedCreateNestedManyWithoutPipelineInput> = z.object({
+  create: z.union([ z.lazy(() => LeadCreateWithoutPipelineInputSchema),z.lazy(() => LeadCreateWithoutPipelineInputSchema).array(),z.lazy(() => LeadUncheckedCreateWithoutPipelineInputSchema),z.lazy(() => LeadUncheckedCreateWithoutPipelineInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => LeadCreateOrConnectWithoutPipelineInputSchema),z.lazy(() => LeadCreateOrConnectWithoutPipelineInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => LeadCreateManyPipelineInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const UserUpdateOneRequiredWithoutPipelineNestedInputSchema: z.ZodType<Prisma.UserUpdateOneRequiredWithoutPipelineNestedInput> = z.object({
+  create: z.union([ z.lazy(() => UserCreateWithoutPipelineInputSchema),z.lazy(() => UserUncheckedCreateWithoutPipelineInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutPipelineInputSchema).optional(),
+  upsert: z.lazy(() => UserUpsertWithoutPipelineInputSchema).optional(),
+  connect: z.lazy(() => UserWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => UserUpdateToOneWithWhereWithoutPipelineInputSchema),z.lazy(() => UserUpdateWithoutPipelineInputSchema),z.lazy(() => UserUncheckedUpdateWithoutPipelineInputSchema) ]).optional(),
+}).strict();
+
+export const PipelineSegmentDataUpdateManyWithoutPipelineNestedInputSchema: z.ZodType<Prisma.PipelineSegmentDataUpdateManyWithoutPipelineNestedInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineSegmentDataCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataCreateWithoutPipelineInputSchema).array(),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutPipelineInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PipelineSegmentDataCreateOrConnectWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataCreateOrConnectWithoutPipelineInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => PipelineSegmentDataUpsertWithWhereUniqueWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataUpsertWithWhereUniqueWithoutPipelineInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PipelineSegmentDataCreateManyPipelineInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => PipelineSegmentDataUpdateWithWhereUniqueWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataUpdateWithWhereUniqueWithoutPipelineInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => PipelineSegmentDataUpdateManyWithWhereWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataUpdateManyWithWhereWithoutPipelineInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => PipelineSegmentDataScalarWhereInputSchema),z.lazy(() => PipelineSegmentDataScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const PipelineSegmentUpdateManyWithoutPipelineNestedInputSchema: z.ZodType<Prisma.PipelineSegmentUpdateManyWithoutPipelineNestedInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineSegmentCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentCreateWithoutPipelineInputSchema).array(),z.lazy(() => PipelineSegmentUncheckedCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentUncheckedCreateWithoutPipelineInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PipelineSegmentCreateOrConnectWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentCreateOrConnectWithoutPipelineInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => PipelineSegmentUpsertWithWhereUniqueWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentUpsertWithWhereUniqueWithoutPipelineInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PipelineSegmentCreateManyPipelineInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => PipelineSegmentWhereUniqueInputSchema),z.lazy(() => PipelineSegmentWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => PipelineSegmentWhereUniqueInputSchema),z.lazy(() => PipelineSegmentWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => PipelineSegmentWhereUniqueInputSchema),z.lazy(() => PipelineSegmentWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => PipelineSegmentWhereUniqueInputSchema),z.lazy(() => PipelineSegmentWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => PipelineSegmentUpdateWithWhereUniqueWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentUpdateWithWhereUniqueWithoutPipelineInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => PipelineSegmentUpdateManyWithWhereWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentUpdateManyWithWhereWithoutPipelineInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => PipelineSegmentScalarWhereInputSchema),z.lazy(() => PipelineSegmentScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const LeadUpdateManyWithoutPipelineNestedInputSchema: z.ZodType<Prisma.LeadUpdateManyWithoutPipelineNestedInput> = z.object({
+  create: z.union([ z.lazy(() => LeadCreateWithoutPipelineInputSchema),z.lazy(() => LeadCreateWithoutPipelineInputSchema).array(),z.lazy(() => LeadUncheckedCreateWithoutPipelineInputSchema),z.lazy(() => LeadUncheckedCreateWithoutPipelineInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => LeadCreateOrConnectWithoutPipelineInputSchema),z.lazy(() => LeadCreateOrConnectWithoutPipelineInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => LeadUpsertWithWhereUniqueWithoutPipelineInputSchema),z.lazy(() => LeadUpsertWithWhereUniqueWithoutPipelineInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => LeadCreateManyPipelineInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => LeadUpdateWithWhereUniqueWithoutPipelineInputSchema),z.lazy(() => LeadUpdateWithWhereUniqueWithoutPipelineInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => LeadUpdateManyWithWhereWithoutPipelineInputSchema),z.lazy(() => LeadUpdateManyWithWhereWithoutPipelineInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => LeadScalarWhereInputSchema),z.lazy(() => LeadScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const PipelineSegmentDataUncheckedUpdateManyWithoutPipelineNestedInputSchema: z.ZodType<Prisma.PipelineSegmentDataUncheckedUpdateManyWithoutPipelineNestedInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineSegmentDataCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataCreateWithoutPipelineInputSchema).array(),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutPipelineInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PipelineSegmentDataCreateOrConnectWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataCreateOrConnectWithoutPipelineInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => PipelineSegmentDataUpsertWithWhereUniqueWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataUpsertWithWhereUniqueWithoutPipelineInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PipelineSegmentDataCreateManyPipelineInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => PipelineSegmentDataUpdateWithWhereUniqueWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataUpdateWithWhereUniqueWithoutPipelineInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => PipelineSegmentDataUpdateManyWithWhereWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataUpdateManyWithWhereWithoutPipelineInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => PipelineSegmentDataScalarWhereInputSchema),z.lazy(() => PipelineSegmentDataScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const PipelineSegmentUncheckedUpdateManyWithoutPipelineNestedInputSchema: z.ZodType<Prisma.PipelineSegmentUncheckedUpdateManyWithoutPipelineNestedInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineSegmentCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentCreateWithoutPipelineInputSchema).array(),z.lazy(() => PipelineSegmentUncheckedCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentUncheckedCreateWithoutPipelineInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PipelineSegmentCreateOrConnectWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentCreateOrConnectWithoutPipelineInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => PipelineSegmentUpsertWithWhereUniqueWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentUpsertWithWhereUniqueWithoutPipelineInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PipelineSegmentCreateManyPipelineInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => PipelineSegmentWhereUniqueInputSchema),z.lazy(() => PipelineSegmentWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => PipelineSegmentWhereUniqueInputSchema),z.lazy(() => PipelineSegmentWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => PipelineSegmentWhereUniqueInputSchema),z.lazy(() => PipelineSegmentWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => PipelineSegmentWhereUniqueInputSchema),z.lazy(() => PipelineSegmentWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => PipelineSegmentUpdateWithWhereUniqueWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentUpdateWithWhereUniqueWithoutPipelineInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => PipelineSegmentUpdateManyWithWhereWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentUpdateManyWithWhereWithoutPipelineInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => PipelineSegmentScalarWhereInputSchema),z.lazy(() => PipelineSegmentScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const LeadUncheckedUpdateManyWithoutPipelineNestedInputSchema: z.ZodType<Prisma.LeadUncheckedUpdateManyWithoutPipelineNestedInput> = z.object({
+  create: z.union([ z.lazy(() => LeadCreateWithoutPipelineInputSchema),z.lazy(() => LeadCreateWithoutPipelineInputSchema).array(),z.lazy(() => LeadUncheckedCreateWithoutPipelineInputSchema),z.lazy(() => LeadUncheckedCreateWithoutPipelineInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => LeadCreateOrConnectWithoutPipelineInputSchema),z.lazy(() => LeadCreateOrConnectWithoutPipelineInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => LeadUpsertWithWhereUniqueWithoutPipelineInputSchema),z.lazy(() => LeadUpsertWithWhereUniqueWithoutPipelineInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => LeadCreateManyPipelineInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => LeadUpdateWithWhereUniqueWithoutPipelineInputSchema),z.lazy(() => LeadUpdateWithWhereUniqueWithoutPipelineInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => LeadUpdateManyWithWhereWithoutPipelineInputSchema),z.lazy(() => LeadUpdateManyWithWhereWithoutPipelineInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => LeadScalarWhereInputSchema),z.lazy(() => LeadScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const PipelineCreateNestedOneWithoutSegmentsInputSchema: z.ZodType<Prisma.PipelineCreateNestedOneWithoutSegmentsInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineCreateWithoutSegmentsInputSchema),z.lazy(() => PipelineUncheckedCreateWithoutSegmentsInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => PipelineCreateOrConnectWithoutSegmentsInputSchema).optional(),
+  connect: z.lazy(() => PipelineWhereUniqueInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentDataCreateNestedManyWithoutSegmentInputSchema: z.ZodType<Prisma.PipelineSegmentDataCreateNestedManyWithoutSegmentInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineSegmentDataCreateWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataCreateWithoutSegmentInputSchema).array(),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutSegmentInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PipelineSegmentDataCreateOrConnectWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataCreateOrConnectWithoutSegmentInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PipelineSegmentDataCreateManySegmentInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const LeadCreateNestedManyWithoutSegmentInputSchema: z.ZodType<Prisma.LeadCreateNestedManyWithoutSegmentInput> = z.object({
+  create: z.union([ z.lazy(() => LeadCreateWithoutSegmentInputSchema),z.lazy(() => LeadCreateWithoutSegmentInputSchema).array(),z.lazy(() => LeadUncheckedCreateWithoutSegmentInputSchema),z.lazy(() => LeadUncheckedCreateWithoutSegmentInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => LeadCreateOrConnectWithoutSegmentInputSchema),z.lazy(() => LeadCreateOrConnectWithoutSegmentInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => LeadCreateManySegmentInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const PipelineSegmentDataUncheckedCreateNestedManyWithoutSegmentInputSchema: z.ZodType<Prisma.PipelineSegmentDataUncheckedCreateNestedManyWithoutSegmentInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineSegmentDataCreateWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataCreateWithoutSegmentInputSchema).array(),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutSegmentInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PipelineSegmentDataCreateOrConnectWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataCreateOrConnectWithoutSegmentInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PipelineSegmentDataCreateManySegmentInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const LeadUncheckedCreateNestedManyWithoutSegmentInputSchema: z.ZodType<Prisma.LeadUncheckedCreateNestedManyWithoutSegmentInput> = z.object({
+  create: z.union([ z.lazy(() => LeadCreateWithoutSegmentInputSchema),z.lazy(() => LeadCreateWithoutSegmentInputSchema).array(),z.lazy(() => LeadUncheckedCreateWithoutSegmentInputSchema),z.lazy(() => LeadUncheckedCreateWithoutSegmentInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => LeadCreateOrConnectWithoutSegmentInputSchema),z.lazy(() => LeadCreateOrConnectWithoutSegmentInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => LeadCreateManySegmentInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const BoolFieldUpdateOperationsInputSchema: z.ZodType<Prisma.BoolFieldUpdateOperationsInput> = z.object({
+  set: z.boolean().optional()
+}).strict();
+
+export const PipelineUpdateOneRequiredWithoutSegmentsNestedInputSchema: z.ZodType<Prisma.PipelineUpdateOneRequiredWithoutSegmentsNestedInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineCreateWithoutSegmentsInputSchema),z.lazy(() => PipelineUncheckedCreateWithoutSegmentsInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => PipelineCreateOrConnectWithoutSegmentsInputSchema).optional(),
+  upsert: z.lazy(() => PipelineUpsertWithoutSegmentsInputSchema).optional(),
+  connect: z.lazy(() => PipelineWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => PipelineUpdateToOneWithWhereWithoutSegmentsInputSchema),z.lazy(() => PipelineUpdateWithoutSegmentsInputSchema),z.lazy(() => PipelineUncheckedUpdateWithoutSegmentsInputSchema) ]).optional(),
+}).strict();
+
+export const PipelineSegmentDataUpdateManyWithoutSegmentNestedInputSchema: z.ZodType<Prisma.PipelineSegmentDataUpdateManyWithoutSegmentNestedInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineSegmentDataCreateWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataCreateWithoutSegmentInputSchema).array(),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutSegmentInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PipelineSegmentDataCreateOrConnectWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataCreateOrConnectWithoutSegmentInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => PipelineSegmentDataUpsertWithWhereUniqueWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataUpsertWithWhereUniqueWithoutSegmentInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PipelineSegmentDataCreateManySegmentInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => PipelineSegmentDataUpdateWithWhereUniqueWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataUpdateWithWhereUniqueWithoutSegmentInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => PipelineSegmentDataUpdateManyWithWhereWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataUpdateManyWithWhereWithoutSegmentInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => PipelineSegmentDataScalarWhereInputSchema),z.lazy(() => PipelineSegmentDataScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const LeadUpdateManyWithoutSegmentNestedInputSchema: z.ZodType<Prisma.LeadUpdateManyWithoutSegmentNestedInput> = z.object({
+  create: z.union([ z.lazy(() => LeadCreateWithoutSegmentInputSchema),z.lazy(() => LeadCreateWithoutSegmentInputSchema).array(),z.lazy(() => LeadUncheckedCreateWithoutSegmentInputSchema),z.lazy(() => LeadUncheckedCreateWithoutSegmentInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => LeadCreateOrConnectWithoutSegmentInputSchema),z.lazy(() => LeadCreateOrConnectWithoutSegmentInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => LeadUpsertWithWhereUniqueWithoutSegmentInputSchema),z.lazy(() => LeadUpsertWithWhereUniqueWithoutSegmentInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => LeadCreateManySegmentInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => LeadUpdateWithWhereUniqueWithoutSegmentInputSchema),z.lazy(() => LeadUpdateWithWhereUniqueWithoutSegmentInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => LeadUpdateManyWithWhereWithoutSegmentInputSchema),z.lazy(() => LeadUpdateManyWithWhereWithoutSegmentInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => LeadScalarWhereInputSchema),z.lazy(() => LeadScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const PipelineSegmentDataUncheckedUpdateManyWithoutSegmentNestedInputSchema: z.ZodType<Prisma.PipelineSegmentDataUncheckedUpdateManyWithoutSegmentNestedInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineSegmentDataCreateWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataCreateWithoutSegmentInputSchema).array(),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutSegmentInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => PipelineSegmentDataCreateOrConnectWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataCreateOrConnectWithoutSegmentInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => PipelineSegmentDataUpsertWithWhereUniqueWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataUpsertWithWhereUniqueWithoutSegmentInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => PipelineSegmentDataCreateManySegmentInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => PipelineSegmentDataUpdateWithWhereUniqueWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataUpdateWithWhereUniqueWithoutSegmentInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => PipelineSegmentDataUpdateManyWithWhereWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataUpdateManyWithWhereWithoutSegmentInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => PipelineSegmentDataScalarWhereInputSchema),z.lazy(() => PipelineSegmentDataScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const LeadUncheckedUpdateManyWithoutSegmentNestedInputSchema: z.ZodType<Prisma.LeadUncheckedUpdateManyWithoutSegmentNestedInput> = z.object({
+  create: z.union([ z.lazy(() => LeadCreateWithoutSegmentInputSchema),z.lazy(() => LeadCreateWithoutSegmentInputSchema).array(),z.lazy(() => LeadUncheckedCreateWithoutSegmentInputSchema),z.lazy(() => LeadUncheckedCreateWithoutSegmentInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => LeadCreateOrConnectWithoutSegmentInputSchema),z.lazy(() => LeadCreateOrConnectWithoutSegmentInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => LeadUpsertWithWhereUniqueWithoutSegmentInputSchema),z.lazy(() => LeadUpsertWithWhereUniqueWithoutSegmentInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => LeadCreateManySegmentInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => LeadUpdateWithWhereUniqueWithoutSegmentInputSchema),z.lazy(() => LeadUpdateWithWhereUniqueWithoutSegmentInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => LeadUpdateManyWithWhereWithoutSegmentInputSchema),z.lazy(() => LeadUpdateManyWithWhereWithoutSegmentInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => LeadScalarWhereInputSchema),z.lazy(() => LeadScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const PipelineCreateNestedOneWithoutSegmentDataInputSchema: z.ZodType<Prisma.PipelineCreateNestedOneWithoutSegmentDataInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineCreateWithoutSegmentDataInputSchema),z.lazy(() => PipelineUncheckedCreateWithoutSegmentDataInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => PipelineCreateOrConnectWithoutSegmentDataInputSchema).optional(),
+  connect: z.lazy(() => PipelineWhereUniqueInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentCreateNestedOneWithoutSegmentDataInputSchema: z.ZodType<Prisma.PipelineSegmentCreateNestedOneWithoutSegmentDataInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineSegmentCreateWithoutSegmentDataInputSchema),z.lazy(() => PipelineSegmentUncheckedCreateWithoutSegmentDataInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => PipelineSegmentCreateOrConnectWithoutSegmentDataInputSchema).optional(),
+  connect: z.lazy(() => PipelineSegmentWhereUniqueInputSchema).optional()
+}).strict();
+
+export const PipelineUpdateOneRequiredWithoutSegmentDataNestedInputSchema: z.ZodType<Prisma.PipelineUpdateOneRequiredWithoutSegmentDataNestedInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineCreateWithoutSegmentDataInputSchema),z.lazy(() => PipelineUncheckedCreateWithoutSegmentDataInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => PipelineCreateOrConnectWithoutSegmentDataInputSchema).optional(),
+  upsert: z.lazy(() => PipelineUpsertWithoutSegmentDataInputSchema).optional(),
+  connect: z.lazy(() => PipelineWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => PipelineUpdateToOneWithWhereWithoutSegmentDataInputSchema),z.lazy(() => PipelineUpdateWithoutSegmentDataInputSchema),z.lazy(() => PipelineUncheckedUpdateWithoutSegmentDataInputSchema) ]).optional(),
+}).strict();
+
+export const PipelineSegmentUpdateOneRequiredWithoutSegmentDataNestedInputSchema: z.ZodType<Prisma.PipelineSegmentUpdateOneRequiredWithoutSegmentDataNestedInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineSegmentCreateWithoutSegmentDataInputSchema),z.lazy(() => PipelineSegmentUncheckedCreateWithoutSegmentDataInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => PipelineSegmentCreateOrConnectWithoutSegmentDataInputSchema).optional(),
+  upsert: z.lazy(() => PipelineSegmentUpsertWithoutSegmentDataInputSchema).optional(),
+  connect: z.lazy(() => PipelineSegmentWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => PipelineSegmentUpdateToOneWithWhereWithoutSegmentDataInputSchema),z.lazy(() => PipelineSegmentUpdateWithoutSegmentDataInputSchema),z.lazy(() => PipelineSegmentUncheckedUpdateWithoutSegmentDataInputSchema) ]).optional(),
+}).strict();
+
+export const LeadCreatetagsInputSchema: z.ZodType<Prisma.LeadCreatetagsInput> = z.object({
+  set: z.string().array()
+}).strict();
+
+export const UserCreateNestedOneWithoutLeadInputSchema: z.ZodType<Prisma.UserCreateNestedOneWithoutLeadInput> = z.object({
+  create: z.union([ z.lazy(() => UserCreateWithoutLeadInputSchema),z.lazy(() => UserUncheckedCreateWithoutLeadInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutLeadInputSchema).optional(),
+  connect: z.lazy(() => UserWhereUniqueInputSchema).optional()
+}).strict();
+
+export const PipelineCreateNestedOneWithoutLeadInputSchema: z.ZodType<Prisma.PipelineCreateNestedOneWithoutLeadInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineCreateWithoutLeadInputSchema),z.lazy(() => PipelineUncheckedCreateWithoutLeadInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => PipelineCreateOrConnectWithoutLeadInputSchema).optional(),
+  connect: z.lazy(() => PipelineWhereUniqueInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentCreateNestedOneWithoutLeadInputSchema: z.ZodType<Prisma.PipelineSegmentCreateNestedOneWithoutLeadInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineSegmentCreateWithoutLeadInputSchema),z.lazy(() => PipelineSegmentUncheckedCreateWithoutLeadInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => PipelineSegmentCreateOrConnectWithoutLeadInputSchema).optional(),
+  connect: z.lazy(() => PipelineSegmentWhereUniqueInputSchema).optional()
+}).strict();
+
+export const LeadUpdatetagsInputSchema: z.ZodType<Prisma.LeadUpdatetagsInput> = z.object({
+  set: z.string().array().optional(),
+  push: z.union([ z.string(),z.string().array() ]).optional(),
+}).strict();
+
+export const UserUpdateOneRequiredWithoutLeadNestedInputSchema: z.ZodType<Prisma.UserUpdateOneRequiredWithoutLeadNestedInput> = z.object({
+  create: z.union([ z.lazy(() => UserCreateWithoutLeadInputSchema),z.lazy(() => UserUncheckedCreateWithoutLeadInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutLeadInputSchema).optional(),
+  upsert: z.lazy(() => UserUpsertWithoutLeadInputSchema).optional(),
+  connect: z.lazy(() => UserWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => UserUpdateToOneWithWhereWithoutLeadInputSchema),z.lazy(() => UserUpdateWithoutLeadInputSchema),z.lazy(() => UserUncheckedUpdateWithoutLeadInputSchema) ]).optional(),
+}).strict();
+
+export const PipelineUpdateOneWithoutLeadNestedInputSchema: z.ZodType<Prisma.PipelineUpdateOneWithoutLeadNestedInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineCreateWithoutLeadInputSchema),z.lazy(() => PipelineUncheckedCreateWithoutLeadInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => PipelineCreateOrConnectWithoutLeadInputSchema).optional(),
+  upsert: z.lazy(() => PipelineUpsertWithoutLeadInputSchema).optional(),
+  disconnect: z.union([ z.boolean(),z.lazy(() => PipelineWhereInputSchema) ]).optional(),
+  delete: z.union([ z.boolean(),z.lazy(() => PipelineWhereInputSchema) ]).optional(),
+  connect: z.lazy(() => PipelineWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => PipelineUpdateToOneWithWhereWithoutLeadInputSchema),z.lazy(() => PipelineUpdateWithoutLeadInputSchema),z.lazy(() => PipelineUncheckedUpdateWithoutLeadInputSchema) ]).optional(),
+}).strict();
+
+export const PipelineSegmentUpdateOneWithoutLeadNestedInputSchema: z.ZodType<Prisma.PipelineSegmentUpdateOneWithoutLeadNestedInput> = z.object({
+  create: z.union([ z.lazy(() => PipelineSegmentCreateWithoutLeadInputSchema),z.lazy(() => PipelineSegmentUncheckedCreateWithoutLeadInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => PipelineSegmentCreateOrConnectWithoutLeadInputSchema).optional(),
+  upsert: z.lazy(() => PipelineSegmentUpsertWithoutLeadInputSchema).optional(),
+  disconnect: z.union([ z.boolean(),z.lazy(() => PipelineSegmentWhereInputSchema) ]).optional(),
+  delete: z.union([ z.boolean(),z.lazy(() => PipelineSegmentWhereInputSchema) ]).optional(),
+  connect: z.lazy(() => PipelineSegmentWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => PipelineSegmentUpdateToOneWithWhereWithoutLeadInputSchema),z.lazy(() => PipelineSegmentUpdateWithoutLeadInputSchema),z.lazy(() => PipelineSegmentUncheckedUpdateWithoutLeadInputSchema) ]).optional(),
 }).strict();
 
 export const NestedIntFilterSchema: z.ZodType<Prisma.NestedIntFilter> = z.object({
@@ -2083,6 +3697,19 @@ export const NestedEnumTaskPriorityWithAggregatesFilterSchema: z.ZodType<Prisma.
   _max: z.lazy(() => NestedEnumTaskPriorityFilterSchema).optional()
 }).strict();
 
+export const NestedBoolFilterSchema: z.ZodType<Prisma.NestedBoolFilter> = z.object({
+  equals: z.boolean().optional(),
+  not: z.union([ z.boolean(),z.lazy(() => NestedBoolFilterSchema) ]).optional(),
+}).strict();
+
+export const NestedBoolWithAggregatesFilterSchema: z.ZodType<Prisma.NestedBoolWithAggregatesFilter> = z.object({
+  equals: z.boolean().optional(),
+  not: z.union([ z.boolean(),z.lazy(() => NestedBoolWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedBoolFilterSchema).optional(),
+  _max: z.lazy(() => NestedBoolFilterSchema).optional()
+}).strict();
+
 export const UserCreateWithoutPostsInputSchema: z.ZodType<Prisma.UserCreateWithoutPostsInput> = z.object({
   id: z.string().cuid().optional(),
   name: z.string().optional().nullable(),
@@ -2091,7 +3718,9 @@ export const UserCreateWithoutPostsInputSchema: z.ZodType<Prisma.UserCreateWitho
   image: z.string().optional().nullable(),
   accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
-  tasks: z.lazy(() => TaskCreateNestedManyWithoutCreatedByInputSchema).optional()
+  tasks: z.lazy(() => TaskCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Lead: z.lazy(() => LeadCreateNestedManyWithoutCreatedByInputSchema).optional()
 }).strict();
 
 export const UserUncheckedCreateWithoutPostsInputSchema: z.ZodType<Prisma.UserUncheckedCreateWithoutPostsInput> = z.object({
@@ -2102,7 +3731,9 @@ export const UserUncheckedCreateWithoutPostsInputSchema: z.ZodType<Prisma.UserUn
   image: z.string().optional().nullable(),
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
-  tasks: z.lazy(() => TaskUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional()
+  tasks: z.lazy(() => TaskUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional()
 }).strict();
 
 export const UserCreateOrConnectWithoutPostsInputSchema: z.ZodType<Prisma.UserCreateOrConnectWithoutPostsInput> = z.object({
@@ -2129,7 +3760,9 @@ export const UserUpdateWithoutPostsInputSchema: z.ZodType<Prisma.UserUpdateWitho
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
-  tasks: z.lazy(() => TaskUpdateManyWithoutCreatedByNestedInputSchema).optional()
+  tasks: z.lazy(() => TaskUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUpdateManyWithoutCreatedByNestedInputSchema).optional()
 }).strict();
 
 export const UserUncheckedUpdateWithoutPostsInputSchema: z.ZodType<Prisma.UserUncheckedUpdateWithoutPostsInput> = z.object({
@@ -2140,7 +3773,9 @@ export const UserUncheckedUpdateWithoutPostsInputSchema: z.ZodType<Prisma.UserUn
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
-  tasks: z.lazy(() => TaskUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional()
+  tasks: z.lazy(() => TaskUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional()
 }).strict();
 
 export const UserCreateWithoutAccountsInputSchema: z.ZodType<Prisma.UserCreateWithoutAccountsInput> = z.object({
@@ -2151,7 +3786,9 @@ export const UserCreateWithoutAccountsInputSchema: z.ZodType<Prisma.UserCreateWi
   image: z.string().optional().nullable(),
   sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
   posts: z.lazy(() => PostCreateNestedManyWithoutCreatedByInputSchema).optional(),
-  tasks: z.lazy(() => TaskCreateNestedManyWithoutCreatedByInputSchema).optional()
+  tasks: z.lazy(() => TaskCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Lead: z.lazy(() => LeadCreateNestedManyWithoutCreatedByInputSchema).optional()
 }).strict();
 
 export const UserUncheckedCreateWithoutAccountsInputSchema: z.ZodType<Prisma.UserUncheckedCreateWithoutAccountsInput> = z.object({
@@ -2162,7 +3799,9 @@ export const UserUncheckedCreateWithoutAccountsInputSchema: z.ZodType<Prisma.Use
   image: z.string().optional().nullable(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   posts: z.lazy(() => PostUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
-  tasks: z.lazy(() => TaskUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional()
+  tasks: z.lazy(() => TaskUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional()
 }).strict();
 
 export const UserCreateOrConnectWithoutAccountsInputSchema: z.ZodType<Prisma.UserCreateOrConnectWithoutAccountsInput> = z.object({
@@ -2189,7 +3828,9 @@ export const UserUpdateWithoutAccountsInputSchema: z.ZodType<Prisma.UserUpdateWi
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
   posts: z.lazy(() => PostUpdateManyWithoutCreatedByNestedInputSchema).optional(),
-  tasks: z.lazy(() => TaskUpdateManyWithoutCreatedByNestedInputSchema).optional()
+  tasks: z.lazy(() => TaskUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUpdateManyWithoutCreatedByNestedInputSchema).optional()
 }).strict();
 
 export const UserUncheckedUpdateWithoutAccountsInputSchema: z.ZodType<Prisma.UserUncheckedUpdateWithoutAccountsInput> = z.object({
@@ -2200,7 +3841,9 @@ export const UserUncheckedUpdateWithoutAccountsInputSchema: z.ZodType<Prisma.Use
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   posts: z.lazy(() => PostUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
-  tasks: z.lazy(() => TaskUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional()
+  tasks: z.lazy(() => TaskUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional()
 }).strict();
 
 export const UserCreateWithoutSessionsInputSchema: z.ZodType<Prisma.UserCreateWithoutSessionsInput> = z.object({
@@ -2211,7 +3854,9 @@ export const UserCreateWithoutSessionsInputSchema: z.ZodType<Prisma.UserCreateWi
   image: z.string().optional().nullable(),
   accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
   posts: z.lazy(() => PostCreateNestedManyWithoutCreatedByInputSchema).optional(),
-  tasks: z.lazy(() => TaskCreateNestedManyWithoutCreatedByInputSchema).optional()
+  tasks: z.lazy(() => TaskCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Lead: z.lazy(() => LeadCreateNestedManyWithoutCreatedByInputSchema).optional()
 }).strict();
 
 export const UserUncheckedCreateWithoutSessionsInputSchema: z.ZodType<Prisma.UserUncheckedCreateWithoutSessionsInput> = z.object({
@@ -2222,7 +3867,9 @@ export const UserUncheckedCreateWithoutSessionsInputSchema: z.ZodType<Prisma.Use
   image: z.string().optional().nullable(),
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   posts: z.lazy(() => PostUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
-  tasks: z.lazy(() => TaskUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional()
+  tasks: z.lazy(() => TaskUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional()
 }).strict();
 
 export const UserCreateOrConnectWithoutSessionsInputSchema: z.ZodType<Prisma.UserCreateOrConnectWithoutSessionsInput> = z.object({
@@ -2249,7 +3896,9 @@ export const UserUpdateWithoutSessionsInputSchema: z.ZodType<Prisma.UserUpdateWi
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
   posts: z.lazy(() => PostUpdateManyWithoutCreatedByNestedInputSchema).optional(),
-  tasks: z.lazy(() => TaskUpdateManyWithoutCreatedByNestedInputSchema).optional()
+  tasks: z.lazy(() => TaskUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUpdateManyWithoutCreatedByNestedInputSchema).optional()
 }).strict();
 
 export const UserUncheckedUpdateWithoutSessionsInputSchema: z.ZodType<Prisma.UserUncheckedUpdateWithoutSessionsInput> = z.object({
@@ -2260,7 +3909,9 @@ export const UserUncheckedUpdateWithoutSessionsInputSchema: z.ZodType<Prisma.Use
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   posts: z.lazy(() => PostUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
-  tasks: z.lazy(() => TaskUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional()
+  tasks: z.lazy(() => TaskUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional()
 }).strict();
 
 export const AccountCreateWithoutUserInputSchema: z.ZodType<Prisma.AccountCreateWithoutUserInput> = z.object({
@@ -2376,6 +4027,90 @@ export const TaskCreateOrConnectWithoutCreatedByInputSchema: z.ZodType<Prisma.Ta
 
 export const TaskCreateManyCreatedByInputEnvelopeSchema: z.ZodType<Prisma.TaskCreateManyCreatedByInputEnvelope> = z.object({
   data: z.union([ z.lazy(() => TaskCreateManyCreatedByInputSchema),z.lazy(() => TaskCreateManyCreatedByInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
+}).strict();
+
+export const PipelineCreateWithoutCreatedByInputSchema: z.ZodType<Prisma.PipelineCreateWithoutCreatedByInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataCreateNestedManyWithoutPipelineInputSchema).optional(),
+  segments: z.lazy(() => PipelineSegmentCreateNestedManyWithoutPipelineInputSchema).optional(),
+  Lead: z.lazy(() => LeadCreateNestedManyWithoutPipelineInputSchema).optional()
+}).strict();
+
+export const PipelineUncheckedCreateWithoutCreatedByInputSchema: z.ZodType<Prisma.PipelineUncheckedCreateWithoutCreatedByInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataUncheckedCreateNestedManyWithoutPipelineInputSchema).optional(),
+  segments: z.lazy(() => PipelineSegmentUncheckedCreateNestedManyWithoutPipelineInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedCreateNestedManyWithoutPipelineInputSchema).optional()
+}).strict();
+
+export const PipelineCreateOrConnectWithoutCreatedByInputSchema: z.ZodType<Prisma.PipelineCreateOrConnectWithoutCreatedByInput> = z.object({
+  where: z.lazy(() => PipelineWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => PipelineCreateWithoutCreatedByInputSchema),z.lazy(() => PipelineUncheckedCreateWithoutCreatedByInputSchema) ]),
+}).strict();
+
+export const PipelineCreateManyCreatedByInputEnvelopeSchema: z.ZodType<Prisma.PipelineCreateManyCreatedByInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => PipelineCreateManyCreatedByInputSchema),z.lazy(() => PipelineCreateManyCreatedByInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
+}).strict();
+
+export const LeadCreateWithoutCreatedByInputSchema: z.ZodType<Prisma.LeadCreateWithoutCreatedByInput> = z.object({
+  id: z.string().cuid().optional(),
+  title: z.string(),
+  description: z.string().optional().nullable(),
+  capitalValue: z.number().int().optional().nullable(),
+  contactName: z.string(),
+  companyName: z.string(),
+  avatarURL: z.string().optional().nullable(),
+  addedOn: z.coerce.date().optional(),
+  dueDate: z.coerce.date().optional().nullable(),
+  status: z.string().optional(),
+  leadType: z.string().optional(),
+  pipelineStage: z.string().optional().nullable(),
+  isArchived: z.boolean().optional(),
+  source: z.string().optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadCreatetagsInputSchema),z.string().array() ]).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  pipeline: z.lazy(() => PipelineCreateNestedOneWithoutLeadInputSchema).optional(),
+  segment: z.lazy(() => PipelineSegmentCreateNestedOneWithoutLeadInputSchema).optional()
+}).strict();
+
+export const LeadUncheckedCreateWithoutCreatedByInputSchema: z.ZodType<Prisma.LeadUncheckedCreateWithoutCreatedByInput> = z.object({
+  id: z.string().cuid().optional(),
+  title: z.string(),
+  description: z.string().optional().nullable(),
+  capitalValue: z.number().int().optional().nullable(),
+  contactName: z.string(),
+  companyName: z.string(),
+  avatarURL: z.string().optional().nullable(),
+  addedOn: z.coerce.date().optional(),
+  dueDate: z.coerce.date().optional().nullable(),
+  status: z.string().optional(),
+  leadType: z.string().optional(),
+  pipelineStage: z.string().optional().nullable(),
+  isArchived: z.boolean().optional(),
+  source: z.string().optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadCreatetagsInputSchema),z.string().array() ]).optional(),
+  pipelineId: z.string().optional().nullable(),
+  segmentId: z.number().int().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const LeadCreateOrConnectWithoutCreatedByInputSchema: z.ZodType<Prisma.LeadCreateOrConnectWithoutCreatedByInput> = z.object({
+  where: z.lazy(() => LeadWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => LeadCreateWithoutCreatedByInputSchema),z.lazy(() => LeadUncheckedCreateWithoutCreatedByInputSchema) ]),
+}).strict();
+
+export const LeadCreateManyCreatedByInputEnvelopeSchema: z.ZodType<Prisma.LeadCreateManyCreatedByInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => LeadCreateManyCreatedByInputSchema),z.lazy(() => LeadCreateManyCreatedByInputSchema).array() ]),
   skipDuplicates: z.boolean().optional()
 }).strict();
 
@@ -2498,6 +4233,75 @@ export const TaskScalarWhereInputSchema: z.ZodType<Prisma.TaskScalarWhereInput> 
   createdById: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
 }).strict();
 
+export const PipelineUpsertWithWhereUniqueWithoutCreatedByInputSchema: z.ZodType<Prisma.PipelineUpsertWithWhereUniqueWithoutCreatedByInput> = z.object({
+  where: z.lazy(() => PipelineWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => PipelineUpdateWithoutCreatedByInputSchema),z.lazy(() => PipelineUncheckedUpdateWithoutCreatedByInputSchema) ]),
+  create: z.union([ z.lazy(() => PipelineCreateWithoutCreatedByInputSchema),z.lazy(() => PipelineUncheckedCreateWithoutCreatedByInputSchema) ]),
+}).strict();
+
+export const PipelineUpdateWithWhereUniqueWithoutCreatedByInputSchema: z.ZodType<Prisma.PipelineUpdateWithWhereUniqueWithoutCreatedByInput> = z.object({
+  where: z.lazy(() => PipelineWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => PipelineUpdateWithoutCreatedByInputSchema),z.lazy(() => PipelineUncheckedUpdateWithoutCreatedByInputSchema) ]),
+}).strict();
+
+export const PipelineUpdateManyWithWhereWithoutCreatedByInputSchema: z.ZodType<Prisma.PipelineUpdateManyWithWhereWithoutCreatedByInput> = z.object({
+  where: z.lazy(() => PipelineScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => PipelineUpdateManyMutationInputSchema),z.lazy(() => PipelineUncheckedUpdateManyWithoutCreatedByInputSchema) ]),
+}).strict();
+
+export const PipelineScalarWhereInputSchema: z.ZodType<Prisma.PipelineScalarWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => PipelineScalarWhereInputSchema),z.lazy(() => PipelineScalarWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => PipelineScalarWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => PipelineScalarWhereInputSchema),z.lazy(() => PipelineScalarWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  name: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  createdById: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+}).strict();
+
+export const LeadUpsertWithWhereUniqueWithoutCreatedByInputSchema: z.ZodType<Prisma.LeadUpsertWithWhereUniqueWithoutCreatedByInput> = z.object({
+  where: z.lazy(() => LeadWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => LeadUpdateWithoutCreatedByInputSchema),z.lazy(() => LeadUncheckedUpdateWithoutCreatedByInputSchema) ]),
+  create: z.union([ z.lazy(() => LeadCreateWithoutCreatedByInputSchema),z.lazy(() => LeadUncheckedCreateWithoutCreatedByInputSchema) ]),
+}).strict();
+
+export const LeadUpdateWithWhereUniqueWithoutCreatedByInputSchema: z.ZodType<Prisma.LeadUpdateWithWhereUniqueWithoutCreatedByInput> = z.object({
+  where: z.lazy(() => LeadWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => LeadUpdateWithoutCreatedByInputSchema),z.lazy(() => LeadUncheckedUpdateWithoutCreatedByInputSchema) ]),
+}).strict();
+
+export const LeadUpdateManyWithWhereWithoutCreatedByInputSchema: z.ZodType<Prisma.LeadUpdateManyWithWhereWithoutCreatedByInput> = z.object({
+  where: z.lazy(() => LeadScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => LeadUpdateManyMutationInputSchema),z.lazy(() => LeadUncheckedUpdateManyWithoutCreatedByInputSchema) ]),
+}).strict();
+
+export const LeadScalarWhereInputSchema: z.ZodType<Prisma.LeadScalarWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => LeadScalarWhereInputSchema),z.lazy(() => LeadScalarWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => LeadScalarWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => LeadScalarWhereInputSchema),z.lazy(() => LeadScalarWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  title: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  capitalValue: z.union([ z.lazy(() => IntNullableFilterSchema),z.number() ]).optional().nullable(),
+  contactName: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  companyName: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  avatarURL: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  addedOn: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  dueDate: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
+  status: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  leadType: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  pipelineStage: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  isArchived: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
+  source: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  tags: z.lazy(() => StringNullableListFilterSchema).optional(),
+  createdById: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  pipelineId: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  segmentId: z.union([ z.lazy(() => IntNullableFilterSchema),z.number() ]).optional().nullable(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+}).strict();
+
 export const UserCreateWithoutTasksInputSchema: z.ZodType<Prisma.UserCreateWithoutTasksInput> = z.object({
   id: z.string().cuid().optional(),
   name: z.string().optional().nullable(),
@@ -2506,7 +4310,9 @@ export const UserCreateWithoutTasksInputSchema: z.ZodType<Prisma.UserCreateWitho
   image: z.string().optional().nullable(),
   accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
-  posts: z.lazy(() => PostCreateNestedManyWithoutCreatedByInputSchema).optional()
+  posts: z.lazy(() => PostCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Lead: z.lazy(() => LeadCreateNestedManyWithoutCreatedByInputSchema).optional()
 }).strict();
 
 export const UserUncheckedCreateWithoutTasksInputSchema: z.ZodType<Prisma.UserUncheckedCreateWithoutTasksInput> = z.object({
@@ -2517,7 +4323,9 @@ export const UserUncheckedCreateWithoutTasksInputSchema: z.ZodType<Prisma.UserUn
   image: z.string().optional().nullable(),
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
-  posts: z.lazy(() => PostUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional()
+  posts: z.lazy(() => PostUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional()
 }).strict();
 
 export const UserCreateOrConnectWithoutTasksInputSchema: z.ZodType<Prisma.UserCreateOrConnectWithoutTasksInput> = z.object({
@@ -2544,7 +4352,9 @@ export const UserUpdateWithoutTasksInputSchema: z.ZodType<Prisma.UserUpdateWitho
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
-  posts: z.lazy(() => PostUpdateManyWithoutCreatedByNestedInputSchema).optional()
+  posts: z.lazy(() => PostUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUpdateManyWithoutCreatedByNestedInputSchema).optional()
 }).strict();
 
 export const UserUncheckedUpdateWithoutTasksInputSchema: z.ZodType<Prisma.UserUncheckedUpdateWithoutTasksInput> = z.object({
@@ -2555,7 +4365,695 @@ export const UserUncheckedUpdateWithoutTasksInputSchema: z.ZodType<Prisma.UserUn
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
-  posts: z.lazy(() => PostUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional()
+  posts: z.lazy(() => PostUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional()
+}).strict();
+
+export const UserCreateWithoutPipelineInputSchema: z.ZodType<Prisma.UserCreateWithoutPipelineInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string().optional().nullable(),
+  email: z.string().optional().nullable(),
+  emailVerified: z.coerce.date().optional().nullable(),
+  image: z.string().optional().nullable(),
+  accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
+  sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
+  posts: z.lazy(() => PostCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  tasks: z.lazy(() => TaskCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Lead: z.lazy(() => LeadCreateNestedManyWithoutCreatedByInputSchema).optional()
+}).strict();
+
+export const UserUncheckedCreateWithoutPipelineInputSchema: z.ZodType<Prisma.UserUncheckedCreateWithoutPipelineInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string().optional().nullable(),
+  email: z.string().optional().nullable(),
+  emailVerified: z.coerce.date().optional().nullable(),
+  image: z.string().optional().nullable(),
+  accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  posts: z.lazy(() => PostUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  tasks: z.lazy(() => TaskUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional()
+}).strict();
+
+export const UserCreateOrConnectWithoutPipelineInputSchema: z.ZodType<Prisma.UserCreateOrConnectWithoutPipelineInput> = z.object({
+  where: z.lazy(() => UserWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => UserCreateWithoutPipelineInputSchema),z.lazy(() => UserUncheckedCreateWithoutPipelineInputSchema) ]),
+}).strict();
+
+export const PipelineSegmentDataCreateWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentDataCreateWithoutPipelineInput> = z.object({
+  completedAt: z.coerce.date().optional().nullable(),
+  notes: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  segment: z.lazy(() => PipelineSegmentCreateNestedOneWithoutSegmentDataInputSchema)
+}).strict();
+
+export const PipelineSegmentDataUncheckedCreateWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentDataUncheckedCreateWithoutPipelineInput> = z.object({
+  id: z.number().int().optional(),
+  segmentId: z.number().int(),
+  completedAt: z.coerce.date().optional().nullable(),
+  notes: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const PipelineSegmentDataCreateOrConnectWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentDataCreateOrConnectWithoutPipelineInput> = z.object({
+  where: z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => PipelineSegmentDataCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutPipelineInputSchema) ]),
+}).strict();
+
+export const PipelineSegmentDataCreateManyPipelineInputEnvelopeSchema: z.ZodType<Prisma.PipelineSegmentDataCreateManyPipelineInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => PipelineSegmentDataCreateManyPipelineInputSchema),z.lazy(() => PipelineSegmentDataCreateManyPipelineInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
+}).strict();
+
+export const PipelineSegmentCreateWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentCreateWithoutPipelineInput> = z.object({
+  name: z.string(),
+  deleted: z.boolean().optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataCreateNestedManyWithoutSegmentInputSchema).optional(),
+  Lead: z.lazy(() => LeadCreateNestedManyWithoutSegmentInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentUncheckedCreateWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentUncheckedCreateWithoutPipelineInput> = z.object({
+  id: z.number().int().optional(),
+  name: z.string(),
+  deleted: z.boolean().optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataUncheckedCreateNestedManyWithoutSegmentInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedCreateNestedManyWithoutSegmentInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentCreateOrConnectWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentCreateOrConnectWithoutPipelineInput> = z.object({
+  where: z.lazy(() => PipelineSegmentWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => PipelineSegmentCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentUncheckedCreateWithoutPipelineInputSchema) ]),
+}).strict();
+
+export const PipelineSegmentCreateManyPipelineInputEnvelopeSchema: z.ZodType<Prisma.PipelineSegmentCreateManyPipelineInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => PipelineSegmentCreateManyPipelineInputSchema),z.lazy(() => PipelineSegmentCreateManyPipelineInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
+}).strict();
+
+export const LeadCreateWithoutPipelineInputSchema: z.ZodType<Prisma.LeadCreateWithoutPipelineInput> = z.object({
+  id: z.string().cuid().optional(),
+  title: z.string(),
+  description: z.string().optional().nullable(),
+  capitalValue: z.number().int().optional().nullable(),
+  contactName: z.string(),
+  companyName: z.string(),
+  avatarURL: z.string().optional().nullable(),
+  addedOn: z.coerce.date().optional(),
+  dueDate: z.coerce.date().optional().nullable(),
+  status: z.string().optional(),
+  leadType: z.string().optional(),
+  pipelineStage: z.string().optional().nullable(),
+  isArchived: z.boolean().optional(),
+  source: z.string().optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadCreatetagsInputSchema),z.string().array() ]).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  createdBy: z.lazy(() => UserCreateNestedOneWithoutLeadInputSchema),
+  segment: z.lazy(() => PipelineSegmentCreateNestedOneWithoutLeadInputSchema).optional()
+}).strict();
+
+export const LeadUncheckedCreateWithoutPipelineInputSchema: z.ZodType<Prisma.LeadUncheckedCreateWithoutPipelineInput> = z.object({
+  id: z.string().cuid().optional(),
+  title: z.string(),
+  description: z.string().optional().nullable(),
+  capitalValue: z.number().int().optional().nullable(),
+  contactName: z.string(),
+  companyName: z.string(),
+  avatarURL: z.string().optional().nullable(),
+  addedOn: z.coerce.date().optional(),
+  dueDate: z.coerce.date().optional().nullable(),
+  status: z.string().optional(),
+  leadType: z.string().optional(),
+  pipelineStage: z.string().optional().nullable(),
+  isArchived: z.boolean().optional(),
+  source: z.string().optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadCreatetagsInputSchema),z.string().array() ]).optional(),
+  createdById: z.string(),
+  segmentId: z.number().int().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const LeadCreateOrConnectWithoutPipelineInputSchema: z.ZodType<Prisma.LeadCreateOrConnectWithoutPipelineInput> = z.object({
+  where: z.lazy(() => LeadWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => LeadCreateWithoutPipelineInputSchema),z.lazy(() => LeadUncheckedCreateWithoutPipelineInputSchema) ]),
+}).strict();
+
+export const LeadCreateManyPipelineInputEnvelopeSchema: z.ZodType<Prisma.LeadCreateManyPipelineInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => LeadCreateManyPipelineInputSchema),z.lazy(() => LeadCreateManyPipelineInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
+}).strict();
+
+export const UserUpsertWithoutPipelineInputSchema: z.ZodType<Prisma.UserUpsertWithoutPipelineInput> = z.object({
+  update: z.union([ z.lazy(() => UserUpdateWithoutPipelineInputSchema),z.lazy(() => UserUncheckedUpdateWithoutPipelineInputSchema) ]),
+  create: z.union([ z.lazy(() => UserCreateWithoutPipelineInputSchema),z.lazy(() => UserUncheckedCreateWithoutPipelineInputSchema) ]),
+  where: z.lazy(() => UserWhereInputSchema).optional()
+}).strict();
+
+export const UserUpdateToOneWithWhereWithoutPipelineInputSchema: z.ZodType<Prisma.UserUpdateToOneWithWhereWithoutPipelineInput> = z.object({
+  where: z.lazy(() => UserWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => UserUpdateWithoutPipelineInputSchema),z.lazy(() => UserUncheckedUpdateWithoutPipelineInputSchema) ]),
+}).strict();
+
+export const UserUpdateWithoutPipelineInputSchema: z.ZodType<Prisma.UserUpdateWithoutPipelineInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
+  sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
+  posts: z.lazy(() => PostUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  tasks: z.lazy(() => TaskUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUpdateManyWithoutCreatedByNestedInputSchema).optional()
+}).strict();
+
+export const UserUncheckedUpdateWithoutPipelineInputSchema: z.ZodType<Prisma.UserUncheckedUpdateWithoutPipelineInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  posts: z.lazy(() => PostUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  tasks: z.lazy(() => TaskUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentDataUpsertWithWhereUniqueWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentDataUpsertWithWhereUniqueWithoutPipelineInput> = z.object({
+  where: z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => PipelineSegmentDataUpdateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataUncheckedUpdateWithoutPipelineInputSchema) ]),
+  create: z.union([ z.lazy(() => PipelineSegmentDataCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutPipelineInputSchema) ]),
+}).strict();
+
+export const PipelineSegmentDataUpdateWithWhereUniqueWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentDataUpdateWithWhereUniqueWithoutPipelineInput> = z.object({
+  where: z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => PipelineSegmentDataUpdateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentDataUncheckedUpdateWithoutPipelineInputSchema) ]),
+}).strict();
+
+export const PipelineSegmentDataUpdateManyWithWhereWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentDataUpdateManyWithWhereWithoutPipelineInput> = z.object({
+  where: z.lazy(() => PipelineSegmentDataScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => PipelineSegmentDataUpdateManyMutationInputSchema),z.lazy(() => PipelineSegmentDataUncheckedUpdateManyWithoutPipelineInputSchema) ]),
+}).strict();
+
+export const PipelineSegmentDataScalarWhereInputSchema: z.ZodType<Prisma.PipelineSegmentDataScalarWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => PipelineSegmentDataScalarWhereInputSchema),z.lazy(() => PipelineSegmentDataScalarWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => PipelineSegmentDataScalarWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => PipelineSegmentDataScalarWhereInputSchema),z.lazy(() => PipelineSegmentDataScalarWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
+  pipelineId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  segmentId: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
+  completedAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
+  notes: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+}).strict();
+
+export const PipelineSegmentUpsertWithWhereUniqueWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentUpsertWithWhereUniqueWithoutPipelineInput> = z.object({
+  where: z.lazy(() => PipelineSegmentWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => PipelineSegmentUpdateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentUncheckedUpdateWithoutPipelineInputSchema) ]),
+  create: z.union([ z.lazy(() => PipelineSegmentCreateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentUncheckedCreateWithoutPipelineInputSchema) ]),
+}).strict();
+
+export const PipelineSegmentUpdateWithWhereUniqueWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentUpdateWithWhereUniqueWithoutPipelineInput> = z.object({
+  where: z.lazy(() => PipelineSegmentWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => PipelineSegmentUpdateWithoutPipelineInputSchema),z.lazy(() => PipelineSegmentUncheckedUpdateWithoutPipelineInputSchema) ]),
+}).strict();
+
+export const PipelineSegmentUpdateManyWithWhereWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentUpdateManyWithWhereWithoutPipelineInput> = z.object({
+  where: z.lazy(() => PipelineSegmentScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => PipelineSegmentUpdateManyMutationInputSchema),z.lazy(() => PipelineSegmentUncheckedUpdateManyWithoutPipelineInputSchema) ]),
+}).strict();
+
+export const PipelineSegmentScalarWhereInputSchema: z.ZodType<Prisma.PipelineSegmentScalarWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => PipelineSegmentScalarWhereInputSchema),z.lazy(() => PipelineSegmentScalarWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => PipelineSegmentScalarWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => PipelineSegmentScalarWhereInputSchema),z.lazy(() => PipelineSegmentScalarWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
+  name: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  deleted: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
+  pipelineId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+}).strict();
+
+export const LeadUpsertWithWhereUniqueWithoutPipelineInputSchema: z.ZodType<Prisma.LeadUpsertWithWhereUniqueWithoutPipelineInput> = z.object({
+  where: z.lazy(() => LeadWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => LeadUpdateWithoutPipelineInputSchema),z.lazy(() => LeadUncheckedUpdateWithoutPipelineInputSchema) ]),
+  create: z.union([ z.lazy(() => LeadCreateWithoutPipelineInputSchema),z.lazy(() => LeadUncheckedCreateWithoutPipelineInputSchema) ]),
+}).strict();
+
+export const LeadUpdateWithWhereUniqueWithoutPipelineInputSchema: z.ZodType<Prisma.LeadUpdateWithWhereUniqueWithoutPipelineInput> = z.object({
+  where: z.lazy(() => LeadWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => LeadUpdateWithoutPipelineInputSchema),z.lazy(() => LeadUncheckedUpdateWithoutPipelineInputSchema) ]),
+}).strict();
+
+export const LeadUpdateManyWithWhereWithoutPipelineInputSchema: z.ZodType<Prisma.LeadUpdateManyWithWhereWithoutPipelineInput> = z.object({
+  where: z.lazy(() => LeadScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => LeadUpdateManyMutationInputSchema),z.lazy(() => LeadUncheckedUpdateManyWithoutPipelineInputSchema) ]),
+}).strict();
+
+export const PipelineCreateWithoutSegmentsInputSchema: z.ZodType<Prisma.PipelineCreateWithoutSegmentsInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  createdBy: z.lazy(() => UserCreateNestedOneWithoutPipelineInputSchema),
+  segmentData: z.lazy(() => PipelineSegmentDataCreateNestedManyWithoutPipelineInputSchema).optional(),
+  Lead: z.lazy(() => LeadCreateNestedManyWithoutPipelineInputSchema).optional()
+}).strict();
+
+export const PipelineUncheckedCreateWithoutSegmentsInputSchema: z.ZodType<Prisma.PipelineUncheckedCreateWithoutSegmentsInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  createdById: z.string(),
+  segmentData: z.lazy(() => PipelineSegmentDataUncheckedCreateNestedManyWithoutPipelineInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedCreateNestedManyWithoutPipelineInputSchema).optional()
+}).strict();
+
+export const PipelineCreateOrConnectWithoutSegmentsInputSchema: z.ZodType<Prisma.PipelineCreateOrConnectWithoutSegmentsInput> = z.object({
+  where: z.lazy(() => PipelineWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => PipelineCreateWithoutSegmentsInputSchema),z.lazy(() => PipelineUncheckedCreateWithoutSegmentsInputSchema) ]),
+}).strict();
+
+export const PipelineSegmentDataCreateWithoutSegmentInputSchema: z.ZodType<Prisma.PipelineSegmentDataCreateWithoutSegmentInput> = z.object({
+  completedAt: z.coerce.date().optional().nullable(),
+  notes: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  pipeline: z.lazy(() => PipelineCreateNestedOneWithoutSegmentDataInputSchema)
+}).strict();
+
+export const PipelineSegmentDataUncheckedCreateWithoutSegmentInputSchema: z.ZodType<Prisma.PipelineSegmentDataUncheckedCreateWithoutSegmentInput> = z.object({
+  id: z.number().int().optional(),
+  pipelineId: z.string(),
+  completedAt: z.coerce.date().optional().nullable(),
+  notes: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const PipelineSegmentDataCreateOrConnectWithoutSegmentInputSchema: z.ZodType<Prisma.PipelineSegmentDataCreateOrConnectWithoutSegmentInput> = z.object({
+  where: z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => PipelineSegmentDataCreateWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutSegmentInputSchema) ]),
+}).strict();
+
+export const PipelineSegmentDataCreateManySegmentInputEnvelopeSchema: z.ZodType<Prisma.PipelineSegmentDataCreateManySegmentInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => PipelineSegmentDataCreateManySegmentInputSchema),z.lazy(() => PipelineSegmentDataCreateManySegmentInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
+}).strict();
+
+export const LeadCreateWithoutSegmentInputSchema: z.ZodType<Prisma.LeadCreateWithoutSegmentInput> = z.object({
+  id: z.string().cuid().optional(),
+  title: z.string(),
+  description: z.string().optional().nullable(),
+  capitalValue: z.number().int().optional().nullable(),
+  contactName: z.string(),
+  companyName: z.string(),
+  avatarURL: z.string().optional().nullable(),
+  addedOn: z.coerce.date().optional(),
+  dueDate: z.coerce.date().optional().nullable(),
+  status: z.string().optional(),
+  leadType: z.string().optional(),
+  pipelineStage: z.string().optional().nullable(),
+  isArchived: z.boolean().optional(),
+  source: z.string().optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadCreatetagsInputSchema),z.string().array() ]).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  createdBy: z.lazy(() => UserCreateNestedOneWithoutLeadInputSchema),
+  pipeline: z.lazy(() => PipelineCreateNestedOneWithoutLeadInputSchema).optional()
+}).strict();
+
+export const LeadUncheckedCreateWithoutSegmentInputSchema: z.ZodType<Prisma.LeadUncheckedCreateWithoutSegmentInput> = z.object({
+  id: z.string().cuid().optional(),
+  title: z.string(),
+  description: z.string().optional().nullable(),
+  capitalValue: z.number().int().optional().nullable(),
+  contactName: z.string(),
+  companyName: z.string(),
+  avatarURL: z.string().optional().nullable(),
+  addedOn: z.coerce.date().optional(),
+  dueDate: z.coerce.date().optional().nullable(),
+  status: z.string().optional(),
+  leadType: z.string().optional(),
+  pipelineStage: z.string().optional().nullable(),
+  isArchived: z.boolean().optional(),
+  source: z.string().optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadCreatetagsInputSchema),z.string().array() ]).optional(),
+  createdById: z.string(),
+  pipelineId: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const LeadCreateOrConnectWithoutSegmentInputSchema: z.ZodType<Prisma.LeadCreateOrConnectWithoutSegmentInput> = z.object({
+  where: z.lazy(() => LeadWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => LeadCreateWithoutSegmentInputSchema),z.lazy(() => LeadUncheckedCreateWithoutSegmentInputSchema) ]),
+}).strict();
+
+export const LeadCreateManySegmentInputEnvelopeSchema: z.ZodType<Prisma.LeadCreateManySegmentInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => LeadCreateManySegmentInputSchema),z.lazy(() => LeadCreateManySegmentInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
+}).strict();
+
+export const PipelineUpsertWithoutSegmentsInputSchema: z.ZodType<Prisma.PipelineUpsertWithoutSegmentsInput> = z.object({
+  update: z.union([ z.lazy(() => PipelineUpdateWithoutSegmentsInputSchema),z.lazy(() => PipelineUncheckedUpdateWithoutSegmentsInputSchema) ]),
+  create: z.union([ z.lazy(() => PipelineCreateWithoutSegmentsInputSchema),z.lazy(() => PipelineUncheckedCreateWithoutSegmentsInputSchema) ]),
+  where: z.lazy(() => PipelineWhereInputSchema).optional()
+}).strict();
+
+export const PipelineUpdateToOneWithWhereWithoutSegmentsInputSchema: z.ZodType<Prisma.PipelineUpdateToOneWithWhereWithoutSegmentsInput> = z.object({
+  where: z.lazy(() => PipelineWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => PipelineUpdateWithoutSegmentsInputSchema),z.lazy(() => PipelineUncheckedUpdateWithoutSegmentsInputSchema) ]),
+}).strict();
+
+export const PipelineUpdateWithoutSegmentsInputSchema: z.ZodType<Prisma.PipelineUpdateWithoutSegmentsInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  createdBy: z.lazy(() => UserUpdateOneRequiredWithoutPipelineNestedInputSchema).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataUpdateManyWithoutPipelineNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUpdateManyWithoutPipelineNestedInputSchema).optional()
+}).strict();
+
+export const PipelineUncheckedUpdateWithoutSegmentsInputSchema: z.ZodType<Prisma.PipelineUncheckedUpdateWithoutSegmentsInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  createdById: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataUncheckedUpdateManyWithoutPipelineNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedUpdateManyWithoutPipelineNestedInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentDataUpsertWithWhereUniqueWithoutSegmentInputSchema: z.ZodType<Prisma.PipelineSegmentDataUpsertWithWhereUniqueWithoutSegmentInput> = z.object({
+  where: z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => PipelineSegmentDataUpdateWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataUncheckedUpdateWithoutSegmentInputSchema) ]),
+  create: z.union([ z.lazy(() => PipelineSegmentDataCreateWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataUncheckedCreateWithoutSegmentInputSchema) ]),
+}).strict();
+
+export const PipelineSegmentDataUpdateWithWhereUniqueWithoutSegmentInputSchema: z.ZodType<Prisma.PipelineSegmentDataUpdateWithWhereUniqueWithoutSegmentInput> = z.object({
+  where: z.lazy(() => PipelineSegmentDataWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => PipelineSegmentDataUpdateWithoutSegmentInputSchema),z.lazy(() => PipelineSegmentDataUncheckedUpdateWithoutSegmentInputSchema) ]),
+}).strict();
+
+export const PipelineSegmentDataUpdateManyWithWhereWithoutSegmentInputSchema: z.ZodType<Prisma.PipelineSegmentDataUpdateManyWithWhereWithoutSegmentInput> = z.object({
+  where: z.lazy(() => PipelineSegmentDataScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => PipelineSegmentDataUpdateManyMutationInputSchema),z.lazy(() => PipelineSegmentDataUncheckedUpdateManyWithoutSegmentInputSchema) ]),
+}).strict();
+
+export const LeadUpsertWithWhereUniqueWithoutSegmentInputSchema: z.ZodType<Prisma.LeadUpsertWithWhereUniqueWithoutSegmentInput> = z.object({
+  where: z.lazy(() => LeadWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => LeadUpdateWithoutSegmentInputSchema),z.lazy(() => LeadUncheckedUpdateWithoutSegmentInputSchema) ]),
+  create: z.union([ z.lazy(() => LeadCreateWithoutSegmentInputSchema),z.lazy(() => LeadUncheckedCreateWithoutSegmentInputSchema) ]),
+}).strict();
+
+export const LeadUpdateWithWhereUniqueWithoutSegmentInputSchema: z.ZodType<Prisma.LeadUpdateWithWhereUniqueWithoutSegmentInput> = z.object({
+  where: z.lazy(() => LeadWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => LeadUpdateWithoutSegmentInputSchema),z.lazy(() => LeadUncheckedUpdateWithoutSegmentInputSchema) ]),
+}).strict();
+
+export const LeadUpdateManyWithWhereWithoutSegmentInputSchema: z.ZodType<Prisma.LeadUpdateManyWithWhereWithoutSegmentInput> = z.object({
+  where: z.lazy(() => LeadScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => LeadUpdateManyMutationInputSchema),z.lazy(() => LeadUncheckedUpdateManyWithoutSegmentInputSchema) ]),
+}).strict();
+
+export const PipelineCreateWithoutSegmentDataInputSchema: z.ZodType<Prisma.PipelineCreateWithoutSegmentDataInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  createdBy: z.lazy(() => UserCreateNestedOneWithoutPipelineInputSchema),
+  segments: z.lazy(() => PipelineSegmentCreateNestedManyWithoutPipelineInputSchema).optional(),
+  Lead: z.lazy(() => LeadCreateNestedManyWithoutPipelineInputSchema).optional()
+}).strict();
+
+export const PipelineUncheckedCreateWithoutSegmentDataInputSchema: z.ZodType<Prisma.PipelineUncheckedCreateWithoutSegmentDataInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  createdById: z.string(),
+  segments: z.lazy(() => PipelineSegmentUncheckedCreateNestedManyWithoutPipelineInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedCreateNestedManyWithoutPipelineInputSchema).optional()
+}).strict();
+
+export const PipelineCreateOrConnectWithoutSegmentDataInputSchema: z.ZodType<Prisma.PipelineCreateOrConnectWithoutSegmentDataInput> = z.object({
+  where: z.lazy(() => PipelineWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => PipelineCreateWithoutSegmentDataInputSchema),z.lazy(() => PipelineUncheckedCreateWithoutSegmentDataInputSchema) ]),
+}).strict();
+
+export const PipelineSegmentCreateWithoutSegmentDataInputSchema: z.ZodType<Prisma.PipelineSegmentCreateWithoutSegmentDataInput> = z.object({
+  name: z.string(),
+  deleted: z.boolean().optional(),
+  pipeline: z.lazy(() => PipelineCreateNestedOneWithoutSegmentsInputSchema),
+  Lead: z.lazy(() => LeadCreateNestedManyWithoutSegmentInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentUncheckedCreateWithoutSegmentDataInputSchema: z.ZodType<Prisma.PipelineSegmentUncheckedCreateWithoutSegmentDataInput> = z.object({
+  id: z.number().int().optional(),
+  name: z.string(),
+  deleted: z.boolean().optional(),
+  pipelineId: z.string(),
+  Lead: z.lazy(() => LeadUncheckedCreateNestedManyWithoutSegmentInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentCreateOrConnectWithoutSegmentDataInputSchema: z.ZodType<Prisma.PipelineSegmentCreateOrConnectWithoutSegmentDataInput> = z.object({
+  where: z.lazy(() => PipelineSegmentWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => PipelineSegmentCreateWithoutSegmentDataInputSchema),z.lazy(() => PipelineSegmentUncheckedCreateWithoutSegmentDataInputSchema) ]),
+}).strict();
+
+export const PipelineUpsertWithoutSegmentDataInputSchema: z.ZodType<Prisma.PipelineUpsertWithoutSegmentDataInput> = z.object({
+  update: z.union([ z.lazy(() => PipelineUpdateWithoutSegmentDataInputSchema),z.lazy(() => PipelineUncheckedUpdateWithoutSegmentDataInputSchema) ]),
+  create: z.union([ z.lazy(() => PipelineCreateWithoutSegmentDataInputSchema),z.lazy(() => PipelineUncheckedCreateWithoutSegmentDataInputSchema) ]),
+  where: z.lazy(() => PipelineWhereInputSchema).optional()
+}).strict();
+
+export const PipelineUpdateToOneWithWhereWithoutSegmentDataInputSchema: z.ZodType<Prisma.PipelineUpdateToOneWithWhereWithoutSegmentDataInput> = z.object({
+  where: z.lazy(() => PipelineWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => PipelineUpdateWithoutSegmentDataInputSchema),z.lazy(() => PipelineUncheckedUpdateWithoutSegmentDataInputSchema) ]),
+}).strict();
+
+export const PipelineUpdateWithoutSegmentDataInputSchema: z.ZodType<Prisma.PipelineUpdateWithoutSegmentDataInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  createdBy: z.lazy(() => UserUpdateOneRequiredWithoutPipelineNestedInputSchema).optional(),
+  segments: z.lazy(() => PipelineSegmentUpdateManyWithoutPipelineNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUpdateManyWithoutPipelineNestedInputSchema).optional()
+}).strict();
+
+export const PipelineUncheckedUpdateWithoutSegmentDataInputSchema: z.ZodType<Prisma.PipelineUncheckedUpdateWithoutSegmentDataInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  createdById: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  segments: z.lazy(() => PipelineSegmentUncheckedUpdateManyWithoutPipelineNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedUpdateManyWithoutPipelineNestedInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentUpsertWithoutSegmentDataInputSchema: z.ZodType<Prisma.PipelineSegmentUpsertWithoutSegmentDataInput> = z.object({
+  update: z.union([ z.lazy(() => PipelineSegmentUpdateWithoutSegmentDataInputSchema),z.lazy(() => PipelineSegmentUncheckedUpdateWithoutSegmentDataInputSchema) ]),
+  create: z.union([ z.lazy(() => PipelineSegmentCreateWithoutSegmentDataInputSchema),z.lazy(() => PipelineSegmentUncheckedCreateWithoutSegmentDataInputSchema) ]),
+  where: z.lazy(() => PipelineSegmentWhereInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentUpdateToOneWithWhereWithoutSegmentDataInputSchema: z.ZodType<Prisma.PipelineSegmentUpdateToOneWithWhereWithoutSegmentDataInput> = z.object({
+  where: z.lazy(() => PipelineSegmentWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => PipelineSegmentUpdateWithoutSegmentDataInputSchema),z.lazy(() => PipelineSegmentUncheckedUpdateWithoutSegmentDataInputSchema) ]),
+}).strict();
+
+export const PipelineSegmentUpdateWithoutSegmentDataInputSchema: z.ZodType<Prisma.PipelineSegmentUpdateWithoutSegmentDataInput> = z.object({
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  deleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  pipeline: z.lazy(() => PipelineUpdateOneRequiredWithoutSegmentsNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUpdateManyWithoutSegmentNestedInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentUncheckedUpdateWithoutSegmentDataInputSchema: z.ZodType<Prisma.PipelineSegmentUncheckedUpdateWithoutSegmentDataInput> = z.object({
+  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  deleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  Lead: z.lazy(() => LeadUncheckedUpdateManyWithoutSegmentNestedInputSchema).optional()
+}).strict();
+
+export const UserCreateWithoutLeadInputSchema: z.ZodType<Prisma.UserCreateWithoutLeadInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string().optional().nullable(),
+  email: z.string().optional().nullable(),
+  emailVerified: z.coerce.date().optional().nullable(),
+  image: z.string().optional().nullable(),
+  accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
+  sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
+  posts: z.lazy(() => PostCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  tasks: z.lazy(() => TaskCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineCreateNestedManyWithoutCreatedByInputSchema).optional()
+}).strict();
+
+export const UserUncheckedCreateWithoutLeadInputSchema: z.ZodType<Prisma.UserUncheckedCreateWithoutLeadInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string().optional().nullable(),
+  email: z.string().optional().nullable(),
+  emailVerified: z.coerce.date().optional().nullable(),
+  image: z.string().optional().nullable(),
+  accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  posts: z.lazy(() => PostUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  tasks: z.lazy(() => TaskUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional()
+}).strict();
+
+export const UserCreateOrConnectWithoutLeadInputSchema: z.ZodType<Prisma.UserCreateOrConnectWithoutLeadInput> = z.object({
+  where: z.lazy(() => UserWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => UserCreateWithoutLeadInputSchema),z.lazy(() => UserUncheckedCreateWithoutLeadInputSchema) ]),
+}).strict();
+
+export const PipelineCreateWithoutLeadInputSchema: z.ZodType<Prisma.PipelineCreateWithoutLeadInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  createdBy: z.lazy(() => UserCreateNestedOneWithoutPipelineInputSchema),
+  segmentData: z.lazy(() => PipelineSegmentDataCreateNestedManyWithoutPipelineInputSchema).optional(),
+  segments: z.lazy(() => PipelineSegmentCreateNestedManyWithoutPipelineInputSchema).optional()
+}).strict();
+
+export const PipelineUncheckedCreateWithoutLeadInputSchema: z.ZodType<Prisma.PipelineUncheckedCreateWithoutLeadInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  createdById: z.string(),
+  segmentData: z.lazy(() => PipelineSegmentDataUncheckedCreateNestedManyWithoutPipelineInputSchema).optional(),
+  segments: z.lazy(() => PipelineSegmentUncheckedCreateNestedManyWithoutPipelineInputSchema).optional()
+}).strict();
+
+export const PipelineCreateOrConnectWithoutLeadInputSchema: z.ZodType<Prisma.PipelineCreateOrConnectWithoutLeadInput> = z.object({
+  where: z.lazy(() => PipelineWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => PipelineCreateWithoutLeadInputSchema),z.lazy(() => PipelineUncheckedCreateWithoutLeadInputSchema) ]),
+}).strict();
+
+export const PipelineSegmentCreateWithoutLeadInputSchema: z.ZodType<Prisma.PipelineSegmentCreateWithoutLeadInput> = z.object({
+  name: z.string(),
+  deleted: z.boolean().optional(),
+  pipeline: z.lazy(() => PipelineCreateNestedOneWithoutSegmentsInputSchema),
+  segmentData: z.lazy(() => PipelineSegmentDataCreateNestedManyWithoutSegmentInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentUncheckedCreateWithoutLeadInputSchema: z.ZodType<Prisma.PipelineSegmentUncheckedCreateWithoutLeadInput> = z.object({
+  id: z.number().int().optional(),
+  name: z.string(),
+  deleted: z.boolean().optional(),
+  pipelineId: z.string(),
+  segmentData: z.lazy(() => PipelineSegmentDataUncheckedCreateNestedManyWithoutSegmentInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentCreateOrConnectWithoutLeadInputSchema: z.ZodType<Prisma.PipelineSegmentCreateOrConnectWithoutLeadInput> = z.object({
+  where: z.lazy(() => PipelineSegmentWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => PipelineSegmentCreateWithoutLeadInputSchema),z.lazy(() => PipelineSegmentUncheckedCreateWithoutLeadInputSchema) ]),
+}).strict();
+
+export const UserUpsertWithoutLeadInputSchema: z.ZodType<Prisma.UserUpsertWithoutLeadInput> = z.object({
+  update: z.union([ z.lazy(() => UserUpdateWithoutLeadInputSchema),z.lazy(() => UserUncheckedUpdateWithoutLeadInputSchema) ]),
+  create: z.union([ z.lazy(() => UserCreateWithoutLeadInputSchema),z.lazy(() => UserUncheckedCreateWithoutLeadInputSchema) ]),
+  where: z.lazy(() => UserWhereInputSchema).optional()
+}).strict();
+
+export const UserUpdateToOneWithWhereWithoutLeadInputSchema: z.ZodType<Prisma.UserUpdateToOneWithWhereWithoutLeadInput> = z.object({
+  where: z.lazy(() => UserWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => UserUpdateWithoutLeadInputSchema),z.lazy(() => UserUncheckedUpdateWithoutLeadInputSchema) ]),
+}).strict();
+
+export const UserUpdateWithoutLeadInputSchema: z.ZodType<Prisma.UserUpdateWithoutLeadInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
+  sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
+  posts: z.lazy(() => PostUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  tasks: z.lazy(() => TaskUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUpdateManyWithoutCreatedByNestedInputSchema).optional()
+}).strict();
+
+export const UserUncheckedUpdateWithoutLeadInputSchema: z.ZodType<Prisma.UserUncheckedUpdateWithoutLeadInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  posts: z.lazy(() => PostUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  tasks: z.lazy(() => TaskUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional()
+}).strict();
+
+export const PipelineUpsertWithoutLeadInputSchema: z.ZodType<Prisma.PipelineUpsertWithoutLeadInput> = z.object({
+  update: z.union([ z.lazy(() => PipelineUpdateWithoutLeadInputSchema),z.lazy(() => PipelineUncheckedUpdateWithoutLeadInputSchema) ]),
+  create: z.union([ z.lazy(() => PipelineCreateWithoutLeadInputSchema),z.lazy(() => PipelineUncheckedCreateWithoutLeadInputSchema) ]),
+  where: z.lazy(() => PipelineWhereInputSchema).optional()
+}).strict();
+
+export const PipelineUpdateToOneWithWhereWithoutLeadInputSchema: z.ZodType<Prisma.PipelineUpdateToOneWithWhereWithoutLeadInput> = z.object({
+  where: z.lazy(() => PipelineWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => PipelineUpdateWithoutLeadInputSchema),z.lazy(() => PipelineUncheckedUpdateWithoutLeadInputSchema) ]),
+}).strict();
+
+export const PipelineUpdateWithoutLeadInputSchema: z.ZodType<Prisma.PipelineUpdateWithoutLeadInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  createdBy: z.lazy(() => UserUpdateOneRequiredWithoutPipelineNestedInputSchema).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataUpdateManyWithoutPipelineNestedInputSchema).optional(),
+  segments: z.lazy(() => PipelineSegmentUpdateManyWithoutPipelineNestedInputSchema).optional()
+}).strict();
+
+export const PipelineUncheckedUpdateWithoutLeadInputSchema: z.ZodType<Prisma.PipelineUncheckedUpdateWithoutLeadInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  createdById: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataUncheckedUpdateManyWithoutPipelineNestedInputSchema).optional(),
+  segments: z.lazy(() => PipelineSegmentUncheckedUpdateManyWithoutPipelineNestedInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentUpsertWithoutLeadInputSchema: z.ZodType<Prisma.PipelineSegmentUpsertWithoutLeadInput> = z.object({
+  update: z.union([ z.lazy(() => PipelineSegmentUpdateWithoutLeadInputSchema),z.lazy(() => PipelineSegmentUncheckedUpdateWithoutLeadInputSchema) ]),
+  create: z.union([ z.lazy(() => PipelineSegmentCreateWithoutLeadInputSchema),z.lazy(() => PipelineSegmentUncheckedCreateWithoutLeadInputSchema) ]),
+  where: z.lazy(() => PipelineSegmentWhereInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentUpdateToOneWithWhereWithoutLeadInputSchema: z.ZodType<Prisma.PipelineSegmentUpdateToOneWithWhereWithoutLeadInput> = z.object({
+  where: z.lazy(() => PipelineSegmentWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => PipelineSegmentUpdateWithoutLeadInputSchema),z.lazy(() => PipelineSegmentUncheckedUpdateWithoutLeadInputSchema) ]),
+}).strict();
+
+export const PipelineSegmentUpdateWithoutLeadInputSchema: z.ZodType<Prisma.PipelineSegmentUpdateWithoutLeadInput> = z.object({
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  deleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  pipeline: z.lazy(() => PipelineUpdateOneRequiredWithoutSegmentsNestedInputSchema).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataUpdateManyWithoutSegmentNestedInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentUncheckedUpdateWithoutLeadInputSchema: z.ZodType<Prisma.PipelineSegmentUncheckedUpdateWithoutLeadInput> = z.object({
+  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  deleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataUncheckedUpdateManyWithoutSegmentNestedInputSchema).optional()
 }).strict();
 
 export const AccountCreateManyUserInputSchema: z.ZodType<Prisma.AccountCreateManyUserInput> = z.object({
@@ -2593,6 +5091,35 @@ export const TaskCreateManyCreatedByInputSchema: z.ZodType<Prisma.TaskCreateMany
   status: z.lazy(() => TaskStatusSchema).optional(),
   priority: z.lazy(() => TaskPrioritySchema).optional(),
   dueDate: z.coerce.date().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const PipelineCreateManyCreatedByInputSchema: z.ZodType<Prisma.PipelineCreateManyCreatedByInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const LeadCreateManyCreatedByInputSchema: z.ZodType<Prisma.LeadCreateManyCreatedByInput> = z.object({
+  id: z.string().cuid().optional(),
+  title: z.string(),
+  description: z.string().optional().nullable(),
+  capitalValue: z.number().int().optional().nullable(),
+  contactName: z.string(),
+  companyName: z.string(),
+  avatarURL: z.string().optional().nullable(),
+  addedOn: z.coerce.date().optional(),
+  dueDate: z.coerce.date().optional().nullable(),
+  status: z.string().optional(),
+  leadType: z.string().optional(),
+  pipelineStage: z.string().optional().nullable(),
+  isArchived: z.boolean().optional(),
+  source: z.string().optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadCreatetagsInputSchema),z.string().array() ]).optional(),
+  pipelineId: z.string().optional().nullable(),
+  segmentId: z.number().int().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional()
 }).strict();
@@ -2708,6 +5235,372 @@ export const TaskUncheckedUpdateManyWithoutCreatedByInputSchema: z.ZodType<Prism
   status: z.union([ z.lazy(() => TaskStatusSchema),z.lazy(() => EnumTaskStatusFieldUpdateOperationsInputSchema) ]).optional(),
   priority: z.union([ z.lazy(() => TaskPrioritySchema),z.lazy(() => EnumTaskPriorityFieldUpdateOperationsInputSchema) ]).optional(),
   dueDate: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const PipelineUpdateWithoutCreatedByInputSchema: z.ZodType<Prisma.PipelineUpdateWithoutCreatedByInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataUpdateManyWithoutPipelineNestedInputSchema).optional(),
+  segments: z.lazy(() => PipelineSegmentUpdateManyWithoutPipelineNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUpdateManyWithoutPipelineNestedInputSchema).optional()
+}).strict();
+
+export const PipelineUncheckedUpdateWithoutCreatedByInputSchema: z.ZodType<Prisma.PipelineUncheckedUpdateWithoutCreatedByInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataUncheckedUpdateManyWithoutPipelineNestedInputSchema).optional(),
+  segments: z.lazy(() => PipelineSegmentUncheckedUpdateManyWithoutPipelineNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedUpdateManyWithoutPipelineNestedInputSchema).optional()
+}).strict();
+
+export const PipelineUncheckedUpdateManyWithoutCreatedByInputSchema: z.ZodType<Prisma.PipelineUncheckedUpdateManyWithoutCreatedByInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const LeadUpdateWithoutCreatedByInputSchema: z.ZodType<Prisma.LeadUpdateWithoutCreatedByInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  capitalValue: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  contactName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  companyName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  avatarURL: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  addedOn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  dueDate: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  leadType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineStage: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  isArchived: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  source: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadUpdatetagsInputSchema),z.string().array() ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  pipeline: z.lazy(() => PipelineUpdateOneWithoutLeadNestedInputSchema).optional(),
+  segment: z.lazy(() => PipelineSegmentUpdateOneWithoutLeadNestedInputSchema).optional()
+}).strict();
+
+export const LeadUncheckedUpdateWithoutCreatedByInputSchema: z.ZodType<Prisma.LeadUncheckedUpdateWithoutCreatedByInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  capitalValue: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  contactName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  companyName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  avatarURL: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  addedOn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  dueDate: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  leadType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineStage: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  isArchived: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  source: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadUpdatetagsInputSchema),z.string().array() ]).optional(),
+  pipelineId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  segmentId: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const LeadUncheckedUpdateManyWithoutCreatedByInputSchema: z.ZodType<Prisma.LeadUncheckedUpdateManyWithoutCreatedByInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  capitalValue: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  contactName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  companyName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  avatarURL: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  addedOn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  dueDate: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  leadType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineStage: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  isArchived: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  source: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadUpdatetagsInputSchema),z.string().array() ]).optional(),
+  pipelineId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  segmentId: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const PipelineSegmentDataCreateManyPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentDataCreateManyPipelineInput> = z.object({
+  id: z.number().int().optional(),
+  segmentId: z.number().int(),
+  completedAt: z.coerce.date().optional().nullable(),
+  notes: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const PipelineSegmentCreateManyPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentCreateManyPipelineInput> = z.object({
+  id: z.number().int().optional(),
+  name: z.string(),
+  deleted: z.boolean().optional()
+}).strict();
+
+export const LeadCreateManyPipelineInputSchema: z.ZodType<Prisma.LeadCreateManyPipelineInput> = z.object({
+  id: z.string().cuid().optional(),
+  title: z.string(),
+  description: z.string().optional().nullable(),
+  capitalValue: z.number().int().optional().nullable(),
+  contactName: z.string(),
+  companyName: z.string(),
+  avatarURL: z.string().optional().nullable(),
+  addedOn: z.coerce.date().optional(),
+  dueDate: z.coerce.date().optional().nullable(),
+  status: z.string().optional(),
+  leadType: z.string().optional(),
+  pipelineStage: z.string().optional().nullable(),
+  isArchived: z.boolean().optional(),
+  source: z.string().optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadCreatetagsInputSchema),z.string().array() ]).optional(),
+  createdById: z.string(),
+  segmentId: z.number().int().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const PipelineSegmentDataUpdateWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentDataUpdateWithoutPipelineInput> = z.object({
+  completedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  notes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  segment: z.lazy(() => PipelineSegmentUpdateOneRequiredWithoutSegmentDataNestedInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentDataUncheckedUpdateWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentDataUncheckedUpdateWithoutPipelineInput> = z.object({
+  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  segmentId: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  completedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  notes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const PipelineSegmentDataUncheckedUpdateManyWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentDataUncheckedUpdateManyWithoutPipelineInput> = z.object({
+  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  segmentId: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  completedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  notes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const PipelineSegmentUpdateWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentUpdateWithoutPipelineInput> = z.object({
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  deleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataUpdateManyWithoutSegmentNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUpdateManyWithoutSegmentNestedInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentUncheckedUpdateWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentUncheckedUpdateWithoutPipelineInput> = z.object({
+  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  deleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  segmentData: z.lazy(() => PipelineSegmentDataUncheckedUpdateManyWithoutSegmentNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedUpdateManyWithoutSegmentNestedInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentUncheckedUpdateManyWithoutPipelineInputSchema: z.ZodType<Prisma.PipelineSegmentUncheckedUpdateManyWithoutPipelineInput> = z.object({
+  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  deleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const LeadUpdateWithoutPipelineInputSchema: z.ZodType<Prisma.LeadUpdateWithoutPipelineInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  capitalValue: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  contactName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  companyName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  avatarURL: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  addedOn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  dueDate: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  leadType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineStage: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  isArchived: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  source: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadUpdatetagsInputSchema),z.string().array() ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  createdBy: z.lazy(() => UserUpdateOneRequiredWithoutLeadNestedInputSchema).optional(),
+  segment: z.lazy(() => PipelineSegmentUpdateOneWithoutLeadNestedInputSchema).optional()
+}).strict();
+
+export const LeadUncheckedUpdateWithoutPipelineInputSchema: z.ZodType<Prisma.LeadUncheckedUpdateWithoutPipelineInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  capitalValue: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  contactName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  companyName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  avatarURL: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  addedOn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  dueDate: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  leadType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineStage: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  isArchived: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  source: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadUpdatetagsInputSchema),z.string().array() ]).optional(),
+  createdById: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  segmentId: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const LeadUncheckedUpdateManyWithoutPipelineInputSchema: z.ZodType<Prisma.LeadUncheckedUpdateManyWithoutPipelineInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  capitalValue: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  contactName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  companyName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  avatarURL: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  addedOn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  dueDate: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  leadType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineStage: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  isArchived: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  source: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadUpdatetagsInputSchema),z.string().array() ]).optional(),
+  createdById: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  segmentId: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const PipelineSegmentDataCreateManySegmentInputSchema: z.ZodType<Prisma.PipelineSegmentDataCreateManySegmentInput> = z.object({
+  id: z.number().int().optional(),
+  pipelineId: z.string(),
+  completedAt: z.coerce.date().optional().nullable(),
+  notes: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const LeadCreateManySegmentInputSchema: z.ZodType<Prisma.LeadCreateManySegmentInput> = z.object({
+  id: z.string().cuid().optional(),
+  title: z.string(),
+  description: z.string().optional().nullable(),
+  capitalValue: z.number().int().optional().nullable(),
+  contactName: z.string(),
+  companyName: z.string(),
+  avatarURL: z.string().optional().nullable(),
+  addedOn: z.coerce.date().optional(),
+  dueDate: z.coerce.date().optional().nullable(),
+  status: z.string().optional(),
+  leadType: z.string().optional(),
+  pipelineStage: z.string().optional().nullable(),
+  isArchived: z.boolean().optional(),
+  source: z.string().optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadCreatetagsInputSchema),z.string().array() ]).optional(),
+  createdById: z.string(),
+  pipelineId: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const PipelineSegmentDataUpdateWithoutSegmentInputSchema: z.ZodType<Prisma.PipelineSegmentDataUpdateWithoutSegmentInput> = z.object({
+  completedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  notes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  pipeline: z.lazy(() => PipelineUpdateOneRequiredWithoutSegmentDataNestedInputSchema).optional()
+}).strict();
+
+export const PipelineSegmentDataUncheckedUpdateWithoutSegmentInputSchema: z.ZodType<Prisma.PipelineSegmentDataUncheckedUpdateWithoutSegmentInput> = z.object({
+  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  completedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  notes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const PipelineSegmentDataUncheckedUpdateManyWithoutSegmentInputSchema: z.ZodType<Prisma.PipelineSegmentDataUncheckedUpdateManyWithoutSegmentInput> = z.object({
+  id: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  completedAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  notes: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const LeadUpdateWithoutSegmentInputSchema: z.ZodType<Prisma.LeadUpdateWithoutSegmentInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  capitalValue: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  contactName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  companyName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  avatarURL: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  addedOn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  dueDate: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  leadType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineStage: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  isArchived: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  source: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadUpdatetagsInputSchema),z.string().array() ]).optional(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  createdBy: z.lazy(() => UserUpdateOneRequiredWithoutLeadNestedInputSchema).optional(),
+  pipeline: z.lazy(() => PipelineUpdateOneWithoutLeadNestedInputSchema).optional()
+}).strict();
+
+export const LeadUncheckedUpdateWithoutSegmentInputSchema: z.ZodType<Prisma.LeadUncheckedUpdateWithoutSegmentInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  capitalValue: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  contactName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  companyName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  avatarURL: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  addedOn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  dueDate: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  leadType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineStage: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  isArchived: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  source: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadUpdatetagsInputSchema),z.string().array() ]).optional(),
+  createdById: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const LeadUncheckedUpdateManyWithoutSegmentInputSchema: z.ZodType<Prisma.LeadUncheckedUpdateManyWithoutSegmentInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  capitalValue: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  contactName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  companyName: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  avatarURL: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  addedOn: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  dueDate: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  status: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  leadType: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineStage: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  isArchived: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  source: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  tags: z.union([ z.lazy(() => LeadUpdatetagsInputSchema),z.string().array() ]).optional(),
+  createdById: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  pipelineId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
@@ -3083,6 +5976,254 @@ export const TaskFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.TaskFindUniqueOrT
   where: TaskWhereUniqueInputSchema,
 }).strict() ;
 
+export const PipelineFindFirstArgsSchema: z.ZodType<Prisma.PipelineFindFirstArgs> = z.object({
+  select: PipelineSelectSchema.optional(),
+  include: PipelineIncludeSchema.optional(),
+  where: PipelineWhereInputSchema.optional(),
+  orderBy: z.union([ PipelineOrderByWithRelationInputSchema.array(),PipelineOrderByWithRelationInputSchema ]).optional(),
+  cursor: PipelineWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ PipelineScalarFieldEnumSchema,PipelineScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const PipelineFindFirstOrThrowArgsSchema: z.ZodType<Prisma.PipelineFindFirstOrThrowArgs> = z.object({
+  select: PipelineSelectSchema.optional(),
+  include: PipelineIncludeSchema.optional(),
+  where: PipelineWhereInputSchema.optional(),
+  orderBy: z.union([ PipelineOrderByWithRelationInputSchema.array(),PipelineOrderByWithRelationInputSchema ]).optional(),
+  cursor: PipelineWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ PipelineScalarFieldEnumSchema,PipelineScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const PipelineFindManyArgsSchema: z.ZodType<Prisma.PipelineFindManyArgs> = z.object({
+  select: PipelineSelectSchema.optional(),
+  include: PipelineIncludeSchema.optional(),
+  where: PipelineWhereInputSchema.optional(),
+  orderBy: z.union([ PipelineOrderByWithRelationInputSchema.array(),PipelineOrderByWithRelationInputSchema ]).optional(),
+  cursor: PipelineWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ PipelineScalarFieldEnumSchema,PipelineScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const PipelineAggregateArgsSchema: z.ZodType<Prisma.PipelineAggregateArgs> = z.object({
+  where: PipelineWhereInputSchema.optional(),
+  orderBy: z.union([ PipelineOrderByWithRelationInputSchema.array(),PipelineOrderByWithRelationInputSchema ]).optional(),
+  cursor: PipelineWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const PipelineGroupByArgsSchema: z.ZodType<Prisma.PipelineGroupByArgs> = z.object({
+  where: PipelineWhereInputSchema.optional(),
+  orderBy: z.union([ PipelineOrderByWithAggregationInputSchema.array(),PipelineOrderByWithAggregationInputSchema ]).optional(),
+  by: PipelineScalarFieldEnumSchema.array(),
+  having: PipelineScalarWhereWithAggregatesInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const PipelineFindUniqueArgsSchema: z.ZodType<Prisma.PipelineFindUniqueArgs> = z.object({
+  select: PipelineSelectSchema.optional(),
+  include: PipelineIncludeSchema.optional(),
+  where: PipelineWhereUniqueInputSchema,
+}).strict() ;
+
+export const PipelineFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.PipelineFindUniqueOrThrowArgs> = z.object({
+  select: PipelineSelectSchema.optional(),
+  include: PipelineIncludeSchema.optional(),
+  where: PipelineWhereUniqueInputSchema,
+}).strict() ;
+
+export const PipelineSegmentFindFirstArgsSchema: z.ZodType<Prisma.PipelineSegmentFindFirstArgs> = z.object({
+  select: PipelineSegmentSelectSchema.optional(),
+  include: PipelineSegmentIncludeSchema.optional(),
+  where: PipelineSegmentWhereInputSchema.optional(),
+  orderBy: z.union([ PipelineSegmentOrderByWithRelationInputSchema.array(),PipelineSegmentOrderByWithRelationInputSchema ]).optional(),
+  cursor: PipelineSegmentWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ PipelineSegmentScalarFieldEnumSchema,PipelineSegmentScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const PipelineSegmentFindFirstOrThrowArgsSchema: z.ZodType<Prisma.PipelineSegmentFindFirstOrThrowArgs> = z.object({
+  select: PipelineSegmentSelectSchema.optional(),
+  include: PipelineSegmentIncludeSchema.optional(),
+  where: PipelineSegmentWhereInputSchema.optional(),
+  orderBy: z.union([ PipelineSegmentOrderByWithRelationInputSchema.array(),PipelineSegmentOrderByWithRelationInputSchema ]).optional(),
+  cursor: PipelineSegmentWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ PipelineSegmentScalarFieldEnumSchema,PipelineSegmentScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const PipelineSegmentFindManyArgsSchema: z.ZodType<Prisma.PipelineSegmentFindManyArgs> = z.object({
+  select: PipelineSegmentSelectSchema.optional(),
+  include: PipelineSegmentIncludeSchema.optional(),
+  where: PipelineSegmentWhereInputSchema.optional(),
+  orderBy: z.union([ PipelineSegmentOrderByWithRelationInputSchema.array(),PipelineSegmentOrderByWithRelationInputSchema ]).optional(),
+  cursor: PipelineSegmentWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ PipelineSegmentScalarFieldEnumSchema,PipelineSegmentScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const PipelineSegmentAggregateArgsSchema: z.ZodType<Prisma.PipelineSegmentAggregateArgs> = z.object({
+  where: PipelineSegmentWhereInputSchema.optional(),
+  orderBy: z.union([ PipelineSegmentOrderByWithRelationInputSchema.array(),PipelineSegmentOrderByWithRelationInputSchema ]).optional(),
+  cursor: PipelineSegmentWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const PipelineSegmentGroupByArgsSchema: z.ZodType<Prisma.PipelineSegmentGroupByArgs> = z.object({
+  where: PipelineSegmentWhereInputSchema.optional(),
+  orderBy: z.union([ PipelineSegmentOrderByWithAggregationInputSchema.array(),PipelineSegmentOrderByWithAggregationInputSchema ]).optional(),
+  by: PipelineSegmentScalarFieldEnumSchema.array(),
+  having: PipelineSegmentScalarWhereWithAggregatesInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const PipelineSegmentFindUniqueArgsSchema: z.ZodType<Prisma.PipelineSegmentFindUniqueArgs> = z.object({
+  select: PipelineSegmentSelectSchema.optional(),
+  include: PipelineSegmentIncludeSchema.optional(),
+  where: PipelineSegmentWhereUniqueInputSchema,
+}).strict() ;
+
+export const PipelineSegmentFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.PipelineSegmentFindUniqueOrThrowArgs> = z.object({
+  select: PipelineSegmentSelectSchema.optional(),
+  include: PipelineSegmentIncludeSchema.optional(),
+  where: PipelineSegmentWhereUniqueInputSchema,
+}).strict() ;
+
+export const PipelineSegmentDataFindFirstArgsSchema: z.ZodType<Prisma.PipelineSegmentDataFindFirstArgs> = z.object({
+  select: PipelineSegmentDataSelectSchema.optional(),
+  include: PipelineSegmentDataIncludeSchema.optional(),
+  where: PipelineSegmentDataWhereInputSchema.optional(),
+  orderBy: z.union([ PipelineSegmentDataOrderByWithRelationInputSchema.array(),PipelineSegmentDataOrderByWithRelationInputSchema ]).optional(),
+  cursor: PipelineSegmentDataWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ PipelineSegmentDataScalarFieldEnumSchema,PipelineSegmentDataScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const PipelineSegmentDataFindFirstOrThrowArgsSchema: z.ZodType<Prisma.PipelineSegmentDataFindFirstOrThrowArgs> = z.object({
+  select: PipelineSegmentDataSelectSchema.optional(),
+  include: PipelineSegmentDataIncludeSchema.optional(),
+  where: PipelineSegmentDataWhereInputSchema.optional(),
+  orderBy: z.union([ PipelineSegmentDataOrderByWithRelationInputSchema.array(),PipelineSegmentDataOrderByWithRelationInputSchema ]).optional(),
+  cursor: PipelineSegmentDataWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ PipelineSegmentDataScalarFieldEnumSchema,PipelineSegmentDataScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const PipelineSegmentDataFindManyArgsSchema: z.ZodType<Prisma.PipelineSegmentDataFindManyArgs> = z.object({
+  select: PipelineSegmentDataSelectSchema.optional(),
+  include: PipelineSegmentDataIncludeSchema.optional(),
+  where: PipelineSegmentDataWhereInputSchema.optional(),
+  orderBy: z.union([ PipelineSegmentDataOrderByWithRelationInputSchema.array(),PipelineSegmentDataOrderByWithRelationInputSchema ]).optional(),
+  cursor: PipelineSegmentDataWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ PipelineSegmentDataScalarFieldEnumSchema,PipelineSegmentDataScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const PipelineSegmentDataAggregateArgsSchema: z.ZodType<Prisma.PipelineSegmentDataAggregateArgs> = z.object({
+  where: PipelineSegmentDataWhereInputSchema.optional(),
+  orderBy: z.union([ PipelineSegmentDataOrderByWithRelationInputSchema.array(),PipelineSegmentDataOrderByWithRelationInputSchema ]).optional(),
+  cursor: PipelineSegmentDataWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const PipelineSegmentDataGroupByArgsSchema: z.ZodType<Prisma.PipelineSegmentDataGroupByArgs> = z.object({
+  where: PipelineSegmentDataWhereInputSchema.optional(),
+  orderBy: z.union([ PipelineSegmentDataOrderByWithAggregationInputSchema.array(),PipelineSegmentDataOrderByWithAggregationInputSchema ]).optional(),
+  by: PipelineSegmentDataScalarFieldEnumSchema.array(),
+  having: PipelineSegmentDataScalarWhereWithAggregatesInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const PipelineSegmentDataFindUniqueArgsSchema: z.ZodType<Prisma.PipelineSegmentDataFindUniqueArgs> = z.object({
+  select: PipelineSegmentDataSelectSchema.optional(),
+  include: PipelineSegmentDataIncludeSchema.optional(),
+  where: PipelineSegmentDataWhereUniqueInputSchema,
+}).strict() ;
+
+export const PipelineSegmentDataFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.PipelineSegmentDataFindUniqueOrThrowArgs> = z.object({
+  select: PipelineSegmentDataSelectSchema.optional(),
+  include: PipelineSegmentDataIncludeSchema.optional(),
+  where: PipelineSegmentDataWhereUniqueInputSchema,
+}).strict() ;
+
+export const LeadFindFirstArgsSchema: z.ZodType<Prisma.LeadFindFirstArgs> = z.object({
+  select: LeadSelectSchema.optional(),
+  include: LeadIncludeSchema.optional(),
+  where: LeadWhereInputSchema.optional(),
+  orderBy: z.union([ LeadOrderByWithRelationInputSchema.array(),LeadOrderByWithRelationInputSchema ]).optional(),
+  cursor: LeadWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ LeadScalarFieldEnumSchema,LeadScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const LeadFindFirstOrThrowArgsSchema: z.ZodType<Prisma.LeadFindFirstOrThrowArgs> = z.object({
+  select: LeadSelectSchema.optional(),
+  include: LeadIncludeSchema.optional(),
+  where: LeadWhereInputSchema.optional(),
+  orderBy: z.union([ LeadOrderByWithRelationInputSchema.array(),LeadOrderByWithRelationInputSchema ]).optional(),
+  cursor: LeadWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ LeadScalarFieldEnumSchema,LeadScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const LeadFindManyArgsSchema: z.ZodType<Prisma.LeadFindManyArgs> = z.object({
+  select: LeadSelectSchema.optional(),
+  include: LeadIncludeSchema.optional(),
+  where: LeadWhereInputSchema.optional(),
+  orderBy: z.union([ LeadOrderByWithRelationInputSchema.array(),LeadOrderByWithRelationInputSchema ]).optional(),
+  cursor: LeadWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ LeadScalarFieldEnumSchema,LeadScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const LeadAggregateArgsSchema: z.ZodType<Prisma.LeadAggregateArgs> = z.object({
+  where: LeadWhereInputSchema.optional(),
+  orderBy: z.union([ LeadOrderByWithRelationInputSchema.array(),LeadOrderByWithRelationInputSchema ]).optional(),
+  cursor: LeadWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const LeadGroupByArgsSchema: z.ZodType<Prisma.LeadGroupByArgs> = z.object({
+  where: LeadWhereInputSchema.optional(),
+  orderBy: z.union([ LeadOrderByWithAggregationInputSchema.array(),LeadOrderByWithAggregationInputSchema ]).optional(),
+  by: LeadScalarFieldEnumSchema.array(),
+  having: LeadScalarWhereWithAggregatesInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const LeadFindUniqueArgsSchema: z.ZodType<Prisma.LeadFindUniqueArgs> = z.object({
+  select: LeadSelectSchema.optional(),
+  include: LeadIncludeSchema.optional(),
+  where: LeadWhereUniqueInputSchema,
+}).strict() ;
+
+export const LeadFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.LeadFindUniqueOrThrowArgs> = z.object({
+  select: LeadSelectSchema.optional(),
+  include: LeadIncludeSchema.optional(),
+  where: LeadWhereUniqueInputSchema,
+}).strict() ;
+
 export const PostCreateArgsSchema: z.ZodType<Prisma.PostCreateArgs> = z.object({
   select: PostSelectSchema.optional(),
   include: PostIncludeSchema.optional(),
@@ -3400,5 +6541,221 @@ export const TaskUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.TaskUpdateManyA
 
 export const TaskDeleteManyArgsSchema: z.ZodType<Prisma.TaskDeleteManyArgs> = z.object({
   where: TaskWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const PipelineCreateArgsSchema: z.ZodType<Prisma.PipelineCreateArgs> = z.object({
+  select: PipelineSelectSchema.optional(),
+  include: PipelineIncludeSchema.optional(),
+  data: z.union([ PipelineCreateInputSchema,PipelineUncheckedCreateInputSchema ]),
+}).strict() ;
+
+export const PipelineUpsertArgsSchema: z.ZodType<Prisma.PipelineUpsertArgs> = z.object({
+  select: PipelineSelectSchema.optional(),
+  include: PipelineIncludeSchema.optional(),
+  where: PipelineWhereUniqueInputSchema,
+  create: z.union([ PipelineCreateInputSchema,PipelineUncheckedCreateInputSchema ]),
+  update: z.union([ PipelineUpdateInputSchema,PipelineUncheckedUpdateInputSchema ]),
+}).strict() ;
+
+export const PipelineCreateManyArgsSchema: z.ZodType<Prisma.PipelineCreateManyArgs> = z.object({
+  data: z.union([ PipelineCreateManyInputSchema,PipelineCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const PipelineCreateManyAndReturnArgsSchema: z.ZodType<Prisma.PipelineCreateManyAndReturnArgs> = z.object({
+  data: z.union([ PipelineCreateManyInputSchema,PipelineCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const PipelineDeleteArgsSchema: z.ZodType<Prisma.PipelineDeleteArgs> = z.object({
+  select: PipelineSelectSchema.optional(),
+  include: PipelineIncludeSchema.optional(),
+  where: PipelineWhereUniqueInputSchema,
+}).strict() ;
+
+export const PipelineUpdateArgsSchema: z.ZodType<Prisma.PipelineUpdateArgs> = z.object({
+  select: PipelineSelectSchema.optional(),
+  include: PipelineIncludeSchema.optional(),
+  data: z.union([ PipelineUpdateInputSchema,PipelineUncheckedUpdateInputSchema ]),
+  where: PipelineWhereUniqueInputSchema,
+}).strict() ;
+
+export const PipelineUpdateManyArgsSchema: z.ZodType<Prisma.PipelineUpdateManyArgs> = z.object({
+  data: z.union([ PipelineUpdateManyMutationInputSchema,PipelineUncheckedUpdateManyInputSchema ]),
+  where: PipelineWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const PipelineUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.PipelineUpdateManyAndReturnArgs> = z.object({
+  data: z.union([ PipelineUpdateManyMutationInputSchema,PipelineUncheckedUpdateManyInputSchema ]),
+  where: PipelineWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const PipelineDeleteManyArgsSchema: z.ZodType<Prisma.PipelineDeleteManyArgs> = z.object({
+  where: PipelineWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const PipelineSegmentCreateArgsSchema: z.ZodType<Prisma.PipelineSegmentCreateArgs> = z.object({
+  select: PipelineSegmentSelectSchema.optional(),
+  include: PipelineSegmentIncludeSchema.optional(),
+  data: z.union([ PipelineSegmentCreateInputSchema,PipelineSegmentUncheckedCreateInputSchema ]),
+}).strict() ;
+
+export const PipelineSegmentUpsertArgsSchema: z.ZodType<Prisma.PipelineSegmentUpsertArgs> = z.object({
+  select: PipelineSegmentSelectSchema.optional(),
+  include: PipelineSegmentIncludeSchema.optional(),
+  where: PipelineSegmentWhereUniqueInputSchema,
+  create: z.union([ PipelineSegmentCreateInputSchema,PipelineSegmentUncheckedCreateInputSchema ]),
+  update: z.union([ PipelineSegmentUpdateInputSchema,PipelineSegmentUncheckedUpdateInputSchema ]),
+}).strict() ;
+
+export const PipelineSegmentCreateManyArgsSchema: z.ZodType<Prisma.PipelineSegmentCreateManyArgs> = z.object({
+  data: z.union([ PipelineSegmentCreateManyInputSchema,PipelineSegmentCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const PipelineSegmentCreateManyAndReturnArgsSchema: z.ZodType<Prisma.PipelineSegmentCreateManyAndReturnArgs> = z.object({
+  data: z.union([ PipelineSegmentCreateManyInputSchema,PipelineSegmentCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const PipelineSegmentDeleteArgsSchema: z.ZodType<Prisma.PipelineSegmentDeleteArgs> = z.object({
+  select: PipelineSegmentSelectSchema.optional(),
+  include: PipelineSegmentIncludeSchema.optional(),
+  where: PipelineSegmentWhereUniqueInputSchema,
+}).strict() ;
+
+export const PipelineSegmentUpdateArgsSchema: z.ZodType<Prisma.PipelineSegmentUpdateArgs> = z.object({
+  select: PipelineSegmentSelectSchema.optional(),
+  include: PipelineSegmentIncludeSchema.optional(),
+  data: z.union([ PipelineSegmentUpdateInputSchema,PipelineSegmentUncheckedUpdateInputSchema ]),
+  where: PipelineSegmentWhereUniqueInputSchema,
+}).strict() ;
+
+export const PipelineSegmentUpdateManyArgsSchema: z.ZodType<Prisma.PipelineSegmentUpdateManyArgs> = z.object({
+  data: z.union([ PipelineSegmentUpdateManyMutationInputSchema,PipelineSegmentUncheckedUpdateManyInputSchema ]),
+  where: PipelineSegmentWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const PipelineSegmentUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.PipelineSegmentUpdateManyAndReturnArgs> = z.object({
+  data: z.union([ PipelineSegmentUpdateManyMutationInputSchema,PipelineSegmentUncheckedUpdateManyInputSchema ]),
+  where: PipelineSegmentWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const PipelineSegmentDeleteManyArgsSchema: z.ZodType<Prisma.PipelineSegmentDeleteManyArgs> = z.object({
+  where: PipelineSegmentWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const PipelineSegmentDataCreateArgsSchema: z.ZodType<Prisma.PipelineSegmentDataCreateArgs> = z.object({
+  select: PipelineSegmentDataSelectSchema.optional(),
+  include: PipelineSegmentDataIncludeSchema.optional(),
+  data: z.union([ PipelineSegmentDataCreateInputSchema,PipelineSegmentDataUncheckedCreateInputSchema ]),
+}).strict() ;
+
+export const PipelineSegmentDataUpsertArgsSchema: z.ZodType<Prisma.PipelineSegmentDataUpsertArgs> = z.object({
+  select: PipelineSegmentDataSelectSchema.optional(),
+  include: PipelineSegmentDataIncludeSchema.optional(),
+  where: PipelineSegmentDataWhereUniqueInputSchema,
+  create: z.union([ PipelineSegmentDataCreateInputSchema,PipelineSegmentDataUncheckedCreateInputSchema ]),
+  update: z.union([ PipelineSegmentDataUpdateInputSchema,PipelineSegmentDataUncheckedUpdateInputSchema ]),
+}).strict() ;
+
+export const PipelineSegmentDataCreateManyArgsSchema: z.ZodType<Prisma.PipelineSegmentDataCreateManyArgs> = z.object({
+  data: z.union([ PipelineSegmentDataCreateManyInputSchema,PipelineSegmentDataCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const PipelineSegmentDataCreateManyAndReturnArgsSchema: z.ZodType<Prisma.PipelineSegmentDataCreateManyAndReturnArgs> = z.object({
+  data: z.union([ PipelineSegmentDataCreateManyInputSchema,PipelineSegmentDataCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const PipelineSegmentDataDeleteArgsSchema: z.ZodType<Prisma.PipelineSegmentDataDeleteArgs> = z.object({
+  select: PipelineSegmentDataSelectSchema.optional(),
+  include: PipelineSegmentDataIncludeSchema.optional(),
+  where: PipelineSegmentDataWhereUniqueInputSchema,
+}).strict() ;
+
+export const PipelineSegmentDataUpdateArgsSchema: z.ZodType<Prisma.PipelineSegmentDataUpdateArgs> = z.object({
+  select: PipelineSegmentDataSelectSchema.optional(),
+  include: PipelineSegmentDataIncludeSchema.optional(),
+  data: z.union([ PipelineSegmentDataUpdateInputSchema,PipelineSegmentDataUncheckedUpdateInputSchema ]),
+  where: PipelineSegmentDataWhereUniqueInputSchema,
+}).strict() ;
+
+export const PipelineSegmentDataUpdateManyArgsSchema: z.ZodType<Prisma.PipelineSegmentDataUpdateManyArgs> = z.object({
+  data: z.union([ PipelineSegmentDataUpdateManyMutationInputSchema,PipelineSegmentDataUncheckedUpdateManyInputSchema ]),
+  where: PipelineSegmentDataWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const PipelineSegmentDataUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.PipelineSegmentDataUpdateManyAndReturnArgs> = z.object({
+  data: z.union([ PipelineSegmentDataUpdateManyMutationInputSchema,PipelineSegmentDataUncheckedUpdateManyInputSchema ]),
+  where: PipelineSegmentDataWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const PipelineSegmentDataDeleteManyArgsSchema: z.ZodType<Prisma.PipelineSegmentDataDeleteManyArgs> = z.object({
+  where: PipelineSegmentDataWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const LeadCreateArgsSchema: z.ZodType<Prisma.LeadCreateArgs> = z.object({
+  select: LeadSelectSchema.optional(),
+  include: LeadIncludeSchema.optional(),
+  data: z.union([ LeadCreateInputSchema,LeadUncheckedCreateInputSchema ]),
+}).strict() ;
+
+export const LeadUpsertArgsSchema: z.ZodType<Prisma.LeadUpsertArgs> = z.object({
+  select: LeadSelectSchema.optional(),
+  include: LeadIncludeSchema.optional(),
+  where: LeadWhereUniqueInputSchema,
+  create: z.union([ LeadCreateInputSchema,LeadUncheckedCreateInputSchema ]),
+  update: z.union([ LeadUpdateInputSchema,LeadUncheckedUpdateInputSchema ]),
+}).strict() ;
+
+export const LeadCreateManyArgsSchema: z.ZodType<Prisma.LeadCreateManyArgs> = z.object({
+  data: z.union([ LeadCreateManyInputSchema,LeadCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const LeadCreateManyAndReturnArgsSchema: z.ZodType<Prisma.LeadCreateManyAndReturnArgs> = z.object({
+  data: z.union([ LeadCreateManyInputSchema,LeadCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const LeadDeleteArgsSchema: z.ZodType<Prisma.LeadDeleteArgs> = z.object({
+  select: LeadSelectSchema.optional(),
+  include: LeadIncludeSchema.optional(),
+  where: LeadWhereUniqueInputSchema,
+}).strict() ;
+
+export const LeadUpdateArgsSchema: z.ZodType<Prisma.LeadUpdateArgs> = z.object({
+  select: LeadSelectSchema.optional(),
+  include: LeadIncludeSchema.optional(),
+  data: z.union([ LeadUpdateInputSchema,LeadUncheckedUpdateInputSchema ]),
+  where: LeadWhereUniqueInputSchema,
+}).strict() ;
+
+export const LeadUpdateManyArgsSchema: z.ZodType<Prisma.LeadUpdateManyArgs> = z.object({
+  data: z.union([ LeadUpdateManyMutationInputSchema,LeadUncheckedUpdateManyInputSchema ]),
+  where: LeadWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const LeadUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.LeadUpdateManyAndReturnArgs> = z.object({
+  data: z.union([ LeadUpdateManyMutationInputSchema,LeadUncheckedUpdateManyInputSchema ]),
+  where: LeadWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const LeadDeleteManyArgsSchema: z.ZodType<Prisma.LeadDeleteManyArgs> = z.object({
+  where: LeadWhereInputSchema.optional(),
   limit: z.number().optional(),
 }).strict() ;
