@@ -9,7 +9,6 @@ const OfficerClient = () => {
 
       <button
         onClick={() => {
-          console.log("➕ Create Task clicked (tasks API not implemented)");
           // create.mutate({
           //   title: "Demo Task",
           //   description: "Created from OfficerPage test",
@@ -26,7 +25,7 @@ const OfficerClient = () => {
 
       <button
         onClick={() => {
-          console.log("📄 List Tasks clicked");
+          // List tasks functionality not implemented yet
         }}
         className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
       >
