@@ -36,7 +36,12 @@ export const authConfig = {
   secret: env.AUTH_SECRET,
   basePath: "/api/auth",
   ...(env.NEXTAUTH_URL && { url: env.NEXTAUTH_URL }),
-  providers: [DiscordProvider],
+  providers: [
+    DiscordProvider({
+      clientId: env.AUTH_DISCORD_ID!,
+      clientSecret: env.AUTH_DISCORD_SECRET!,
+    }),
+  ],
   session: {
     strategy: "jwt",
   },

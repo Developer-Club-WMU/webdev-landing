@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-const LoginForm = () => {
+const LoginFormContent = () => {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/officer";
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/officer";
+
   return (
     <div className="flex h-full max-h-[600px] w-full max-w-md flex-col justify-between gap-6 rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-black/10 transition hover:shadow-xl">
       <div className="text-2xl font-bold text-black">Login</div>
@@ -61,6 +63,14 @@ const LoginForm = () => {
         </Link>
       </div>
     </div>
+  );
+};
+
+const LoginForm = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginFormContent />
+    </Suspense>
   );
 };
 
