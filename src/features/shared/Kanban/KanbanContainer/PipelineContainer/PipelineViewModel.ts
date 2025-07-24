@@ -6,6 +6,7 @@ import { KanbanColumnViewModel } from "@/features/shared/Kanban/KanbanColumn/Kan
 import type { LeadStatus, LeadType, PipelineCellProps } from "@/models";
 import type { RouterOutputs } from "@/trpc/react";
 import { api } from "@/trpc/react";
+import type { PipelineSegment } from "@zod/index";
 import { useEffect, useState } from "react";
 
 type LeadFromDB = RouterOutputs["crm"]["leads"]["getByPipelineId"][number];
@@ -98,7 +99,7 @@ export function usePipelineContainerViewModel(pipelineId?: string) {
     // If we have pipeline data, find the target segment and update in database
     if (pipelineData && pipelineId) {
       const targetSegment = pipelineData.segments.find(
-        (segment) => segment.name === newStage,
+        (segment: PipelineSegment) => segment.name === newStage,
       );
 
       if (targetSegment) {
@@ -170,7 +171,7 @@ export function usePipelineContainerViewModel(pipelineId?: string) {
   // Creates an array of column view models using stage info or real segments
   const viewModels: KanbanColumnViewModel[] =
     pipelineId && pipelineData?.segments
-      ? pipelineData.segments.map((segment) => {
+      ? pipelineData.segments.map((segment: PipelineSegment) => {
           const filteredDeals = deals.filter(
             (deal) => deal.status === (segment.name as LeadStatus),
           );
