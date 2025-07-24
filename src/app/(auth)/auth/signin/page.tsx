@@ -44,10 +44,8 @@ const LoginForm = () => {
       <button
         className="flex w-full items-center justify-center gap-2 rounded-lg border border-black/20 bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-white hover:text-black"
         onClick={() => {
-          console.warn("TEST: loggin in");
-          return signIn("discord", { callbackUrl: "/officer" })
-        }
-        }
+          return signIn("discord", { callbackUrl: "/officer" });
+        }}
       >
         <span className="text-blue-500">💬 Continue with Discord</span>
       </button>

@@ -42,7 +42,7 @@ export const authConfig = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.email = user.email;
+        token.email = user.email!;
       }
       return token;
     },
@@ -52,6 +52,13 @@ export const authConfig = {
         session.user.email = token.email!;
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+
+      if (new URL(url).origin === baseUrl) return url;
+
+      return baseUrl;
     },
   },
 } satisfies NextAuthConfig;
