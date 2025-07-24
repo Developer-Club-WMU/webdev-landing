@@ -34,6 +34,8 @@ declare module "next-auth" {
 export const authConfig = {
   adapter: PrismaAdapter(db),
   secret: env.AUTH_SECRET,
+  basePath: "/api/auth",
+  ...(env.NEXTAUTH_URL && { url: env.NEXTAUTH_URL }),
   providers: [DiscordProvider],
   session: {
     strategy: "jwt",
@@ -54,11 +56,34 @@ export const authConfig = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Debug logging for production troubleshooting
+      if (process.env.NODE_ENV === "production") {
+        console.log("NextAuth Redirect Debug:", {
+          url,
+          baseUrl,
+          NEXTAUTH_URL: env.NEXTAUTH_URL,
+          NODE_ENV: process.env.NODE_ENV,
+        });
+      }
 
-      if (new URL(url).origin === baseUrl) return url;
+      // Allows relative callback URLs
+      if (url.startsWith("/")) {
+        const redirectUrl = `${baseUrl}${url}`;
+        console.log("Relative redirect:", redirectUrl);
+        return redirectUrl;
+      }
 
-      return baseUrl;
+      // Allows callback URLs on the same origin
+      if (new URL(url).origin === baseUrl) {
+        console.log("Same origin redirect:", url);
+        return url;
+      }
+
+      // In production, ensure we're using the correct base URL
+      const productionUrl = env.NEXTAUTH_URL || baseUrl;
+      console.log("Default redirect:", productionUrl);
+
+      return productionUrl;
     },
   },
 } satisfies NextAuthConfig;

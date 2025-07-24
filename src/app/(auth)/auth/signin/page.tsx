@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 
 const LoginForm = () => {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/officer";
   return (
     <div className="flex h-full max-h-[600px] w-full max-w-md flex-col justify-between gap-6 rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-black/10 transition hover:shadow-xl">
       <div className="text-2xl font-bold text-black">Login</div>
@@ -44,7 +47,7 @@ const LoginForm = () => {
       <button
         className="flex w-full items-center justify-center gap-2 rounded-lg border border-black/20 bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-white hover:text-black"
         onClick={() => {
-          return signIn("discord", { callbackUrl: "/officer" });
+          return signIn("discord", { callbackUrl });
         }}
       >
         <span className="text-blue-500">💬 Continue with Discord</span>
