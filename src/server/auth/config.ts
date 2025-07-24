@@ -56,34 +56,18 @@ export const authConfig = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Debug logging for production troubleshooting
-      if (process.env.NODE_ENV === "production") {
-        console.log("NextAuth Redirect Debug:", {
-          url,
-          baseUrl,
-          NEXTAUTH_URL: env.NEXTAUTH_URL,
-          NODE_ENV: process.env.NODE_ENV,
-        });
-      }
-
       // Allows relative callback URLs
       if (url.startsWith("/")) {
-        const redirectUrl = `${baseUrl}${url}`;
-        console.log("Relative redirect:", redirectUrl);
-        return redirectUrl;
+        return `${baseUrl}${url}`;
       }
 
       // Allows callback URLs on the same origin
       if (new URL(url).origin === baseUrl) {
-        console.log("Same origin redirect:", url);
         return url;
       }
 
-      // In production, ensure we're using the correct base URL
-      const productionUrl = env.NEXTAUTH_URL || baseUrl;
-      console.log("Default redirect:", productionUrl);
-
-      return productionUrl;
+      // For external URLs, redirect to base URL for security
+      return baseUrl;
     },
   },
 } satisfies NextAuthConfig;
