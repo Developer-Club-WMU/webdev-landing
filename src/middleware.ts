@@ -11,6 +11,7 @@ export async function middleware(req: NextRequest) {
   if (isProtectedRoute && !token) {
     const signInUrl = new URL("/auth/signin", req.url);
     signInUrl.searchParams.set("callbackUrl", req.nextUrl.pathname);
+    console.log("[middleware] Redirecting to signin:", signInUrl.toString());
     return NextResponse.redirect(signInUrl);
   }
 
