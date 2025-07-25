@@ -61,11 +61,6 @@ export const authConfig = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      console.error("[authConfig.redirect] Redirecting after login", {
-        url,
-        baseUrl,
-      });
-
       // Allows relative callback URLs
       if (url.startsWith("/")) {
         return `${baseUrl}${url}`;
