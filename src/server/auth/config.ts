@@ -34,6 +34,7 @@ declare module "next-auth" {
 export const authConfig = {
   adapter: PrismaAdapter(db),
   secret: env.AUTH_SECRET,
+  debug: true,
   basePath: "/api/auth",
   ...(env.NEXTAUTH_URL && { url: env.NEXTAUTH_URL }),
   providers: [
