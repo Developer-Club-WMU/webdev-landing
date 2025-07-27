@@ -4,7 +4,11 @@ import type { NextRequest } from "next/server";
 import { env } from "@/env"; // Make sure this points to your env setup
 
 export async function middleware(req: NextRequest) {
-  const token = await getToken({ req, secret: env.NEXTAUTH_SECRET });
+  const token = await getToken({
+    req,
+    secret: env.NEXTAUTH_SECRET,
+    cookieName: "__Secure-authjs.session-token",
+  });
   console.log("Secret: ", env.NEXTAUTH_SECRET);
 
   console.log("🔐 Middleware - token:", token);
