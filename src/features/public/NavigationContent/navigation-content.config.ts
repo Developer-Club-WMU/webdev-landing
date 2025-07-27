@@ -12,6 +12,12 @@ export const links: SideBarLink[] = [
   { title: "Apps", titleColor: "app", childLinks: leafs, link: "/app" },
   { title: "Games", titleColor: "games", childLinks: leafs, link: "/games" },
   {
+    title: "Hackathon",
+    titleColor: "hackathon",
+    childLinks: leafs,
+    link: "/hackathon",
+  },
+  {
     title: "Systems",
     titleColor: "systems",
     childLinks: leafs,

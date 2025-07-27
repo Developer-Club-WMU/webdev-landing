@@ -52,10 +52,15 @@
   --color-app: oklch(80% 0.31 35); /* Bright orange */
   --color-games: oklch(70% 0.28 330); /* Playful magenta-purple */
   --color-systems: oklch(78% 0.23 200); /* Cool steel blue */
+  --color-hackathon: oklch(85% 0.28 75); /* High-energy yellow-green */
 }
 
 .text-web {
   color: var(--color-web);
+}
+
+.text-hackathon {
+  color: var(--color-hackathon);
 }
 
 .text-ai {
