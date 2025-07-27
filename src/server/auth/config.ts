@@ -39,8 +39,8 @@ export const authConfig = {
   ...(env.NEXTAUTH_URL && { url: env.NEXTAUTH_URL }),
   providers: [
     DiscordProvider({
-      clientId: env.AUTH_DISCORD_ID!,
-      clientSecret: env.AUTH_DISCORD_SECRET!,
+      clientId: env.AUTH_DISCORD_ID,
+      clientSecret: env.AUTH_DISCORD_SECRET,
     }),
   ],
   session: {

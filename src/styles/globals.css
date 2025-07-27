@@ -53,6 +53,8 @@
   --color-games: oklch(70% 0.28 330); /* Playful magenta-purple */
   --color-systems: oklch(78% 0.23 200); /* Cool steel blue */
   --color-hackathon: oklch(85% 0.28 75); /* High-energy yellow-green */
+
+  --color-text-inclusive: var(--color-text);
 }
 
 .text-web {
@@ -101,6 +103,10 @@
 
 /* Custom tailwind classes */
 @layer components {
+  .text-inclusive {
+    @apply text-text dark:text-text-inverted;
+  }
+
   .page {
     /* @apply bg-bg dark:bg-bg-inverted flex w-full flex-col gap-20 px-2 py-32 md:gap-32; */
     @apply bg-bg dark:bg-github-dbg flex w-full flex-col gap-20 px-2 py-32 md:gap-32;
@@ -133,9 +139,19 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  .text-inclusive {
+    color: var(--color-text-inclusive);
+  }
 }
 
 html,
 body {
   @apply bg-bg dark:bg-bg-inverted min-h-screen;
+}
+
+@media (prefers-color-scheme: dark) {
+  @theme {
+    --color-text-inclusive: var(--color-text-inverted);
+  }
 }
