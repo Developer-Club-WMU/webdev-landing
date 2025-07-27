@@ -7,7 +7,7 @@ import { Suspense } from "react";
 
 const LoginFormContent = () => {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/officer";
 
   return (
     <div className="flex h-full max-h-[600px] w-full max-w-md flex-col justify-between gap-6 rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-black/10 transition hover:shadow-xl">
