@@ -1,9 +1,9 @@
 import type { SideBarLinkLeaf, SideBarLink } from "@/models";
 
 export const leafs: SideBarLinkLeaf[] = [
-  { title: "Team Leads", icon: "📚", link: "/" },
-  { title: "Projects", icon: "🛠️", link: "/" },
-  { title: "Get Involved", icon: "🤝", link: "/" },
+  { title: "Team Leads", icon: "👑", link: "/" },
+  { title: "Projects", icon: "🚀", link: "/" },
+  { title: "Get Involved", icon: "🙌", link: "/" },
 ];
 
 export const links: SideBarLink[] = [
@@ -26,7 +26,8 @@ export const links: SideBarLink[] = [
 ];
 
 export const simpleLinks: SideBarLinkLeaf[] = [
-  { title: "Contact", icon: "📊", link: "/contact" },
-  { title: "About Us", icon: "📊", link: "/about-us" },
-  { title: "Events", icon: "📊", link: "/events" },
+  { title: "Contact", icon: "✉️", link: "/contact" },
+  { title: "About Us", icon: "�", link: "/about-us" },
+  { title: "Events", icon: "📅", link: "/events" },
+  { title: "Join Us", icon: "🎉", link: "/join-community" },
 ];
