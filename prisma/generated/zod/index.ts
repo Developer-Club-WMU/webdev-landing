@@ -32,6 +32,14 @@ export const PipelineSegmentDataScalarFieldEnumSchema = z.enum(['id','pipelineId
 
 export const LeadScalarFieldEnumSchema = z.enum(['id','title','description','capitalValue','contactName','companyName','avatarURL','addedOn','dueDate','status','leadType','pipelineStage','isArchived','source','tags','createdById','pipelineId','segmentId','createdAt','updatedAt']);
 
+export const CommunityScalarFieldEnumSchema = z.enum(['id','name','description','createdAt','updatedAt']);
+
+export const CommunityMembershipScalarFieldEnumSchema = z.enum(['id','userId','communityId','role','joinedAt']);
+
+export const CommunityQuestionScalarFieldEnumSchema = z.enum(['id','communityId','createdById','label','type','options','required','order']);
+
+export const UserAnswerScalarFieldEnumSchema = z.enum(['id','userId','questionId','communityId','value','answeredAt']);
+
 export const SortOrderSchema = z.enum(['asc','desc']);
 
 export const QueryModeSchema = z.enum(['default','insensitive']);
@@ -45,6 +53,14 @@ export type TaskStatusType = `${z.infer<typeof TaskStatusSchema>}`
 export const TaskPrioritySchema = z.enum(['LOW','MEDIUM','HIGH','URGENT']);
 
 export type TaskPriorityType = `${z.infer<typeof TaskPrioritySchema>}`
+
+export const QuestionTypeSchema = z.enum(['TEXT','TEXTAREA','SELECT','MULTISELECT','NUMBER','DATE','BOOLEAN']);
+
+export type QuestionTypeType = `${z.infer<typeof QuestionTypeSchema>}`
+
+export const MembershipRoleSchema = z.enum(['MEMBER','OFFICER','MENTOR','CLIENT']);
+
+export type MembershipRoleType = `${z.infer<typeof MembershipRoleSchema>}`
 
 /////////////////////////////////////////
 // MODELS
@@ -216,6 +232,66 @@ export const LeadSchema = z.object({
 export type Lead = z.infer<typeof LeadSchema>
 
 /////////////////////////////////////////
+// COMMUNITY SCHEMA
+/////////////////////////////////////////
+
+export const CommunitySchema = z.object({
+  id: z.string().cuid(),
+  name: z.string(),
+  description: z.string().nullable(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+})
+
+export type Community = z.infer<typeof CommunitySchema>
+
+/////////////////////////////////////////
+// COMMUNITY MEMBERSHIP SCHEMA
+/////////////////////////////////////////
+
+export const CommunityMembershipSchema = z.object({
+  role: MembershipRoleSchema,
+  id: z.string().cuid(),
+  userId: z.string(),
+  communityId: z.string(),
+  joinedAt: z.coerce.date(),
+})
+
+export type CommunityMembership = z.infer<typeof CommunityMembershipSchema>
+
+/////////////////////////////////////////
+// COMMUNITY QUESTION SCHEMA
+/////////////////////////////////////////
+
+export const CommunityQuestionSchema = z.object({
+  type: QuestionTypeSchema,
+  id: z.string().cuid(),
+  communityId: z.string(),
+  createdById: z.string(),
+  label: z.string(),
+  options: z.string().array(),
+  required: z.boolean(),
+  order: z.number().int(),
+})
+
+export type CommunityQuestion = z.infer<typeof CommunityQuestionSchema>
+
+/////////////////////////////////////////
+// USER ANSWER SCHEMA
+/////////////////////////////////////////
+
+export const UserAnswerSchema = z.object({
+  id: z.string().cuid(),
+  userId: z.string(),
+  questionId: z.string(),
+  communityId: z.string(),
+  value: z.string(),
+  answeredAt: z.coerce.date(),
+})
+
+export type UserAnswer = z.infer<typeof UserAnswerSchema>
+
+/////////////////////////////////////////
 // SELECT & INCLUDE
 /////////////////////////////////////////
 
@@ -293,6 +369,9 @@ export const SessionSelectSchema: z.ZodType<Prisma.SessionSelect> = z.object({
 //------------------------------------------------------
 
 export const UserIncludeSchema: z.ZodType<Prisma.UserInclude> = z.object({
+  memberships: z.union([z.boolean(),z.lazy(() => CommunityMembershipFindManyArgsSchema)]).optional(),
+  answers: z.union([z.boolean(),z.lazy(() => UserAnswerFindManyArgsSchema)]).optional(),
+  questionsCreated: z.union([z.boolean(),z.lazy(() => CommunityQuestionFindManyArgsSchema)]).optional(),
   accounts: z.union([z.boolean(),z.lazy(() => AccountFindManyArgsSchema)]).optional(),
   sessions: z.union([z.boolean(),z.lazy(() => SessionFindManyArgsSchema)]).optional(),
   posts: z.union([z.boolean(),z.lazy(() => PostFindManyArgsSchema)]).optional(),
@@ -312,6 +391,9 @@ export const UserCountOutputTypeArgsSchema: z.ZodType<Prisma.UserCountOutputType
 }).strict();
 
 export const UserCountOutputTypeSelectSchema: z.ZodType<Prisma.UserCountOutputTypeSelect> = z.object({
+  memberships: z.boolean().optional(),
+  answers: z.boolean().optional(),
+  questionsCreated: z.boolean().optional(),
   accounts: z.boolean().optional(),
   sessions: z.boolean().optional(),
   posts: z.boolean().optional(),
@@ -326,6 +408,9 @@ export const UserSelectSchema: z.ZodType<Prisma.UserSelect> = z.object({
   email: z.boolean().optional(),
   emailVerified: z.boolean().optional(),
   image: z.boolean().optional(),
+  memberships: z.union([z.boolean(),z.lazy(() => CommunityMembershipFindManyArgsSchema)]).optional(),
+  answers: z.union([z.boolean(),z.lazy(() => UserAnswerFindManyArgsSchema)]).optional(),
+  questionsCreated: z.union([z.boolean(),z.lazy(() => CommunityQuestionFindManyArgsSchema)]).optional(),
   accounts: z.union([z.boolean(),z.lazy(() => AccountFindManyArgsSchema)]).optional(),
   sessions: z.union([z.boolean(),z.lazy(() => SessionFindManyArgsSchema)]).optional(),
   posts: z.union([z.boolean(),z.lazy(() => PostFindManyArgsSchema)]).optional(),
@@ -506,6 +591,130 @@ export const LeadSelectSchema: z.ZodType<Prisma.LeadSelect> = z.object({
   createdBy: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
   pipeline: z.union([z.boolean(),z.lazy(() => PipelineArgsSchema)]).optional(),
   segment: z.union([z.boolean(),z.lazy(() => PipelineSegmentArgsSchema)]).optional(),
+}).strict()
+
+// COMMUNITY
+//------------------------------------------------------
+
+export const CommunityIncludeSchema: z.ZodType<Prisma.CommunityInclude> = z.object({
+  questions: z.union([z.boolean(),z.lazy(() => CommunityQuestionFindManyArgsSchema)]).optional(),
+  members: z.union([z.boolean(),z.lazy(() => CommunityMembershipFindManyArgsSchema)]).optional(),
+  answers: z.union([z.boolean(),z.lazy(() => UserAnswerFindManyArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => CommunityCountOutputTypeArgsSchema)]).optional(),
+}).strict()
+
+export const CommunityArgsSchema: z.ZodType<Prisma.CommunityDefaultArgs> = z.object({
+  select: z.lazy(() => CommunitySelectSchema).optional(),
+  include: z.lazy(() => CommunityIncludeSchema).optional(),
+}).strict();
+
+export const CommunityCountOutputTypeArgsSchema: z.ZodType<Prisma.CommunityCountOutputTypeDefaultArgs> = z.object({
+  select: z.lazy(() => CommunityCountOutputTypeSelectSchema).nullish(),
+}).strict();
+
+export const CommunityCountOutputTypeSelectSchema: z.ZodType<Prisma.CommunityCountOutputTypeSelect> = z.object({
+  questions: z.boolean().optional(),
+  members: z.boolean().optional(),
+  answers: z.boolean().optional(),
+}).strict();
+
+export const CommunitySelectSchema: z.ZodType<Prisma.CommunitySelect> = z.object({
+  id: z.boolean().optional(),
+  name: z.boolean().optional(),
+  description: z.boolean().optional(),
+  createdAt: z.boolean().optional(),
+  updatedAt: z.boolean().optional(),
+  questions: z.union([z.boolean(),z.lazy(() => CommunityQuestionFindManyArgsSchema)]).optional(),
+  members: z.union([z.boolean(),z.lazy(() => CommunityMembershipFindManyArgsSchema)]).optional(),
+  answers: z.union([z.boolean(),z.lazy(() => UserAnswerFindManyArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => CommunityCountOutputTypeArgsSchema)]).optional(),
+}).strict()
+
+// COMMUNITY MEMBERSHIP
+//------------------------------------------------------
+
+export const CommunityMembershipIncludeSchema: z.ZodType<Prisma.CommunityMembershipInclude> = z.object({
+  user: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
+  community: z.union([z.boolean(),z.lazy(() => CommunityArgsSchema)]).optional(),
+}).strict()
+
+export const CommunityMembershipArgsSchema: z.ZodType<Prisma.CommunityMembershipDefaultArgs> = z.object({
+  select: z.lazy(() => CommunityMembershipSelectSchema).optional(),
+  include: z.lazy(() => CommunityMembershipIncludeSchema).optional(),
+}).strict();
+
+export const CommunityMembershipSelectSchema: z.ZodType<Prisma.CommunityMembershipSelect> = z.object({
+  id: z.boolean().optional(),
+  userId: z.boolean().optional(),
+  communityId: z.boolean().optional(),
+  role: z.boolean().optional(),
+  joinedAt: z.boolean().optional(),
+  user: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
+  community: z.union([z.boolean(),z.lazy(() => CommunityArgsSchema)]).optional(),
+}).strict()
+
+// COMMUNITY QUESTION
+//------------------------------------------------------
+
+export const CommunityQuestionIncludeSchema: z.ZodType<Prisma.CommunityQuestionInclude> = z.object({
+  community: z.union([z.boolean(),z.lazy(() => CommunityArgsSchema)]).optional(),
+  createdBy: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
+  answers: z.union([z.boolean(),z.lazy(() => UserAnswerFindManyArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => CommunityQuestionCountOutputTypeArgsSchema)]).optional(),
+}).strict()
+
+export const CommunityQuestionArgsSchema: z.ZodType<Prisma.CommunityQuestionDefaultArgs> = z.object({
+  select: z.lazy(() => CommunityQuestionSelectSchema).optional(),
+  include: z.lazy(() => CommunityQuestionIncludeSchema).optional(),
+}).strict();
+
+export const CommunityQuestionCountOutputTypeArgsSchema: z.ZodType<Prisma.CommunityQuestionCountOutputTypeDefaultArgs> = z.object({
+  select: z.lazy(() => CommunityQuestionCountOutputTypeSelectSchema).nullish(),
+}).strict();
+
+export const CommunityQuestionCountOutputTypeSelectSchema: z.ZodType<Prisma.CommunityQuestionCountOutputTypeSelect> = z.object({
+  answers: z.boolean().optional(),
+}).strict();
+
+export const CommunityQuestionSelectSchema: z.ZodType<Prisma.CommunityQuestionSelect> = z.object({
+  id: z.boolean().optional(),
+  communityId: z.boolean().optional(),
+  createdById: z.boolean().optional(),
+  label: z.boolean().optional(),
+  type: z.boolean().optional(),
+  options: z.boolean().optional(),
+  required: z.boolean().optional(),
+  order: z.boolean().optional(),
+  community: z.union([z.boolean(),z.lazy(() => CommunityArgsSchema)]).optional(),
+  createdBy: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
+  answers: z.union([z.boolean(),z.lazy(() => UserAnswerFindManyArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => CommunityQuestionCountOutputTypeArgsSchema)]).optional(),
+}).strict()
+
+// USER ANSWER
+//------------------------------------------------------
+
+export const UserAnswerIncludeSchema: z.ZodType<Prisma.UserAnswerInclude> = z.object({
+  user: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
+  question: z.union([z.boolean(),z.lazy(() => CommunityQuestionArgsSchema)]).optional(),
+  community: z.union([z.boolean(),z.lazy(() => CommunityArgsSchema)]).optional(),
+}).strict()
+
+export const UserAnswerArgsSchema: z.ZodType<Prisma.UserAnswerDefaultArgs> = z.object({
+  select: z.lazy(() => UserAnswerSelectSchema).optional(),
+  include: z.lazy(() => UserAnswerIncludeSchema).optional(),
+}).strict();
+
+export const UserAnswerSelectSchema: z.ZodType<Prisma.UserAnswerSelect> = z.object({
+  id: z.boolean().optional(),
+  userId: z.boolean().optional(),
+  questionId: z.boolean().optional(),
+  communityId: z.boolean().optional(),
+  value: z.boolean().optional(),
+  answeredAt: z.boolean().optional(),
+  user: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
+  question: z.union([z.boolean(),z.lazy(() => CommunityQuestionArgsSchema)]).optional(),
+  community: z.union([z.boolean(),z.lazy(() => CommunityArgsSchema)]).optional(),
 }).strict()
 
 
@@ -754,6 +963,9 @@ export const UserWhereInputSchema: z.ZodType<Prisma.UserWhereInput> = z.object({
   email: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   emailVerified: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
   image: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipListRelationFilterSchema).optional(),
+  answers: z.lazy(() => UserAnswerListRelationFilterSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionListRelationFilterSchema).optional(),
   accounts: z.lazy(() => AccountListRelationFilterSchema).optional(),
   sessions: z.lazy(() => SessionListRelationFilterSchema).optional(),
   posts: z.lazy(() => PostListRelationFilterSchema).optional(),
@@ -768,6 +980,9 @@ export const UserOrderByWithRelationInputSchema: z.ZodType<Prisma.UserOrderByWit
   email: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   emailVerified: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
   image: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  memberships: z.lazy(() => CommunityMembershipOrderByRelationAggregateInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerOrderByRelationAggregateInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionOrderByRelationAggregateInputSchema).optional(),
   accounts: z.lazy(() => AccountOrderByRelationAggregateInputSchema).optional(),
   sessions: z.lazy(() => SessionOrderByRelationAggregateInputSchema).optional(),
   posts: z.lazy(() => PostOrderByRelationAggregateInputSchema).optional(),
@@ -797,6 +1012,9 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
   name: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
   emailVerified: z.union([ z.lazy(() => DateTimeNullableFilterSchema),z.coerce.date() ]).optional().nullable(),
   image: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipListRelationFilterSchema).optional(),
+  answers: z.lazy(() => UserAnswerListRelationFilterSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionListRelationFilterSchema).optional(),
   accounts: z.lazy(() => AccountListRelationFilterSchema).optional(),
   sessions: z.lazy(() => SessionListRelationFilterSchema).optional(),
   posts: z.lazy(() => PostListRelationFilterSchema).optional(),
@@ -1324,6 +1542,310 @@ export const LeadScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.LeadScal
   updatedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
 }).strict();
 
+export const CommunityWhereInputSchema: z.ZodType<Prisma.CommunityWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => CommunityWhereInputSchema),z.lazy(() => CommunityWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => CommunityWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => CommunityWhereInputSchema),z.lazy(() => CommunityWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  name: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  questions: z.lazy(() => CommunityQuestionListRelationFilterSchema).optional(),
+  members: z.lazy(() => CommunityMembershipListRelationFilterSchema).optional(),
+  answers: z.lazy(() => UserAnswerListRelationFilterSchema).optional()
+}).strict();
+
+export const CommunityOrderByWithRelationInputSchema: z.ZodType<Prisma.CommunityOrderByWithRelationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  questions: z.lazy(() => CommunityQuestionOrderByRelationAggregateInputSchema).optional(),
+  members: z.lazy(() => CommunityMembershipOrderByRelationAggregateInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerOrderByRelationAggregateInputSchema).optional()
+}).strict();
+
+export const CommunityWhereUniqueInputSchema: z.ZodType<Prisma.CommunityWhereUniqueInput> = z.union([
+  z.object({
+    id: z.string().cuid(),
+    name: z.string()
+  }),
+  z.object({
+    id: z.string().cuid(),
+  }),
+  z.object({
+    name: z.string(),
+  }),
+])
+.and(z.object({
+  id: z.string().cuid().optional(),
+  name: z.string().optional(),
+  AND: z.union([ z.lazy(() => CommunityWhereInputSchema),z.lazy(() => CommunityWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => CommunityWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => CommunityWhereInputSchema),z.lazy(() => CommunityWhereInputSchema).array() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableFilterSchema),z.string() ]).optional().nullable(),
+  createdAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  questions: z.lazy(() => CommunityQuestionListRelationFilterSchema).optional(),
+  members: z.lazy(() => CommunityMembershipListRelationFilterSchema).optional(),
+  answers: z.lazy(() => UserAnswerListRelationFilterSchema).optional()
+}).strict());
+
+export const CommunityOrderByWithAggregationInputSchema: z.ZodType<Prisma.CommunityOrderByWithAggregationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.union([ z.lazy(() => SortOrderSchema),z.lazy(() => SortOrderInputSchema) ]).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  _count: z.lazy(() => CommunityCountOrderByAggregateInputSchema).optional(),
+  _max: z.lazy(() => CommunityMaxOrderByAggregateInputSchema).optional(),
+  _min: z.lazy(() => CommunityMinOrderByAggregateInputSchema).optional()
+}).strict();
+
+export const CommunityScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.CommunityScalarWhereWithAggregatesInput> = z.object({
+  AND: z.union([ z.lazy(() => CommunityScalarWhereWithAggregatesInputSchema),z.lazy(() => CommunityScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  OR: z.lazy(() => CommunityScalarWhereWithAggregatesInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => CommunityScalarWhereWithAggregatesInputSchema),z.lazy(() => CommunityScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  name: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema),z.string() ]).optional().nullable(),
+  createdAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
+  updatedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
+}).strict();
+
+export const CommunityMembershipWhereInputSchema: z.ZodType<Prisma.CommunityMembershipWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => CommunityMembershipWhereInputSchema),z.lazy(() => CommunityMembershipWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => CommunityMembershipWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => CommunityMembershipWhereInputSchema),z.lazy(() => CommunityMembershipWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  userId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  communityId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  role: z.union([ z.lazy(() => EnumMembershipRoleFilterSchema),z.lazy(() => MembershipRoleSchema) ]).optional(),
+  joinedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  user: z.union([ z.lazy(() => UserScalarRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
+  community: z.union([ z.lazy(() => CommunityScalarRelationFilterSchema),z.lazy(() => CommunityWhereInputSchema) ]).optional(),
+}).strict();
+
+export const CommunityMembershipOrderByWithRelationInputSchema: z.ZodType<Prisma.CommunityMembershipOrderByWithRelationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
+  communityId: z.lazy(() => SortOrderSchema).optional(),
+  role: z.lazy(() => SortOrderSchema).optional(),
+  joinedAt: z.lazy(() => SortOrderSchema).optional(),
+  user: z.lazy(() => UserOrderByWithRelationInputSchema).optional(),
+  community: z.lazy(() => CommunityOrderByWithRelationInputSchema).optional()
+}).strict();
+
+export const CommunityMembershipWhereUniqueInputSchema: z.ZodType<Prisma.CommunityMembershipWhereUniqueInput> = z.union([
+  z.object({
+    id: z.string().cuid(),
+    userId_communityId: z.lazy(() => CommunityMembershipUserIdCommunityIdCompoundUniqueInputSchema)
+  }),
+  z.object({
+    id: z.string().cuid(),
+  }),
+  z.object({
+    userId_communityId: z.lazy(() => CommunityMembershipUserIdCommunityIdCompoundUniqueInputSchema),
+  }),
+])
+.and(z.object({
+  id: z.string().cuid().optional(),
+  userId_communityId: z.lazy(() => CommunityMembershipUserIdCommunityIdCompoundUniqueInputSchema).optional(),
+  AND: z.union([ z.lazy(() => CommunityMembershipWhereInputSchema),z.lazy(() => CommunityMembershipWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => CommunityMembershipWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => CommunityMembershipWhereInputSchema),z.lazy(() => CommunityMembershipWhereInputSchema).array() ]).optional(),
+  userId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  communityId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  role: z.union([ z.lazy(() => EnumMembershipRoleFilterSchema),z.lazy(() => MembershipRoleSchema) ]).optional(),
+  joinedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  user: z.union([ z.lazy(() => UserScalarRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
+  community: z.union([ z.lazy(() => CommunityScalarRelationFilterSchema),z.lazy(() => CommunityWhereInputSchema) ]).optional(),
+}).strict());
+
+export const CommunityMembershipOrderByWithAggregationInputSchema: z.ZodType<Prisma.CommunityMembershipOrderByWithAggregationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
+  communityId: z.lazy(() => SortOrderSchema).optional(),
+  role: z.lazy(() => SortOrderSchema).optional(),
+  joinedAt: z.lazy(() => SortOrderSchema).optional(),
+  _count: z.lazy(() => CommunityMembershipCountOrderByAggregateInputSchema).optional(),
+  _max: z.lazy(() => CommunityMembershipMaxOrderByAggregateInputSchema).optional(),
+  _min: z.lazy(() => CommunityMembershipMinOrderByAggregateInputSchema).optional()
+}).strict();
+
+export const CommunityMembershipScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.CommunityMembershipScalarWhereWithAggregatesInput> = z.object({
+  AND: z.union([ z.lazy(() => CommunityMembershipScalarWhereWithAggregatesInputSchema),z.lazy(() => CommunityMembershipScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  OR: z.lazy(() => CommunityMembershipScalarWhereWithAggregatesInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => CommunityMembershipScalarWhereWithAggregatesInputSchema),z.lazy(() => CommunityMembershipScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  userId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  communityId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  role: z.union([ z.lazy(() => EnumMembershipRoleWithAggregatesFilterSchema),z.lazy(() => MembershipRoleSchema) ]).optional(),
+  joinedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
+}).strict();
+
+export const CommunityQuestionWhereInputSchema: z.ZodType<Prisma.CommunityQuestionWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => CommunityQuestionWhereInputSchema),z.lazy(() => CommunityQuestionWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => CommunityQuestionWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => CommunityQuestionWhereInputSchema),z.lazy(() => CommunityQuestionWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  communityId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  createdById: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  label: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  type: z.union([ z.lazy(() => EnumQuestionTypeFilterSchema),z.lazy(() => QuestionTypeSchema) ]).optional(),
+  options: z.lazy(() => StringNullableListFilterSchema).optional(),
+  required: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
+  order: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
+  community: z.union([ z.lazy(() => CommunityScalarRelationFilterSchema),z.lazy(() => CommunityWhereInputSchema) ]).optional(),
+  createdBy: z.union([ z.lazy(() => UserScalarRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
+  answers: z.lazy(() => UserAnswerListRelationFilterSchema).optional()
+}).strict();
+
+export const CommunityQuestionOrderByWithRelationInputSchema: z.ZodType<Prisma.CommunityQuestionOrderByWithRelationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  communityId: z.lazy(() => SortOrderSchema).optional(),
+  createdById: z.lazy(() => SortOrderSchema).optional(),
+  label: z.lazy(() => SortOrderSchema).optional(),
+  type: z.lazy(() => SortOrderSchema).optional(),
+  options: z.lazy(() => SortOrderSchema).optional(),
+  required: z.lazy(() => SortOrderSchema).optional(),
+  order: z.lazy(() => SortOrderSchema).optional(),
+  community: z.lazy(() => CommunityOrderByWithRelationInputSchema).optional(),
+  createdBy: z.lazy(() => UserOrderByWithRelationInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerOrderByRelationAggregateInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionWhereUniqueInputSchema: z.ZodType<Prisma.CommunityQuestionWhereUniqueInput> = z.object({
+  id: z.string().cuid()
+})
+.and(z.object({
+  id: z.string().cuid().optional(),
+  AND: z.union([ z.lazy(() => CommunityQuestionWhereInputSchema),z.lazy(() => CommunityQuestionWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => CommunityQuestionWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => CommunityQuestionWhereInputSchema),z.lazy(() => CommunityQuestionWhereInputSchema).array() ]).optional(),
+  communityId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  createdById: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  label: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  type: z.union([ z.lazy(() => EnumQuestionTypeFilterSchema),z.lazy(() => QuestionTypeSchema) ]).optional(),
+  options: z.lazy(() => StringNullableListFilterSchema).optional(),
+  required: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
+  order: z.union([ z.lazy(() => IntFilterSchema),z.number().int() ]).optional(),
+  community: z.union([ z.lazy(() => CommunityScalarRelationFilterSchema),z.lazy(() => CommunityWhereInputSchema) ]).optional(),
+  createdBy: z.union([ z.lazy(() => UserScalarRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
+  answers: z.lazy(() => UserAnswerListRelationFilterSchema).optional()
+}).strict());
+
+export const CommunityQuestionOrderByWithAggregationInputSchema: z.ZodType<Prisma.CommunityQuestionOrderByWithAggregationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  communityId: z.lazy(() => SortOrderSchema).optional(),
+  createdById: z.lazy(() => SortOrderSchema).optional(),
+  label: z.lazy(() => SortOrderSchema).optional(),
+  type: z.lazy(() => SortOrderSchema).optional(),
+  options: z.lazy(() => SortOrderSchema).optional(),
+  required: z.lazy(() => SortOrderSchema).optional(),
+  order: z.lazy(() => SortOrderSchema).optional(),
+  _count: z.lazy(() => CommunityQuestionCountOrderByAggregateInputSchema).optional(),
+  _avg: z.lazy(() => CommunityQuestionAvgOrderByAggregateInputSchema).optional(),
+  _max: z.lazy(() => CommunityQuestionMaxOrderByAggregateInputSchema).optional(),
+  _min: z.lazy(() => CommunityQuestionMinOrderByAggregateInputSchema).optional(),
+  _sum: z.lazy(() => CommunityQuestionSumOrderByAggregateInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.CommunityQuestionScalarWhereWithAggregatesInput> = z.object({
+  AND: z.union([ z.lazy(() => CommunityQuestionScalarWhereWithAggregatesInputSchema),z.lazy(() => CommunityQuestionScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  OR: z.lazy(() => CommunityQuestionScalarWhereWithAggregatesInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => CommunityQuestionScalarWhereWithAggregatesInputSchema),z.lazy(() => CommunityQuestionScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  communityId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  createdById: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  label: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  type: z.union([ z.lazy(() => EnumQuestionTypeWithAggregatesFilterSchema),z.lazy(() => QuestionTypeSchema) ]).optional(),
+  options: z.lazy(() => StringNullableListFilterSchema).optional(),
+  required: z.union([ z.lazy(() => BoolWithAggregatesFilterSchema),z.boolean() ]).optional(),
+  order: z.union([ z.lazy(() => IntWithAggregatesFilterSchema),z.number() ]).optional(),
+}).strict();
+
+export const UserAnswerWhereInputSchema: z.ZodType<Prisma.UserAnswerWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => UserAnswerWhereInputSchema),z.lazy(() => UserAnswerWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => UserAnswerWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => UserAnswerWhereInputSchema),z.lazy(() => UserAnswerWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  userId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  questionId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  communityId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  value: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  answeredAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  user: z.union([ z.lazy(() => UserScalarRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
+  question: z.union([ z.lazy(() => CommunityQuestionScalarRelationFilterSchema),z.lazy(() => CommunityQuestionWhereInputSchema) ]).optional(),
+  community: z.union([ z.lazy(() => CommunityScalarRelationFilterSchema),z.lazy(() => CommunityWhereInputSchema) ]).optional(),
+}).strict();
+
+export const UserAnswerOrderByWithRelationInputSchema: z.ZodType<Prisma.UserAnswerOrderByWithRelationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
+  questionId: z.lazy(() => SortOrderSchema).optional(),
+  communityId: z.lazy(() => SortOrderSchema).optional(),
+  value: z.lazy(() => SortOrderSchema).optional(),
+  answeredAt: z.lazy(() => SortOrderSchema).optional(),
+  user: z.lazy(() => UserOrderByWithRelationInputSchema).optional(),
+  question: z.lazy(() => CommunityQuestionOrderByWithRelationInputSchema).optional(),
+  community: z.lazy(() => CommunityOrderByWithRelationInputSchema).optional()
+}).strict();
+
+export const UserAnswerWhereUniqueInputSchema: z.ZodType<Prisma.UserAnswerWhereUniqueInput> = z.union([
+  z.object({
+    id: z.string().cuid(),
+    userId_questionId: z.lazy(() => UserAnswerUserIdQuestionIdCompoundUniqueInputSchema)
+  }),
+  z.object({
+    id: z.string().cuid(),
+  }),
+  z.object({
+    userId_questionId: z.lazy(() => UserAnswerUserIdQuestionIdCompoundUniqueInputSchema),
+  }),
+])
+.and(z.object({
+  id: z.string().cuid().optional(),
+  userId_questionId: z.lazy(() => UserAnswerUserIdQuestionIdCompoundUniqueInputSchema).optional(),
+  AND: z.union([ z.lazy(() => UserAnswerWhereInputSchema),z.lazy(() => UserAnswerWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => UserAnswerWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => UserAnswerWhereInputSchema),z.lazy(() => UserAnswerWhereInputSchema).array() ]).optional(),
+  userId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  questionId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  communityId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  value: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  answeredAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+  user: z.union([ z.lazy(() => UserScalarRelationFilterSchema),z.lazy(() => UserWhereInputSchema) ]).optional(),
+  question: z.union([ z.lazy(() => CommunityQuestionScalarRelationFilterSchema),z.lazy(() => CommunityQuestionWhereInputSchema) ]).optional(),
+  community: z.union([ z.lazy(() => CommunityScalarRelationFilterSchema),z.lazy(() => CommunityWhereInputSchema) ]).optional(),
+}).strict());
+
+export const UserAnswerOrderByWithAggregationInputSchema: z.ZodType<Prisma.UserAnswerOrderByWithAggregationInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
+  questionId: z.lazy(() => SortOrderSchema).optional(),
+  communityId: z.lazy(() => SortOrderSchema).optional(),
+  value: z.lazy(() => SortOrderSchema).optional(),
+  answeredAt: z.lazy(() => SortOrderSchema).optional(),
+  _count: z.lazy(() => UserAnswerCountOrderByAggregateInputSchema).optional(),
+  _max: z.lazy(() => UserAnswerMaxOrderByAggregateInputSchema).optional(),
+  _min: z.lazy(() => UserAnswerMinOrderByAggregateInputSchema).optional()
+}).strict();
+
+export const UserAnswerScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.UserAnswerScalarWhereWithAggregatesInput> = z.object({
+  AND: z.union([ z.lazy(() => UserAnswerScalarWhereWithAggregatesInputSchema),z.lazy(() => UserAnswerScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  OR: z.lazy(() => UserAnswerScalarWhereWithAggregatesInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => UserAnswerScalarWhereWithAggregatesInputSchema),z.lazy(() => UserAnswerScalarWhereWithAggregatesInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  userId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  questionId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  communityId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  value: z.union([ z.lazy(() => StringWithAggregatesFilterSchema),z.string() ]).optional(),
+  answeredAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema),z.coerce.date() ]).optional(),
+}).strict();
+
 export const PostCreateInputSchema: z.ZodType<Prisma.PostCreateInput> = z.object({
   name: z.string(),
   createdAt: z.coerce.date().optional(),
@@ -1541,6 +2063,9 @@ export const UserCreateInputSchema: z.ZodType<Prisma.UserCreateInput> = z.object
   email: z.string().optional().nullable(),
   emailVerified: z.coerce.date().optional().nullable(),
   image: z.string().optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipCreateNestedManyWithoutUserInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerCreateNestedManyWithoutUserInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionCreateNestedManyWithoutCreatedByInputSchema).optional(),
   accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
   posts: z.lazy(() => PostCreateNestedManyWithoutCreatedByInputSchema).optional(),
@@ -1555,6 +2080,9 @@ export const UserUncheckedCreateInputSchema: z.ZodType<Prisma.UserUncheckedCreat
   email: z.string().optional().nullable(),
   emailVerified: z.coerce.date().optional().nullable(),
   image: z.string().optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   posts: z.lazy(() => PostUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
@@ -1569,6 +2097,9 @@ export const UserUpdateInputSchema: z.ZodType<Prisma.UserUpdateInput> = z.object
   email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUpdateManyWithoutUserNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUpdateManyWithoutUserNestedInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
   posts: z.lazy(() => PostUpdateManyWithoutCreatedByNestedInputSchema).optional(),
@@ -1583,6 +2114,9 @@ export const UserUncheckedUpdateInputSchema: z.ZodType<Prisma.UserUncheckedUpdat
   email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   posts: z.lazy(() => PostUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
@@ -2080,6 +2614,267 @@ export const LeadUncheckedUpdateManyInputSchema: z.ZodType<Prisma.LeadUncheckedU
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
+export const CommunityCreateInputSchema: z.ZodType<Prisma.CommunityCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  questions: z.lazy(() => CommunityQuestionCreateNestedManyWithoutCommunityInputSchema).optional(),
+  members: z.lazy(() => CommunityMembershipCreateNestedManyWithoutCommunityInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerCreateNestedManyWithoutCommunityInputSchema).optional()
+}).strict();
+
+export const CommunityUncheckedCreateInputSchema: z.ZodType<Prisma.CommunityUncheckedCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  questions: z.lazy(() => CommunityQuestionUncheckedCreateNestedManyWithoutCommunityInputSchema).optional(),
+  members: z.lazy(() => CommunityMembershipUncheckedCreateNestedManyWithoutCommunityInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedCreateNestedManyWithoutCommunityInputSchema).optional()
+}).strict();
+
+export const CommunityUpdateInputSchema: z.ZodType<Prisma.CommunityUpdateInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  questions: z.lazy(() => CommunityQuestionUpdateManyWithoutCommunityNestedInputSchema).optional(),
+  members: z.lazy(() => CommunityMembershipUpdateManyWithoutCommunityNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUpdateManyWithoutCommunityNestedInputSchema).optional()
+}).strict();
+
+export const CommunityUncheckedUpdateInputSchema: z.ZodType<Prisma.CommunityUncheckedUpdateInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  questions: z.lazy(() => CommunityQuestionUncheckedUpdateManyWithoutCommunityNestedInputSchema).optional(),
+  members: z.lazy(() => CommunityMembershipUncheckedUpdateManyWithoutCommunityNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedUpdateManyWithoutCommunityNestedInputSchema).optional()
+}).strict();
+
+export const CommunityCreateManyInputSchema: z.ZodType<Prisma.CommunityCreateManyInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const CommunityUpdateManyMutationInputSchema: z.ZodType<Prisma.CommunityUpdateManyMutationInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const CommunityUncheckedUpdateManyInputSchema: z.ZodType<Prisma.CommunityUncheckedUpdateManyInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const CommunityMembershipCreateInputSchema: z.ZodType<Prisma.CommunityMembershipCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  role: z.lazy(() => MembershipRoleSchema).optional(),
+  joinedAt: z.coerce.date().optional(),
+  user: z.lazy(() => UserCreateNestedOneWithoutMembershipsInputSchema),
+  community: z.lazy(() => CommunityCreateNestedOneWithoutMembersInputSchema)
+}).strict();
+
+export const CommunityMembershipUncheckedCreateInputSchema: z.ZodType<Prisma.CommunityMembershipUncheckedCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  userId: z.string(),
+  communityId: z.string(),
+  role: z.lazy(() => MembershipRoleSchema).optional(),
+  joinedAt: z.coerce.date().optional()
+}).strict();
+
+export const CommunityMembershipUpdateInputSchema: z.ZodType<Prisma.CommunityMembershipUpdateInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  role: z.union([ z.lazy(() => MembershipRoleSchema),z.lazy(() => EnumMembershipRoleFieldUpdateOperationsInputSchema) ]).optional(),
+  joinedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  user: z.lazy(() => UserUpdateOneRequiredWithoutMembershipsNestedInputSchema).optional(),
+  community: z.lazy(() => CommunityUpdateOneRequiredWithoutMembersNestedInputSchema).optional()
+}).strict();
+
+export const CommunityMembershipUncheckedUpdateInputSchema: z.ZodType<Prisma.CommunityMembershipUncheckedUpdateInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  communityId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  role: z.union([ z.lazy(() => MembershipRoleSchema),z.lazy(() => EnumMembershipRoleFieldUpdateOperationsInputSchema) ]).optional(),
+  joinedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const CommunityMembershipCreateManyInputSchema: z.ZodType<Prisma.CommunityMembershipCreateManyInput> = z.object({
+  id: z.string().cuid().optional(),
+  userId: z.string(),
+  communityId: z.string(),
+  role: z.lazy(() => MembershipRoleSchema).optional(),
+  joinedAt: z.coerce.date().optional()
+}).strict();
+
+export const CommunityMembershipUpdateManyMutationInputSchema: z.ZodType<Prisma.CommunityMembershipUpdateManyMutationInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  role: z.union([ z.lazy(() => MembershipRoleSchema),z.lazy(() => EnumMembershipRoleFieldUpdateOperationsInputSchema) ]).optional(),
+  joinedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const CommunityMembershipUncheckedUpdateManyInputSchema: z.ZodType<Prisma.CommunityMembershipUncheckedUpdateManyInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  communityId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  role: z.union([ z.lazy(() => MembershipRoleSchema),z.lazy(() => EnumMembershipRoleFieldUpdateOperationsInputSchema) ]).optional(),
+  joinedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const CommunityQuestionCreateInputSchema: z.ZodType<Prisma.CommunityQuestionCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  label: z.string(),
+  type: z.lazy(() => QuestionTypeSchema),
+  options: z.union([ z.lazy(() => CommunityQuestionCreateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.boolean().optional(),
+  order: z.number().int().optional(),
+  community: z.lazy(() => CommunityCreateNestedOneWithoutQuestionsInputSchema),
+  createdBy: z.lazy(() => UserCreateNestedOneWithoutQuestionsCreatedInputSchema),
+  answers: z.lazy(() => UserAnswerCreateNestedManyWithoutQuestionInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionUncheckedCreateInputSchema: z.ZodType<Prisma.CommunityQuestionUncheckedCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  communityId: z.string(),
+  createdById: z.string(),
+  label: z.string(),
+  type: z.lazy(() => QuestionTypeSchema),
+  options: z.union([ z.lazy(() => CommunityQuestionCreateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.boolean().optional(),
+  order: z.number().int().optional(),
+  answers: z.lazy(() => UserAnswerUncheckedCreateNestedManyWithoutQuestionInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionUpdateInputSchema: z.ZodType<Prisma.CommunityQuestionUpdateInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  label: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => QuestionTypeSchema),z.lazy(() => EnumQuestionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  options: z.union([ z.lazy(() => CommunityQuestionUpdateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  order: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  community: z.lazy(() => CommunityUpdateOneRequiredWithoutQuestionsNestedInputSchema).optional(),
+  createdBy: z.lazy(() => UserUpdateOneRequiredWithoutQuestionsCreatedNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUpdateManyWithoutQuestionNestedInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionUncheckedUpdateInputSchema: z.ZodType<Prisma.CommunityQuestionUncheckedUpdateInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  communityId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdById: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  label: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => QuestionTypeSchema),z.lazy(() => EnumQuestionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  options: z.union([ z.lazy(() => CommunityQuestionUpdateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  order: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedUpdateManyWithoutQuestionNestedInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionCreateManyInputSchema: z.ZodType<Prisma.CommunityQuestionCreateManyInput> = z.object({
+  id: z.string().cuid().optional(),
+  communityId: z.string(),
+  createdById: z.string(),
+  label: z.string(),
+  type: z.lazy(() => QuestionTypeSchema),
+  options: z.union([ z.lazy(() => CommunityQuestionCreateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.boolean().optional(),
+  order: z.number().int().optional()
+}).strict();
+
+export const CommunityQuestionUpdateManyMutationInputSchema: z.ZodType<Prisma.CommunityQuestionUpdateManyMutationInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  label: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => QuestionTypeSchema),z.lazy(() => EnumQuestionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  options: z.union([ z.lazy(() => CommunityQuestionUpdateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  order: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const CommunityQuestionUncheckedUpdateManyInputSchema: z.ZodType<Prisma.CommunityQuestionUncheckedUpdateManyInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  communityId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdById: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  label: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => QuestionTypeSchema),z.lazy(() => EnumQuestionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  options: z.union([ z.lazy(() => CommunityQuestionUpdateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  order: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const UserAnswerCreateInputSchema: z.ZodType<Prisma.UserAnswerCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  value: z.string(),
+  answeredAt: z.coerce.date().optional(),
+  user: z.lazy(() => UserCreateNestedOneWithoutAnswersInputSchema),
+  question: z.lazy(() => CommunityQuestionCreateNestedOneWithoutAnswersInputSchema),
+  community: z.lazy(() => CommunityCreateNestedOneWithoutAnswersInputSchema)
+}).strict();
+
+export const UserAnswerUncheckedCreateInputSchema: z.ZodType<Prisma.UserAnswerUncheckedCreateInput> = z.object({
+  id: z.string().cuid().optional(),
+  userId: z.string(),
+  questionId: z.string(),
+  communityId: z.string(),
+  value: z.string(),
+  answeredAt: z.coerce.date().optional()
+}).strict();
+
+export const UserAnswerUpdateInputSchema: z.ZodType<Prisma.UserAnswerUpdateInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  value: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  answeredAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  user: z.lazy(() => UserUpdateOneRequiredWithoutAnswersNestedInputSchema).optional(),
+  question: z.lazy(() => CommunityQuestionUpdateOneRequiredWithoutAnswersNestedInputSchema).optional(),
+  community: z.lazy(() => CommunityUpdateOneRequiredWithoutAnswersNestedInputSchema).optional()
+}).strict();
+
+export const UserAnswerUncheckedUpdateInputSchema: z.ZodType<Prisma.UserAnswerUncheckedUpdateInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  questionId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  communityId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  value: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  answeredAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const UserAnswerCreateManyInputSchema: z.ZodType<Prisma.UserAnswerCreateManyInput> = z.object({
+  id: z.string().cuid().optional(),
+  userId: z.string(),
+  questionId: z.string(),
+  communityId: z.string(),
+  value: z.string(),
+  answeredAt: z.coerce.date().optional()
+}).strict();
+
+export const UserAnswerUpdateManyMutationInputSchema: z.ZodType<Prisma.UserAnswerUpdateManyMutationInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  value: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  answeredAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const UserAnswerUncheckedUpdateManyInputSchema: z.ZodType<Prisma.UserAnswerUncheckedUpdateManyInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  questionId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  communityId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  value: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  answeredAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
 export const IntFilterSchema: z.ZodType<Prisma.IntFilter> = z.object({
   equals: z.number().optional(),
   in: z.number().array().optional(),
@@ -2362,6 +3157,24 @@ export const DateTimeNullableFilterSchema: z.ZodType<Prisma.DateTimeNullableFilt
   not: z.union([ z.coerce.date(),z.lazy(() => NestedDateTimeNullableFilterSchema) ]).optional().nullable(),
 }).strict();
 
+export const CommunityMembershipListRelationFilterSchema: z.ZodType<Prisma.CommunityMembershipListRelationFilter> = z.object({
+  every: z.lazy(() => CommunityMembershipWhereInputSchema).optional(),
+  some: z.lazy(() => CommunityMembershipWhereInputSchema).optional(),
+  none: z.lazy(() => CommunityMembershipWhereInputSchema).optional()
+}).strict();
+
+export const UserAnswerListRelationFilterSchema: z.ZodType<Prisma.UserAnswerListRelationFilter> = z.object({
+  every: z.lazy(() => UserAnswerWhereInputSchema).optional(),
+  some: z.lazy(() => UserAnswerWhereInputSchema).optional(),
+  none: z.lazy(() => UserAnswerWhereInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionListRelationFilterSchema: z.ZodType<Prisma.CommunityQuestionListRelationFilter> = z.object({
+  every: z.lazy(() => CommunityQuestionWhereInputSchema).optional(),
+  some: z.lazy(() => CommunityQuestionWhereInputSchema).optional(),
+  none: z.lazy(() => CommunityQuestionWhereInputSchema).optional()
+}).strict();
+
 export const AccountListRelationFilterSchema: z.ZodType<Prisma.AccountListRelationFilter> = z.object({
   every: z.lazy(() => AccountWhereInputSchema).optional(),
   some: z.lazy(() => AccountWhereInputSchema).optional(),
@@ -2396,6 +3209,18 @@ export const LeadListRelationFilterSchema: z.ZodType<Prisma.LeadListRelationFilt
   every: z.lazy(() => LeadWhereInputSchema).optional(),
   some: z.lazy(() => LeadWhereInputSchema).optional(),
   none: z.lazy(() => LeadWhereInputSchema).optional()
+}).strict();
+
+export const CommunityMembershipOrderByRelationAggregateInputSchema: z.ZodType<Prisma.CommunityMembershipOrderByRelationAggregateInput> = z.object({
+  _count: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const UserAnswerOrderByRelationAggregateInputSchema: z.ZodType<Prisma.UserAnswerOrderByRelationAggregateInput> = z.object({
+  _count: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const CommunityQuestionOrderByRelationAggregateInputSchema: z.ZodType<Prisma.CommunityQuestionOrderByRelationAggregateInput> = z.object({
+  _count: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
 export const AccountOrderByRelationAggregateInputSchema: z.ZodType<Prisma.AccountOrderByRelationAggregateInput> = z.object({
@@ -2802,6 +3627,174 @@ export const LeadSumOrderByAggregateInputSchema: z.ZodType<Prisma.LeadSumOrderBy
   segmentId: z.lazy(() => SortOrderSchema).optional()
 }).strict();
 
+export const CommunityCountOrderByAggregateInputSchema: z.ZodType<Prisma.CommunityCountOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const CommunityMaxOrderByAggregateInputSchema: z.ZodType<Prisma.CommunityMaxOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const CommunityMinOrderByAggregateInputSchema: z.ZodType<Prisma.CommunityMinOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
+  createdAt: z.lazy(() => SortOrderSchema).optional(),
+  updatedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const EnumMembershipRoleFilterSchema: z.ZodType<Prisma.EnumMembershipRoleFilter> = z.object({
+  equals: z.lazy(() => MembershipRoleSchema).optional(),
+  in: z.lazy(() => MembershipRoleSchema).array().optional(),
+  notIn: z.lazy(() => MembershipRoleSchema).array().optional(),
+  not: z.union([ z.lazy(() => MembershipRoleSchema),z.lazy(() => NestedEnumMembershipRoleFilterSchema) ]).optional(),
+}).strict();
+
+export const CommunityScalarRelationFilterSchema: z.ZodType<Prisma.CommunityScalarRelationFilter> = z.object({
+  is: z.lazy(() => CommunityWhereInputSchema).optional(),
+  isNot: z.lazy(() => CommunityWhereInputSchema).optional()
+}).strict();
+
+export const CommunityMembershipUserIdCommunityIdCompoundUniqueInputSchema: z.ZodType<Prisma.CommunityMembershipUserIdCommunityIdCompoundUniqueInput> = z.object({
+  userId: z.string(),
+  communityId: z.string()
+}).strict();
+
+export const CommunityMembershipCountOrderByAggregateInputSchema: z.ZodType<Prisma.CommunityMembershipCountOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
+  communityId: z.lazy(() => SortOrderSchema).optional(),
+  role: z.lazy(() => SortOrderSchema).optional(),
+  joinedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const CommunityMembershipMaxOrderByAggregateInputSchema: z.ZodType<Prisma.CommunityMembershipMaxOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
+  communityId: z.lazy(() => SortOrderSchema).optional(),
+  role: z.lazy(() => SortOrderSchema).optional(),
+  joinedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const CommunityMembershipMinOrderByAggregateInputSchema: z.ZodType<Prisma.CommunityMembershipMinOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
+  communityId: z.lazy(() => SortOrderSchema).optional(),
+  role: z.lazy(() => SortOrderSchema).optional(),
+  joinedAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const EnumMembershipRoleWithAggregatesFilterSchema: z.ZodType<Prisma.EnumMembershipRoleWithAggregatesFilter> = z.object({
+  equals: z.lazy(() => MembershipRoleSchema).optional(),
+  in: z.lazy(() => MembershipRoleSchema).array().optional(),
+  notIn: z.lazy(() => MembershipRoleSchema).array().optional(),
+  not: z.union([ z.lazy(() => MembershipRoleSchema),z.lazy(() => NestedEnumMembershipRoleWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedEnumMembershipRoleFilterSchema).optional(),
+  _max: z.lazy(() => NestedEnumMembershipRoleFilterSchema).optional()
+}).strict();
+
+export const EnumQuestionTypeFilterSchema: z.ZodType<Prisma.EnumQuestionTypeFilter> = z.object({
+  equals: z.lazy(() => QuestionTypeSchema).optional(),
+  in: z.lazy(() => QuestionTypeSchema).array().optional(),
+  notIn: z.lazy(() => QuestionTypeSchema).array().optional(),
+  not: z.union([ z.lazy(() => QuestionTypeSchema),z.lazy(() => NestedEnumQuestionTypeFilterSchema) ]).optional(),
+}).strict();
+
+export const CommunityQuestionCountOrderByAggregateInputSchema: z.ZodType<Prisma.CommunityQuestionCountOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  communityId: z.lazy(() => SortOrderSchema).optional(),
+  createdById: z.lazy(() => SortOrderSchema).optional(),
+  label: z.lazy(() => SortOrderSchema).optional(),
+  type: z.lazy(() => SortOrderSchema).optional(),
+  options: z.lazy(() => SortOrderSchema).optional(),
+  required: z.lazy(() => SortOrderSchema).optional(),
+  order: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const CommunityQuestionAvgOrderByAggregateInputSchema: z.ZodType<Prisma.CommunityQuestionAvgOrderByAggregateInput> = z.object({
+  order: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const CommunityQuestionMaxOrderByAggregateInputSchema: z.ZodType<Prisma.CommunityQuestionMaxOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  communityId: z.lazy(() => SortOrderSchema).optional(),
+  createdById: z.lazy(() => SortOrderSchema).optional(),
+  label: z.lazy(() => SortOrderSchema).optional(),
+  type: z.lazy(() => SortOrderSchema).optional(),
+  required: z.lazy(() => SortOrderSchema).optional(),
+  order: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const CommunityQuestionMinOrderByAggregateInputSchema: z.ZodType<Prisma.CommunityQuestionMinOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  communityId: z.lazy(() => SortOrderSchema).optional(),
+  createdById: z.lazy(() => SortOrderSchema).optional(),
+  label: z.lazy(() => SortOrderSchema).optional(),
+  type: z.lazy(() => SortOrderSchema).optional(),
+  required: z.lazy(() => SortOrderSchema).optional(),
+  order: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const CommunityQuestionSumOrderByAggregateInputSchema: z.ZodType<Prisma.CommunityQuestionSumOrderByAggregateInput> = z.object({
+  order: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const EnumQuestionTypeWithAggregatesFilterSchema: z.ZodType<Prisma.EnumQuestionTypeWithAggregatesFilter> = z.object({
+  equals: z.lazy(() => QuestionTypeSchema).optional(),
+  in: z.lazy(() => QuestionTypeSchema).array().optional(),
+  notIn: z.lazy(() => QuestionTypeSchema).array().optional(),
+  not: z.union([ z.lazy(() => QuestionTypeSchema),z.lazy(() => NestedEnumQuestionTypeWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedEnumQuestionTypeFilterSchema).optional(),
+  _max: z.lazy(() => NestedEnumQuestionTypeFilterSchema).optional()
+}).strict();
+
+export const CommunityQuestionScalarRelationFilterSchema: z.ZodType<Prisma.CommunityQuestionScalarRelationFilter> = z.object({
+  is: z.lazy(() => CommunityQuestionWhereInputSchema).optional(),
+  isNot: z.lazy(() => CommunityQuestionWhereInputSchema).optional()
+}).strict();
+
+export const UserAnswerUserIdQuestionIdCompoundUniqueInputSchema: z.ZodType<Prisma.UserAnswerUserIdQuestionIdCompoundUniqueInput> = z.object({
+  userId: z.string(),
+  questionId: z.string()
+}).strict();
+
+export const UserAnswerCountOrderByAggregateInputSchema: z.ZodType<Prisma.UserAnswerCountOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
+  questionId: z.lazy(() => SortOrderSchema).optional(),
+  communityId: z.lazy(() => SortOrderSchema).optional(),
+  value: z.lazy(() => SortOrderSchema).optional(),
+  answeredAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const UserAnswerMaxOrderByAggregateInputSchema: z.ZodType<Prisma.UserAnswerMaxOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
+  questionId: z.lazy(() => SortOrderSchema).optional(),
+  communityId: z.lazy(() => SortOrderSchema).optional(),
+  value: z.lazy(() => SortOrderSchema).optional(),
+  answeredAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
+export const UserAnswerMinOrderByAggregateInputSchema: z.ZodType<Prisma.UserAnswerMinOrderByAggregateInput> = z.object({
+  id: z.lazy(() => SortOrderSchema).optional(),
+  userId: z.lazy(() => SortOrderSchema).optional(),
+  questionId: z.lazy(() => SortOrderSchema).optional(),
+  communityId: z.lazy(() => SortOrderSchema).optional(),
+  value: z.lazy(() => SortOrderSchema).optional(),
+  answeredAt: z.lazy(() => SortOrderSchema).optional()
+}).strict();
+
 export const UserCreateNestedOneWithoutPostsInputSchema: z.ZodType<Prisma.UserCreateNestedOneWithoutPostsInput> = z.object({
   create: z.union([ z.lazy(() => UserCreateWithoutPostsInputSchema),z.lazy(() => UserUncheckedCreateWithoutPostsInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutPostsInputSchema).optional(),
@@ -2872,6 +3865,27 @@ export const UserUpdateOneRequiredWithoutSessionsNestedInputSchema: z.ZodType<Pr
   update: z.union([ z.lazy(() => UserUpdateToOneWithWhereWithoutSessionsInputSchema),z.lazy(() => UserUpdateWithoutSessionsInputSchema),z.lazy(() => UserUncheckedUpdateWithoutSessionsInputSchema) ]).optional(),
 }).strict();
 
+export const CommunityMembershipCreateNestedManyWithoutUserInputSchema: z.ZodType<Prisma.CommunityMembershipCreateNestedManyWithoutUserInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityMembershipCreateWithoutUserInputSchema),z.lazy(() => CommunityMembershipCreateWithoutUserInputSchema).array(),z.lazy(() => CommunityMembershipUncheckedCreateWithoutUserInputSchema),z.lazy(() => CommunityMembershipUncheckedCreateWithoutUserInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => CommunityMembershipCreateOrConnectWithoutUserInputSchema),z.lazy(() => CommunityMembershipCreateOrConnectWithoutUserInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => CommunityMembershipCreateManyUserInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const UserAnswerCreateNestedManyWithoutUserInputSchema: z.ZodType<Prisma.UserAnswerCreateNestedManyWithoutUserInput> = z.object({
+  create: z.union([ z.lazy(() => UserAnswerCreateWithoutUserInputSchema),z.lazy(() => UserAnswerCreateWithoutUserInputSchema).array(),z.lazy(() => UserAnswerUncheckedCreateWithoutUserInputSchema),z.lazy(() => UserAnswerUncheckedCreateWithoutUserInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => UserAnswerCreateOrConnectWithoutUserInputSchema),z.lazy(() => UserAnswerCreateOrConnectWithoutUserInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => UserAnswerCreateManyUserInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const CommunityQuestionCreateNestedManyWithoutCreatedByInputSchema: z.ZodType<Prisma.CommunityQuestionCreateNestedManyWithoutCreatedByInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityQuestionCreateWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionCreateWithoutCreatedByInputSchema).array(),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCreatedByInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => CommunityQuestionCreateOrConnectWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionCreateOrConnectWithoutCreatedByInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => CommunityQuestionCreateManyCreatedByInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
 export const AccountCreateNestedManyWithoutUserInputSchema: z.ZodType<Prisma.AccountCreateNestedManyWithoutUserInput> = z.object({
   create: z.union([ z.lazy(() => AccountCreateWithoutUserInputSchema),z.lazy(() => AccountCreateWithoutUserInputSchema).array(),z.lazy(() => AccountUncheckedCreateWithoutUserInputSchema),z.lazy(() => AccountUncheckedCreateWithoutUserInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => AccountCreateOrConnectWithoutUserInputSchema),z.lazy(() => AccountCreateOrConnectWithoutUserInputSchema).array() ]).optional(),
@@ -2912,6 +3926,27 @@ export const LeadCreateNestedManyWithoutCreatedByInputSchema: z.ZodType<Prisma.L
   connectOrCreate: z.union([ z.lazy(() => LeadCreateOrConnectWithoutCreatedByInputSchema),z.lazy(() => LeadCreateOrConnectWithoutCreatedByInputSchema).array() ]).optional(),
   createMany: z.lazy(() => LeadCreateManyCreatedByInputEnvelopeSchema).optional(),
   connect: z.union([ z.lazy(() => LeadWhereUniqueInputSchema),z.lazy(() => LeadWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const CommunityMembershipUncheckedCreateNestedManyWithoutUserInputSchema: z.ZodType<Prisma.CommunityMembershipUncheckedCreateNestedManyWithoutUserInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityMembershipCreateWithoutUserInputSchema),z.lazy(() => CommunityMembershipCreateWithoutUserInputSchema).array(),z.lazy(() => CommunityMembershipUncheckedCreateWithoutUserInputSchema),z.lazy(() => CommunityMembershipUncheckedCreateWithoutUserInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => CommunityMembershipCreateOrConnectWithoutUserInputSchema),z.lazy(() => CommunityMembershipCreateOrConnectWithoutUserInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => CommunityMembershipCreateManyUserInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const UserAnswerUncheckedCreateNestedManyWithoutUserInputSchema: z.ZodType<Prisma.UserAnswerUncheckedCreateNestedManyWithoutUserInput> = z.object({
+  create: z.union([ z.lazy(() => UserAnswerCreateWithoutUserInputSchema),z.lazy(() => UserAnswerCreateWithoutUserInputSchema).array(),z.lazy(() => UserAnswerUncheckedCreateWithoutUserInputSchema),z.lazy(() => UserAnswerUncheckedCreateWithoutUserInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => UserAnswerCreateOrConnectWithoutUserInputSchema),z.lazy(() => UserAnswerCreateOrConnectWithoutUserInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => UserAnswerCreateManyUserInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const CommunityQuestionUncheckedCreateNestedManyWithoutCreatedByInputSchema: z.ZodType<Prisma.CommunityQuestionUncheckedCreateNestedManyWithoutCreatedByInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityQuestionCreateWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionCreateWithoutCreatedByInputSchema).array(),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCreatedByInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => CommunityQuestionCreateOrConnectWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionCreateOrConnectWithoutCreatedByInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => CommunityQuestionCreateManyCreatedByInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
 }).strict();
 
 export const AccountUncheckedCreateNestedManyWithoutUserInputSchema: z.ZodType<Prisma.AccountUncheckedCreateNestedManyWithoutUserInput> = z.object({
@@ -2958,6 +3993,48 @@ export const LeadUncheckedCreateNestedManyWithoutCreatedByInputSchema: z.ZodType
 
 export const NullableDateTimeFieldUpdateOperationsInputSchema: z.ZodType<Prisma.NullableDateTimeFieldUpdateOperationsInput> = z.object({
   set: z.coerce.date().optional().nullable()
+}).strict();
+
+export const CommunityMembershipUpdateManyWithoutUserNestedInputSchema: z.ZodType<Prisma.CommunityMembershipUpdateManyWithoutUserNestedInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityMembershipCreateWithoutUserInputSchema),z.lazy(() => CommunityMembershipCreateWithoutUserInputSchema).array(),z.lazy(() => CommunityMembershipUncheckedCreateWithoutUserInputSchema),z.lazy(() => CommunityMembershipUncheckedCreateWithoutUserInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => CommunityMembershipCreateOrConnectWithoutUserInputSchema),z.lazy(() => CommunityMembershipCreateOrConnectWithoutUserInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => CommunityMembershipUpsertWithWhereUniqueWithoutUserInputSchema),z.lazy(() => CommunityMembershipUpsertWithWhereUniqueWithoutUserInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => CommunityMembershipCreateManyUserInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => CommunityMembershipUpdateWithWhereUniqueWithoutUserInputSchema),z.lazy(() => CommunityMembershipUpdateWithWhereUniqueWithoutUserInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => CommunityMembershipUpdateManyWithWhereWithoutUserInputSchema),z.lazy(() => CommunityMembershipUpdateManyWithWhereWithoutUserInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => CommunityMembershipScalarWhereInputSchema),z.lazy(() => CommunityMembershipScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const UserAnswerUpdateManyWithoutUserNestedInputSchema: z.ZodType<Prisma.UserAnswerUpdateManyWithoutUserNestedInput> = z.object({
+  create: z.union([ z.lazy(() => UserAnswerCreateWithoutUserInputSchema),z.lazy(() => UserAnswerCreateWithoutUserInputSchema).array(),z.lazy(() => UserAnswerUncheckedCreateWithoutUserInputSchema),z.lazy(() => UserAnswerUncheckedCreateWithoutUserInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => UserAnswerCreateOrConnectWithoutUserInputSchema),z.lazy(() => UserAnswerCreateOrConnectWithoutUserInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => UserAnswerUpsertWithWhereUniqueWithoutUserInputSchema),z.lazy(() => UserAnswerUpsertWithWhereUniqueWithoutUserInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => UserAnswerCreateManyUserInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => UserAnswerUpdateWithWhereUniqueWithoutUserInputSchema),z.lazy(() => UserAnswerUpdateWithWhereUniqueWithoutUserInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => UserAnswerUpdateManyWithWhereWithoutUserInputSchema),z.lazy(() => UserAnswerUpdateManyWithWhereWithoutUserInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => UserAnswerScalarWhereInputSchema),z.lazy(() => UserAnswerScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const CommunityQuestionUpdateManyWithoutCreatedByNestedInputSchema: z.ZodType<Prisma.CommunityQuestionUpdateManyWithoutCreatedByNestedInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityQuestionCreateWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionCreateWithoutCreatedByInputSchema).array(),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCreatedByInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => CommunityQuestionCreateOrConnectWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionCreateOrConnectWithoutCreatedByInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => CommunityQuestionUpsertWithWhereUniqueWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionUpsertWithWhereUniqueWithoutCreatedByInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => CommunityQuestionCreateManyCreatedByInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => CommunityQuestionUpdateWithWhereUniqueWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionUpdateWithWhereUniqueWithoutCreatedByInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => CommunityQuestionUpdateManyWithWhereWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionUpdateManyWithWhereWithoutCreatedByInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => CommunityQuestionScalarWhereInputSchema),z.lazy(() => CommunityQuestionScalarWhereInputSchema).array() ]).optional(),
 }).strict();
 
 export const AccountUpdateManyWithoutUserNestedInputSchema: z.ZodType<Prisma.AccountUpdateManyWithoutUserNestedInput> = z.object({
@@ -3042,6 +4119,48 @@ export const LeadUpdateManyWithoutCreatedByNestedInputSchema: z.ZodType<Prisma.L
   update: z.union([ z.lazy(() => LeadUpdateWithWhereUniqueWithoutCreatedByInputSchema),z.lazy(() => LeadUpdateWithWhereUniqueWithoutCreatedByInputSchema).array() ]).optional(),
   updateMany: z.union([ z.lazy(() => LeadUpdateManyWithWhereWithoutCreatedByInputSchema),z.lazy(() => LeadUpdateManyWithWhereWithoutCreatedByInputSchema).array() ]).optional(),
   deleteMany: z.union([ z.lazy(() => LeadScalarWhereInputSchema),z.lazy(() => LeadScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const CommunityMembershipUncheckedUpdateManyWithoutUserNestedInputSchema: z.ZodType<Prisma.CommunityMembershipUncheckedUpdateManyWithoutUserNestedInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityMembershipCreateWithoutUserInputSchema),z.lazy(() => CommunityMembershipCreateWithoutUserInputSchema).array(),z.lazy(() => CommunityMembershipUncheckedCreateWithoutUserInputSchema),z.lazy(() => CommunityMembershipUncheckedCreateWithoutUserInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => CommunityMembershipCreateOrConnectWithoutUserInputSchema),z.lazy(() => CommunityMembershipCreateOrConnectWithoutUserInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => CommunityMembershipUpsertWithWhereUniqueWithoutUserInputSchema),z.lazy(() => CommunityMembershipUpsertWithWhereUniqueWithoutUserInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => CommunityMembershipCreateManyUserInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => CommunityMembershipUpdateWithWhereUniqueWithoutUserInputSchema),z.lazy(() => CommunityMembershipUpdateWithWhereUniqueWithoutUserInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => CommunityMembershipUpdateManyWithWhereWithoutUserInputSchema),z.lazy(() => CommunityMembershipUpdateManyWithWhereWithoutUserInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => CommunityMembershipScalarWhereInputSchema),z.lazy(() => CommunityMembershipScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const UserAnswerUncheckedUpdateManyWithoutUserNestedInputSchema: z.ZodType<Prisma.UserAnswerUncheckedUpdateManyWithoutUserNestedInput> = z.object({
+  create: z.union([ z.lazy(() => UserAnswerCreateWithoutUserInputSchema),z.lazy(() => UserAnswerCreateWithoutUserInputSchema).array(),z.lazy(() => UserAnswerUncheckedCreateWithoutUserInputSchema),z.lazy(() => UserAnswerUncheckedCreateWithoutUserInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => UserAnswerCreateOrConnectWithoutUserInputSchema),z.lazy(() => UserAnswerCreateOrConnectWithoutUserInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => UserAnswerUpsertWithWhereUniqueWithoutUserInputSchema),z.lazy(() => UserAnswerUpsertWithWhereUniqueWithoutUserInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => UserAnswerCreateManyUserInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => UserAnswerUpdateWithWhereUniqueWithoutUserInputSchema),z.lazy(() => UserAnswerUpdateWithWhereUniqueWithoutUserInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => UserAnswerUpdateManyWithWhereWithoutUserInputSchema),z.lazy(() => UserAnswerUpdateManyWithWhereWithoutUserInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => UserAnswerScalarWhereInputSchema),z.lazy(() => UserAnswerScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const CommunityQuestionUncheckedUpdateManyWithoutCreatedByNestedInputSchema: z.ZodType<Prisma.CommunityQuestionUncheckedUpdateManyWithoutCreatedByNestedInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityQuestionCreateWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionCreateWithoutCreatedByInputSchema).array(),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCreatedByInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => CommunityQuestionCreateOrConnectWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionCreateOrConnectWithoutCreatedByInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => CommunityQuestionUpsertWithWhereUniqueWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionUpsertWithWhereUniqueWithoutCreatedByInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => CommunityQuestionCreateManyCreatedByInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => CommunityQuestionUpdateWithWhereUniqueWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionUpdateWithWhereUniqueWithoutCreatedByInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => CommunityQuestionUpdateManyWithWhereWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionUpdateManyWithWhereWithoutCreatedByInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => CommunityQuestionScalarWhereInputSchema),z.lazy(() => CommunityQuestionScalarWhereInputSchema).array() ]).optional(),
 }).strict();
 
 export const AccountUncheckedUpdateManyWithoutUserNestedInputSchema: z.ZodType<Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput> = z.object({
@@ -3475,6 +4594,289 @@ export const PipelineSegmentUpdateOneWithoutLeadNestedInputSchema: z.ZodType<Pri
   update: z.union([ z.lazy(() => PipelineSegmentUpdateToOneWithWhereWithoutLeadInputSchema),z.lazy(() => PipelineSegmentUpdateWithoutLeadInputSchema),z.lazy(() => PipelineSegmentUncheckedUpdateWithoutLeadInputSchema) ]).optional(),
 }).strict();
 
+export const CommunityQuestionCreateNestedManyWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityQuestionCreateNestedManyWithoutCommunityInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityQuestionCreateWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionCreateWithoutCommunityInputSchema).array(),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCommunityInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => CommunityQuestionCreateOrConnectWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionCreateOrConnectWithoutCommunityInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => CommunityQuestionCreateManyCommunityInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const CommunityMembershipCreateNestedManyWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityMembershipCreateNestedManyWithoutCommunityInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityMembershipCreateWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipCreateWithoutCommunityInputSchema).array(),z.lazy(() => CommunityMembershipUncheckedCreateWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipUncheckedCreateWithoutCommunityInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => CommunityMembershipCreateOrConnectWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipCreateOrConnectWithoutCommunityInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => CommunityMembershipCreateManyCommunityInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const UserAnswerCreateNestedManyWithoutCommunityInputSchema: z.ZodType<Prisma.UserAnswerCreateNestedManyWithoutCommunityInput> = z.object({
+  create: z.union([ z.lazy(() => UserAnswerCreateWithoutCommunityInputSchema),z.lazy(() => UserAnswerCreateWithoutCommunityInputSchema).array(),z.lazy(() => UserAnswerUncheckedCreateWithoutCommunityInputSchema),z.lazy(() => UserAnswerUncheckedCreateWithoutCommunityInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => UserAnswerCreateOrConnectWithoutCommunityInputSchema),z.lazy(() => UserAnswerCreateOrConnectWithoutCommunityInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => UserAnswerCreateManyCommunityInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const CommunityQuestionUncheckedCreateNestedManyWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityQuestionUncheckedCreateNestedManyWithoutCommunityInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityQuestionCreateWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionCreateWithoutCommunityInputSchema).array(),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCommunityInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => CommunityQuestionCreateOrConnectWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionCreateOrConnectWithoutCommunityInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => CommunityQuestionCreateManyCommunityInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const CommunityMembershipUncheckedCreateNestedManyWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityMembershipUncheckedCreateNestedManyWithoutCommunityInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityMembershipCreateWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipCreateWithoutCommunityInputSchema).array(),z.lazy(() => CommunityMembershipUncheckedCreateWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipUncheckedCreateWithoutCommunityInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => CommunityMembershipCreateOrConnectWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipCreateOrConnectWithoutCommunityInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => CommunityMembershipCreateManyCommunityInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const UserAnswerUncheckedCreateNestedManyWithoutCommunityInputSchema: z.ZodType<Prisma.UserAnswerUncheckedCreateNestedManyWithoutCommunityInput> = z.object({
+  create: z.union([ z.lazy(() => UserAnswerCreateWithoutCommunityInputSchema),z.lazy(() => UserAnswerCreateWithoutCommunityInputSchema).array(),z.lazy(() => UserAnswerUncheckedCreateWithoutCommunityInputSchema),z.lazy(() => UserAnswerUncheckedCreateWithoutCommunityInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => UserAnswerCreateOrConnectWithoutCommunityInputSchema),z.lazy(() => UserAnswerCreateOrConnectWithoutCommunityInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => UserAnswerCreateManyCommunityInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const CommunityQuestionUpdateManyWithoutCommunityNestedInputSchema: z.ZodType<Prisma.CommunityQuestionUpdateManyWithoutCommunityNestedInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityQuestionCreateWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionCreateWithoutCommunityInputSchema).array(),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCommunityInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => CommunityQuestionCreateOrConnectWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionCreateOrConnectWithoutCommunityInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => CommunityQuestionUpsertWithWhereUniqueWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionUpsertWithWhereUniqueWithoutCommunityInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => CommunityQuestionCreateManyCommunityInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => CommunityQuestionUpdateWithWhereUniqueWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionUpdateWithWhereUniqueWithoutCommunityInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => CommunityQuestionUpdateManyWithWhereWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionUpdateManyWithWhereWithoutCommunityInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => CommunityQuestionScalarWhereInputSchema),z.lazy(() => CommunityQuestionScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const CommunityMembershipUpdateManyWithoutCommunityNestedInputSchema: z.ZodType<Prisma.CommunityMembershipUpdateManyWithoutCommunityNestedInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityMembershipCreateWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipCreateWithoutCommunityInputSchema).array(),z.lazy(() => CommunityMembershipUncheckedCreateWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipUncheckedCreateWithoutCommunityInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => CommunityMembershipCreateOrConnectWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipCreateOrConnectWithoutCommunityInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => CommunityMembershipUpsertWithWhereUniqueWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipUpsertWithWhereUniqueWithoutCommunityInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => CommunityMembershipCreateManyCommunityInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => CommunityMembershipUpdateWithWhereUniqueWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipUpdateWithWhereUniqueWithoutCommunityInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => CommunityMembershipUpdateManyWithWhereWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipUpdateManyWithWhereWithoutCommunityInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => CommunityMembershipScalarWhereInputSchema),z.lazy(() => CommunityMembershipScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const UserAnswerUpdateManyWithoutCommunityNestedInputSchema: z.ZodType<Prisma.UserAnswerUpdateManyWithoutCommunityNestedInput> = z.object({
+  create: z.union([ z.lazy(() => UserAnswerCreateWithoutCommunityInputSchema),z.lazy(() => UserAnswerCreateWithoutCommunityInputSchema).array(),z.lazy(() => UserAnswerUncheckedCreateWithoutCommunityInputSchema),z.lazy(() => UserAnswerUncheckedCreateWithoutCommunityInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => UserAnswerCreateOrConnectWithoutCommunityInputSchema),z.lazy(() => UserAnswerCreateOrConnectWithoutCommunityInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => UserAnswerUpsertWithWhereUniqueWithoutCommunityInputSchema),z.lazy(() => UserAnswerUpsertWithWhereUniqueWithoutCommunityInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => UserAnswerCreateManyCommunityInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => UserAnswerUpdateWithWhereUniqueWithoutCommunityInputSchema),z.lazy(() => UserAnswerUpdateWithWhereUniqueWithoutCommunityInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => UserAnswerUpdateManyWithWhereWithoutCommunityInputSchema),z.lazy(() => UserAnswerUpdateManyWithWhereWithoutCommunityInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => UserAnswerScalarWhereInputSchema),z.lazy(() => UserAnswerScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const CommunityQuestionUncheckedUpdateManyWithoutCommunityNestedInputSchema: z.ZodType<Prisma.CommunityQuestionUncheckedUpdateManyWithoutCommunityNestedInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityQuestionCreateWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionCreateWithoutCommunityInputSchema).array(),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCommunityInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => CommunityQuestionCreateOrConnectWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionCreateOrConnectWithoutCommunityInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => CommunityQuestionUpsertWithWhereUniqueWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionUpsertWithWhereUniqueWithoutCommunityInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => CommunityQuestionCreateManyCommunityInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => CommunityQuestionWhereUniqueInputSchema),z.lazy(() => CommunityQuestionWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => CommunityQuestionUpdateWithWhereUniqueWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionUpdateWithWhereUniqueWithoutCommunityInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => CommunityQuestionUpdateManyWithWhereWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionUpdateManyWithWhereWithoutCommunityInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => CommunityQuestionScalarWhereInputSchema),z.lazy(() => CommunityQuestionScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const CommunityMembershipUncheckedUpdateManyWithoutCommunityNestedInputSchema: z.ZodType<Prisma.CommunityMembershipUncheckedUpdateManyWithoutCommunityNestedInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityMembershipCreateWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipCreateWithoutCommunityInputSchema).array(),z.lazy(() => CommunityMembershipUncheckedCreateWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipUncheckedCreateWithoutCommunityInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => CommunityMembershipCreateOrConnectWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipCreateOrConnectWithoutCommunityInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => CommunityMembershipUpsertWithWhereUniqueWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipUpsertWithWhereUniqueWithoutCommunityInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => CommunityMembershipCreateManyCommunityInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => CommunityMembershipWhereUniqueInputSchema),z.lazy(() => CommunityMembershipWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => CommunityMembershipUpdateWithWhereUniqueWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipUpdateWithWhereUniqueWithoutCommunityInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => CommunityMembershipUpdateManyWithWhereWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipUpdateManyWithWhereWithoutCommunityInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => CommunityMembershipScalarWhereInputSchema),z.lazy(() => CommunityMembershipScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const UserAnswerUncheckedUpdateManyWithoutCommunityNestedInputSchema: z.ZodType<Prisma.UserAnswerUncheckedUpdateManyWithoutCommunityNestedInput> = z.object({
+  create: z.union([ z.lazy(() => UserAnswerCreateWithoutCommunityInputSchema),z.lazy(() => UserAnswerCreateWithoutCommunityInputSchema).array(),z.lazy(() => UserAnswerUncheckedCreateWithoutCommunityInputSchema),z.lazy(() => UserAnswerUncheckedCreateWithoutCommunityInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => UserAnswerCreateOrConnectWithoutCommunityInputSchema),z.lazy(() => UserAnswerCreateOrConnectWithoutCommunityInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => UserAnswerUpsertWithWhereUniqueWithoutCommunityInputSchema),z.lazy(() => UserAnswerUpsertWithWhereUniqueWithoutCommunityInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => UserAnswerCreateManyCommunityInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => UserAnswerUpdateWithWhereUniqueWithoutCommunityInputSchema),z.lazy(() => UserAnswerUpdateWithWhereUniqueWithoutCommunityInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => UserAnswerUpdateManyWithWhereWithoutCommunityInputSchema),z.lazy(() => UserAnswerUpdateManyWithWhereWithoutCommunityInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => UserAnswerScalarWhereInputSchema),z.lazy(() => UserAnswerScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const UserCreateNestedOneWithoutMembershipsInputSchema: z.ZodType<Prisma.UserCreateNestedOneWithoutMembershipsInput> = z.object({
+  create: z.union([ z.lazy(() => UserCreateWithoutMembershipsInputSchema),z.lazy(() => UserUncheckedCreateWithoutMembershipsInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutMembershipsInputSchema).optional(),
+  connect: z.lazy(() => UserWhereUniqueInputSchema).optional()
+}).strict();
+
+export const CommunityCreateNestedOneWithoutMembersInputSchema: z.ZodType<Prisma.CommunityCreateNestedOneWithoutMembersInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityCreateWithoutMembersInputSchema),z.lazy(() => CommunityUncheckedCreateWithoutMembersInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => CommunityCreateOrConnectWithoutMembersInputSchema).optional(),
+  connect: z.lazy(() => CommunityWhereUniqueInputSchema).optional()
+}).strict();
+
+export const EnumMembershipRoleFieldUpdateOperationsInputSchema: z.ZodType<Prisma.EnumMembershipRoleFieldUpdateOperationsInput> = z.object({
+  set: z.lazy(() => MembershipRoleSchema).optional()
+}).strict();
+
+export const UserUpdateOneRequiredWithoutMembershipsNestedInputSchema: z.ZodType<Prisma.UserUpdateOneRequiredWithoutMembershipsNestedInput> = z.object({
+  create: z.union([ z.lazy(() => UserCreateWithoutMembershipsInputSchema),z.lazy(() => UserUncheckedCreateWithoutMembershipsInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutMembershipsInputSchema).optional(),
+  upsert: z.lazy(() => UserUpsertWithoutMembershipsInputSchema).optional(),
+  connect: z.lazy(() => UserWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => UserUpdateToOneWithWhereWithoutMembershipsInputSchema),z.lazy(() => UserUpdateWithoutMembershipsInputSchema),z.lazy(() => UserUncheckedUpdateWithoutMembershipsInputSchema) ]).optional(),
+}).strict();
+
+export const CommunityUpdateOneRequiredWithoutMembersNestedInputSchema: z.ZodType<Prisma.CommunityUpdateOneRequiredWithoutMembersNestedInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityCreateWithoutMembersInputSchema),z.lazy(() => CommunityUncheckedCreateWithoutMembersInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => CommunityCreateOrConnectWithoutMembersInputSchema).optional(),
+  upsert: z.lazy(() => CommunityUpsertWithoutMembersInputSchema).optional(),
+  connect: z.lazy(() => CommunityWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => CommunityUpdateToOneWithWhereWithoutMembersInputSchema),z.lazy(() => CommunityUpdateWithoutMembersInputSchema),z.lazy(() => CommunityUncheckedUpdateWithoutMembersInputSchema) ]).optional(),
+}).strict();
+
+export const CommunityQuestionCreateoptionsInputSchema: z.ZodType<Prisma.CommunityQuestionCreateoptionsInput> = z.object({
+  set: z.string().array()
+}).strict();
+
+export const CommunityCreateNestedOneWithoutQuestionsInputSchema: z.ZodType<Prisma.CommunityCreateNestedOneWithoutQuestionsInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityCreateWithoutQuestionsInputSchema),z.lazy(() => CommunityUncheckedCreateWithoutQuestionsInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => CommunityCreateOrConnectWithoutQuestionsInputSchema).optional(),
+  connect: z.lazy(() => CommunityWhereUniqueInputSchema).optional()
+}).strict();
+
+export const UserCreateNestedOneWithoutQuestionsCreatedInputSchema: z.ZodType<Prisma.UserCreateNestedOneWithoutQuestionsCreatedInput> = z.object({
+  create: z.union([ z.lazy(() => UserCreateWithoutQuestionsCreatedInputSchema),z.lazy(() => UserUncheckedCreateWithoutQuestionsCreatedInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutQuestionsCreatedInputSchema).optional(),
+  connect: z.lazy(() => UserWhereUniqueInputSchema).optional()
+}).strict();
+
+export const UserAnswerCreateNestedManyWithoutQuestionInputSchema: z.ZodType<Prisma.UserAnswerCreateNestedManyWithoutQuestionInput> = z.object({
+  create: z.union([ z.lazy(() => UserAnswerCreateWithoutQuestionInputSchema),z.lazy(() => UserAnswerCreateWithoutQuestionInputSchema).array(),z.lazy(() => UserAnswerUncheckedCreateWithoutQuestionInputSchema),z.lazy(() => UserAnswerUncheckedCreateWithoutQuestionInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => UserAnswerCreateOrConnectWithoutQuestionInputSchema),z.lazy(() => UserAnswerCreateOrConnectWithoutQuestionInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => UserAnswerCreateManyQuestionInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const UserAnswerUncheckedCreateNestedManyWithoutQuestionInputSchema: z.ZodType<Prisma.UserAnswerUncheckedCreateNestedManyWithoutQuestionInput> = z.object({
+  create: z.union([ z.lazy(() => UserAnswerCreateWithoutQuestionInputSchema),z.lazy(() => UserAnswerCreateWithoutQuestionInputSchema).array(),z.lazy(() => UserAnswerUncheckedCreateWithoutQuestionInputSchema),z.lazy(() => UserAnswerUncheckedCreateWithoutQuestionInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => UserAnswerCreateOrConnectWithoutQuestionInputSchema),z.lazy(() => UserAnswerCreateOrConnectWithoutQuestionInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => UserAnswerCreateManyQuestionInputEnvelopeSchema).optional(),
+  connect: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+}).strict();
+
+export const EnumQuestionTypeFieldUpdateOperationsInputSchema: z.ZodType<Prisma.EnumQuestionTypeFieldUpdateOperationsInput> = z.object({
+  set: z.lazy(() => QuestionTypeSchema).optional()
+}).strict();
+
+export const CommunityQuestionUpdateoptionsInputSchema: z.ZodType<Prisma.CommunityQuestionUpdateoptionsInput> = z.object({
+  set: z.string().array().optional(),
+  push: z.union([ z.string(),z.string().array() ]).optional(),
+}).strict();
+
+export const CommunityUpdateOneRequiredWithoutQuestionsNestedInputSchema: z.ZodType<Prisma.CommunityUpdateOneRequiredWithoutQuestionsNestedInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityCreateWithoutQuestionsInputSchema),z.lazy(() => CommunityUncheckedCreateWithoutQuestionsInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => CommunityCreateOrConnectWithoutQuestionsInputSchema).optional(),
+  upsert: z.lazy(() => CommunityUpsertWithoutQuestionsInputSchema).optional(),
+  connect: z.lazy(() => CommunityWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => CommunityUpdateToOneWithWhereWithoutQuestionsInputSchema),z.lazy(() => CommunityUpdateWithoutQuestionsInputSchema),z.lazy(() => CommunityUncheckedUpdateWithoutQuestionsInputSchema) ]).optional(),
+}).strict();
+
+export const UserUpdateOneRequiredWithoutQuestionsCreatedNestedInputSchema: z.ZodType<Prisma.UserUpdateOneRequiredWithoutQuestionsCreatedNestedInput> = z.object({
+  create: z.union([ z.lazy(() => UserCreateWithoutQuestionsCreatedInputSchema),z.lazy(() => UserUncheckedCreateWithoutQuestionsCreatedInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutQuestionsCreatedInputSchema).optional(),
+  upsert: z.lazy(() => UserUpsertWithoutQuestionsCreatedInputSchema).optional(),
+  connect: z.lazy(() => UserWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => UserUpdateToOneWithWhereWithoutQuestionsCreatedInputSchema),z.lazy(() => UserUpdateWithoutQuestionsCreatedInputSchema),z.lazy(() => UserUncheckedUpdateWithoutQuestionsCreatedInputSchema) ]).optional(),
+}).strict();
+
+export const UserAnswerUpdateManyWithoutQuestionNestedInputSchema: z.ZodType<Prisma.UserAnswerUpdateManyWithoutQuestionNestedInput> = z.object({
+  create: z.union([ z.lazy(() => UserAnswerCreateWithoutQuestionInputSchema),z.lazy(() => UserAnswerCreateWithoutQuestionInputSchema).array(),z.lazy(() => UserAnswerUncheckedCreateWithoutQuestionInputSchema),z.lazy(() => UserAnswerUncheckedCreateWithoutQuestionInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => UserAnswerCreateOrConnectWithoutQuestionInputSchema),z.lazy(() => UserAnswerCreateOrConnectWithoutQuestionInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => UserAnswerUpsertWithWhereUniqueWithoutQuestionInputSchema),z.lazy(() => UserAnswerUpsertWithWhereUniqueWithoutQuestionInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => UserAnswerCreateManyQuestionInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => UserAnswerUpdateWithWhereUniqueWithoutQuestionInputSchema),z.lazy(() => UserAnswerUpdateWithWhereUniqueWithoutQuestionInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => UserAnswerUpdateManyWithWhereWithoutQuestionInputSchema),z.lazy(() => UserAnswerUpdateManyWithWhereWithoutQuestionInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => UserAnswerScalarWhereInputSchema),z.lazy(() => UserAnswerScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const UserAnswerUncheckedUpdateManyWithoutQuestionNestedInputSchema: z.ZodType<Prisma.UserAnswerUncheckedUpdateManyWithoutQuestionNestedInput> = z.object({
+  create: z.union([ z.lazy(() => UserAnswerCreateWithoutQuestionInputSchema),z.lazy(() => UserAnswerCreateWithoutQuestionInputSchema).array(),z.lazy(() => UserAnswerUncheckedCreateWithoutQuestionInputSchema),z.lazy(() => UserAnswerUncheckedCreateWithoutQuestionInputSchema).array() ]).optional(),
+  connectOrCreate: z.union([ z.lazy(() => UserAnswerCreateOrConnectWithoutQuestionInputSchema),z.lazy(() => UserAnswerCreateOrConnectWithoutQuestionInputSchema).array() ]).optional(),
+  upsert: z.union([ z.lazy(() => UserAnswerUpsertWithWhereUniqueWithoutQuestionInputSchema),z.lazy(() => UserAnswerUpsertWithWhereUniqueWithoutQuestionInputSchema).array() ]).optional(),
+  createMany: z.lazy(() => UserAnswerCreateManyQuestionInputEnvelopeSchema).optional(),
+  set: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  disconnect: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  delete: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  connect: z.union([ z.lazy(() => UserAnswerWhereUniqueInputSchema),z.lazy(() => UserAnswerWhereUniqueInputSchema).array() ]).optional(),
+  update: z.union([ z.lazy(() => UserAnswerUpdateWithWhereUniqueWithoutQuestionInputSchema),z.lazy(() => UserAnswerUpdateWithWhereUniqueWithoutQuestionInputSchema).array() ]).optional(),
+  updateMany: z.union([ z.lazy(() => UserAnswerUpdateManyWithWhereWithoutQuestionInputSchema),z.lazy(() => UserAnswerUpdateManyWithWhereWithoutQuestionInputSchema).array() ]).optional(),
+  deleteMany: z.union([ z.lazy(() => UserAnswerScalarWhereInputSchema),z.lazy(() => UserAnswerScalarWhereInputSchema).array() ]).optional(),
+}).strict();
+
+export const UserCreateNestedOneWithoutAnswersInputSchema: z.ZodType<Prisma.UserCreateNestedOneWithoutAnswersInput> = z.object({
+  create: z.union([ z.lazy(() => UserCreateWithoutAnswersInputSchema),z.lazy(() => UserUncheckedCreateWithoutAnswersInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutAnswersInputSchema).optional(),
+  connect: z.lazy(() => UserWhereUniqueInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionCreateNestedOneWithoutAnswersInputSchema: z.ZodType<Prisma.CommunityQuestionCreateNestedOneWithoutAnswersInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityQuestionCreateWithoutAnswersInputSchema),z.lazy(() => CommunityQuestionUncheckedCreateWithoutAnswersInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => CommunityQuestionCreateOrConnectWithoutAnswersInputSchema).optional(),
+  connect: z.lazy(() => CommunityQuestionWhereUniqueInputSchema).optional()
+}).strict();
+
+export const CommunityCreateNestedOneWithoutAnswersInputSchema: z.ZodType<Prisma.CommunityCreateNestedOneWithoutAnswersInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityCreateWithoutAnswersInputSchema),z.lazy(() => CommunityUncheckedCreateWithoutAnswersInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => CommunityCreateOrConnectWithoutAnswersInputSchema).optional(),
+  connect: z.lazy(() => CommunityWhereUniqueInputSchema).optional()
+}).strict();
+
+export const UserUpdateOneRequiredWithoutAnswersNestedInputSchema: z.ZodType<Prisma.UserUpdateOneRequiredWithoutAnswersNestedInput> = z.object({
+  create: z.union([ z.lazy(() => UserCreateWithoutAnswersInputSchema),z.lazy(() => UserUncheckedCreateWithoutAnswersInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutAnswersInputSchema).optional(),
+  upsert: z.lazy(() => UserUpsertWithoutAnswersInputSchema).optional(),
+  connect: z.lazy(() => UserWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => UserUpdateToOneWithWhereWithoutAnswersInputSchema),z.lazy(() => UserUpdateWithoutAnswersInputSchema),z.lazy(() => UserUncheckedUpdateWithoutAnswersInputSchema) ]).optional(),
+}).strict();
+
+export const CommunityQuestionUpdateOneRequiredWithoutAnswersNestedInputSchema: z.ZodType<Prisma.CommunityQuestionUpdateOneRequiredWithoutAnswersNestedInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityQuestionCreateWithoutAnswersInputSchema),z.lazy(() => CommunityQuestionUncheckedCreateWithoutAnswersInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => CommunityQuestionCreateOrConnectWithoutAnswersInputSchema).optional(),
+  upsert: z.lazy(() => CommunityQuestionUpsertWithoutAnswersInputSchema).optional(),
+  connect: z.lazy(() => CommunityQuestionWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => CommunityQuestionUpdateToOneWithWhereWithoutAnswersInputSchema),z.lazy(() => CommunityQuestionUpdateWithoutAnswersInputSchema),z.lazy(() => CommunityQuestionUncheckedUpdateWithoutAnswersInputSchema) ]).optional(),
+}).strict();
+
+export const CommunityUpdateOneRequiredWithoutAnswersNestedInputSchema: z.ZodType<Prisma.CommunityUpdateOneRequiredWithoutAnswersNestedInput> = z.object({
+  create: z.union([ z.lazy(() => CommunityCreateWithoutAnswersInputSchema),z.lazy(() => CommunityUncheckedCreateWithoutAnswersInputSchema) ]).optional(),
+  connectOrCreate: z.lazy(() => CommunityCreateOrConnectWithoutAnswersInputSchema).optional(),
+  upsert: z.lazy(() => CommunityUpsertWithoutAnswersInputSchema).optional(),
+  connect: z.lazy(() => CommunityWhereUniqueInputSchema).optional(),
+  update: z.union([ z.lazy(() => CommunityUpdateToOneWithWhereWithoutAnswersInputSchema),z.lazy(() => CommunityUpdateWithoutAnswersInputSchema),z.lazy(() => CommunityUncheckedUpdateWithoutAnswersInputSchema) ]).optional(),
+}).strict();
+
 export const NestedIntFilterSchema: z.ZodType<Prisma.NestedIntFilter> = z.object({
   equals: z.number().optional(),
   in: z.number().array().optional(),
@@ -3710,12 +5112,49 @@ export const NestedBoolWithAggregatesFilterSchema: z.ZodType<Prisma.NestedBoolWi
   _max: z.lazy(() => NestedBoolFilterSchema).optional()
 }).strict();
 
+export const NestedEnumMembershipRoleFilterSchema: z.ZodType<Prisma.NestedEnumMembershipRoleFilter> = z.object({
+  equals: z.lazy(() => MembershipRoleSchema).optional(),
+  in: z.lazy(() => MembershipRoleSchema).array().optional(),
+  notIn: z.lazy(() => MembershipRoleSchema).array().optional(),
+  not: z.union([ z.lazy(() => MembershipRoleSchema),z.lazy(() => NestedEnumMembershipRoleFilterSchema) ]).optional(),
+}).strict();
+
+export const NestedEnumMembershipRoleWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumMembershipRoleWithAggregatesFilter> = z.object({
+  equals: z.lazy(() => MembershipRoleSchema).optional(),
+  in: z.lazy(() => MembershipRoleSchema).array().optional(),
+  notIn: z.lazy(() => MembershipRoleSchema).array().optional(),
+  not: z.union([ z.lazy(() => MembershipRoleSchema),z.lazy(() => NestedEnumMembershipRoleWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedEnumMembershipRoleFilterSchema).optional(),
+  _max: z.lazy(() => NestedEnumMembershipRoleFilterSchema).optional()
+}).strict();
+
+export const NestedEnumQuestionTypeFilterSchema: z.ZodType<Prisma.NestedEnumQuestionTypeFilter> = z.object({
+  equals: z.lazy(() => QuestionTypeSchema).optional(),
+  in: z.lazy(() => QuestionTypeSchema).array().optional(),
+  notIn: z.lazy(() => QuestionTypeSchema).array().optional(),
+  not: z.union([ z.lazy(() => QuestionTypeSchema),z.lazy(() => NestedEnumQuestionTypeFilterSchema) ]).optional(),
+}).strict();
+
+export const NestedEnumQuestionTypeWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumQuestionTypeWithAggregatesFilter> = z.object({
+  equals: z.lazy(() => QuestionTypeSchema).optional(),
+  in: z.lazy(() => QuestionTypeSchema).array().optional(),
+  notIn: z.lazy(() => QuestionTypeSchema).array().optional(),
+  not: z.union([ z.lazy(() => QuestionTypeSchema),z.lazy(() => NestedEnumQuestionTypeWithAggregatesFilterSchema) ]).optional(),
+  _count: z.lazy(() => NestedIntFilterSchema).optional(),
+  _min: z.lazy(() => NestedEnumQuestionTypeFilterSchema).optional(),
+  _max: z.lazy(() => NestedEnumQuestionTypeFilterSchema).optional()
+}).strict();
+
 export const UserCreateWithoutPostsInputSchema: z.ZodType<Prisma.UserCreateWithoutPostsInput> = z.object({
   id: z.string().cuid().optional(),
   name: z.string().optional().nullable(),
   email: z.string().optional().nullable(),
   emailVerified: z.coerce.date().optional().nullable(),
   image: z.string().optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipCreateNestedManyWithoutUserInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerCreateNestedManyWithoutUserInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionCreateNestedManyWithoutCreatedByInputSchema).optional(),
   accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
   tasks: z.lazy(() => TaskCreateNestedManyWithoutCreatedByInputSchema).optional(),
@@ -3729,6 +5168,9 @@ export const UserUncheckedCreateWithoutPostsInputSchema: z.ZodType<Prisma.UserUn
   email: z.string().optional().nullable(),
   emailVerified: z.coerce.date().optional().nullable(),
   image: z.string().optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   tasks: z.lazy(() => TaskUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
@@ -3758,6 +5200,9 @@ export const UserUpdateWithoutPostsInputSchema: z.ZodType<Prisma.UserUpdateWitho
   email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUpdateManyWithoutUserNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUpdateManyWithoutUserNestedInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
   tasks: z.lazy(() => TaskUpdateManyWithoutCreatedByNestedInputSchema).optional(),
@@ -3771,6 +5216,9 @@ export const UserUncheckedUpdateWithoutPostsInputSchema: z.ZodType<Prisma.UserUn
   email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   tasks: z.lazy(() => TaskUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
@@ -3784,6 +5232,9 @@ export const UserCreateWithoutAccountsInputSchema: z.ZodType<Prisma.UserCreateWi
   email: z.string().optional().nullable(),
   emailVerified: z.coerce.date().optional().nullable(),
   image: z.string().optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipCreateNestedManyWithoutUserInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerCreateNestedManyWithoutUserInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionCreateNestedManyWithoutCreatedByInputSchema).optional(),
   sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
   posts: z.lazy(() => PostCreateNestedManyWithoutCreatedByInputSchema).optional(),
   tasks: z.lazy(() => TaskCreateNestedManyWithoutCreatedByInputSchema).optional(),
@@ -3797,6 +5248,9 @@ export const UserUncheckedCreateWithoutAccountsInputSchema: z.ZodType<Prisma.Use
   email: z.string().optional().nullable(),
   emailVerified: z.coerce.date().optional().nullable(),
   image: z.string().optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   posts: z.lazy(() => PostUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
   tasks: z.lazy(() => TaskUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
@@ -3826,6 +5280,9 @@ export const UserUpdateWithoutAccountsInputSchema: z.ZodType<Prisma.UserUpdateWi
   email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUpdateManyWithoutUserNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUpdateManyWithoutUserNestedInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
   posts: z.lazy(() => PostUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   tasks: z.lazy(() => TaskUpdateManyWithoutCreatedByNestedInputSchema).optional(),
@@ -3839,6 +5296,9 @@ export const UserUncheckedUpdateWithoutAccountsInputSchema: z.ZodType<Prisma.Use
   email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   posts: z.lazy(() => PostUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   tasks: z.lazy(() => TaskUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
@@ -3852,6 +5312,9 @@ export const UserCreateWithoutSessionsInputSchema: z.ZodType<Prisma.UserCreateWi
   email: z.string().optional().nullable(),
   emailVerified: z.coerce.date().optional().nullable(),
   image: z.string().optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipCreateNestedManyWithoutUserInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerCreateNestedManyWithoutUserInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionCreateNestedManyWithoutCreatedByInputSchema).optional(),
   accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
   posts: z.lazy(() => PostCreateNestedManyWithoutCreatedByInputSchema).optional(),
   tasks: z.lazy(() => TaskCreateNestedManyWithoutCreatedByInputSchema).optional(),
@@ -3865,6 +5328,9 @@ export const UserUncheckedCreateWithoutSessionsInputSchema: z.ZodType<Prisma.Use
   email: z.string().optional().nullable(),
   emailVerified: z.coerce.date().optional().nullable(),
   image: z.string().optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   posts: z.lazy(() => PostUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
   tasks: z.lazy(() => TaskUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
@@ -3894,6 +5360,9 @@ export const UserUpdateWithoutSessionsInputSchema: z.ZodType<Prisma.UserUpdateWi
   email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUpdateManyWithoutUserNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUpdateManyWithoutUserNestedInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
   posts: z.lazy(() => PostUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   tasks: z.lazy(() => TaskUpdateManyWithoutCreatedByNestedInputSchema).optional(),
@@ -3907,11 +5376,96 @@ export const UserUncheckedUpdateWithoutSessionsInputSchema: z.ZodType<Prisma.Use
   email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   posts: z.lazy(() => PostUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   tasks: z.lazy(() => TaskUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   Pipeline: z.lazy(() => PipelineUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   Lead: z.lazy(() => LeadUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional()
+}).strict();
+
+export const CommunityMembershipCreateWithoutUserInputSchema: z.ZodType<Prisma.CommunityMembershipCreateWithoutUserInput> = z.object({
+  id: z.string().cuid().optional(),
+  role: z.lazy(() => MembershipRoleSchema).optional(),
+  joinedAt: z.coerce.date().optional(),
+  community: z.lazy(() => CommunityCreateNestedOneWithoutMembersInputSchema)
+}).strict();
+
+export const CommunityMembershipUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.CommunityMembershipUncheckedCreateWithoutUserInput> = z.object({
+  id: z.string().cuid().optional(),
+  communityId: z.string(),
+  role: z.lazy(() => MembershipRoleSchema).optional(),
+  joinedAt: z.coerce.date().optional()
+}).strict();
+
+export const CommunityMembershipCreateOrConnectWithoutUserInputSchema: z.ZodType<Prisma.CommunityMembershipCreateOrConnectWithoutUserInput> = z.object({
+  where: z.lazy(() => CommunityMembershipWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => CommunityMembershipCreateWithoutUserInputSchema),z.lazy(() => CommunityMembershipUncheckedCreateWithoutUserInputSchema) ]),
+}).strict();
+
+export const CommunityMembershipCreateManyUserInputEnvelopeSchema: z.ZodType<Prisma.CommunityMembershipCreateManyUserInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => CommunityMembershipCreateManyUserInputSchema),z.lazy(() => CommunityMembershipCreateManyUserInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
+}).strict();
+
+export const UserAnswerCreateWithoutUserInputSchema: z.ZodType<Prisma.UserAnswerCreateWithoutUserInput> = z.object({
+  id: z.string().cuid().optional(),
+  value: z.string(),
+  answeredAt: z.coerce.date().optional(),
+  question: z.lazy(() => CommunityQuestionCreateNestedOneWithoutAnswersInputSchema),
+  community: z.lazy(() => CommunityCreateNestedOneWithoutAnswersInputSchema)
+}).strict();
+
+export const UserAnswerUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.UserAnswerUncheckedCreateWithoutUserInput> = z.object({
+  id: z.string().cuid().optional(),
+  questionId: z.string(),
+  communityId: z.string(),
+  value: z.string(),
+  answeredAt: z.coerce.date().optional()
+}).strict();
+
+export const UserAnswerCreateOrConnectWithoutUserInputSchema: z.ZodType<Prisma.UserAnswerCreateOrConnectWithoutUserInput> = z.object({
+  where: z.lazy(() => UserAnswerWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => UserAnswerCreateWithoutUserInputSchema),z.lazy(() => UserAnswerUncheckedCreateWithoutUserInputSchema) ]),
+}).strict();
+
+export const UserAnswerCreateManyUserInputEnvelopeSchema: z.ZodType<Prisma.UserAnswerCreateManyUserInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => UserAnswerCreateManyUserInputSchema),z.lazy(() => UserAnswerCreateManyUserInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
+}).strict();
+
+export const CommunityQuestionCreateWithoutCreatedByInputSchema: z.ZodType<Prisma.CommunityQuestionCreateWithoutCreatedByInput> = z.object({
+  id: z.string().cuid().optional(),
+  label: z.string(),
+  type: z.lazy(() => QuestionTypeSchema),
+  options: z.union([ z.lazy(() => CommunityQuestionCreateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.boolean().optional(),
+  order: z.number().int().optional(),
+  community: z.lazy(() => CommunityCreateNestedOneWithoutQuestionsInputSchema),
+  answers: z.lazy(() => UserAnswerCreateNestedManyWithoutQuestionInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionUncheckedCreateWithoutCreatedByInputSchema: z.ZodType<Prisma.CommunityQuestionUncheckedCreateWithoutCreatedByInput> = z.object({
+  id: z.string().cuid().optional(),
+  communityId: z.string(),
+  label: z.string(),
+  type: z.lazy(() => QuestionTypeSchema),
+  options: z.union([ z.lazy(() => CommunityQuestionCreateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.boolean().optional(),
+  order: z.number().int().optional(),
+  answers: z.lazy(() => UserAnswerUncheckedCreateNestedManyWithoutQuestionInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionCreateOrConnectWithoutCreatedByInputSchema: z.ZodType<Prisma.CommunityQuestionCreateOrConnectWithoutCreatedByInput> = z.object({
+  where: z.lazy(() => CommunityQuestionWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => CommunityQuestionCreateWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCreatedByInputSchema) ]),
+}).strict();
+
+export const CommunityQuestionCreateManyCreatedByInputEnvelopeSchema: z.ZodType<Prisma.CommunityQuestionCreateManyCreatedByInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => CommunityQuestionCreateManyCreatedByInputSchema),z.lazy(() => CommunityQuestionCreateManyCreatedByInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
 }).strict();
 
 export const AccountCreateWithoutUserInputSchema: z.ZodType<Prisma.AccountCreateWithoutUserInput> = z.object({
@@ -4114,6 +5668,91 @@ export const LeadCreateManyCreatedByInputEnvelopeSchema: z.ZodType<Prisma.LeadCr
   skipDuplicates: z.boolean().optional()
 }).strict();
 
+export const CommunityMembershipUpsertWithWhereUniqueWithoutUserInputSchema: z.ZodType<Prisma.CommunityMembershipUpsertWithWhereUniqueWithoutUserInput> = z.object({
+  where: z.lazy(() => CommunityMembershipWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => CommunityMembershipUpdateWithoutUserInputSchema),z.lazy(() => CommunityMembershipUncheckedUpdateWithoutUserInputSchema) ]),
+  create: z.union([ z.lazy(() => CommunityMembershipCreateWithoutUserInputSchema),z.lazy(() => CommunityMembershipUncheckedCreateWithoutUserInputSchema) ]),
+}).strict();
+
+export const CommunityMembershipUpdateWithWhereUniqueWithoutUserInputSchema: z.ZodType<Prisma.CommunityMembershipUpdateWithWhereUniqueWithoutUserInput> = z.object({
+  where: z.lazy(() => CommunityMembershipWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => CommunityMembershipUpdateWithoutUserInputSchema),z.lazy(() => CommunityMembershipUncheckedUpdateWithoutUserInputSchema) ]),
+}).strict();
+
+export const CommunityMembershipUpdateManyWithWhereWithoutUserInputSchema: z.ZodType<Prisma.CommunityMembershipUpdateManyWithWhereWithoutUserInput> = z.object({
+  where: z.lazy(() => CommunityMembershipScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => CommunityMembershipUpdateManyMutationInputSchema),z.lazy(() => CommunityMembershipUncheckedUpdateManyWithoutUserInputSchema) ]),
+}).strict();
+
+export const CommunityMembershipScalarWhereInputSchema: z.ZodType<Prisma.CommunityMembershipScalarWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => CommunityMembershipScalarWhereInputSchema),z.lazy(() => CommunityMembershipScalarWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => CommunityMembershipScalarWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => CommunityMembershipScalarWhereInputSchema),z.lazy(() => CommunityMembershipScalarWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  userId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  communityId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  role: z.union([ z.lazy(() => EnumMembershipRoleFilterSchema),z.lazy(() => MembershipRoleSchema) ]).optional(),
+  joinedAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+}).strict();
+
+export const UserAnswerUpsertWithWhereUniqueWithoutUserInputSchema: z.ZodType<Prisma.UserAnswerUpsertWithWhereUniqueWithoutUserInput> = z.object({
+  where: z.lazy(() => UserAnswerWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => UserAnswerUpdateWithoutUserInputSchema),z.lazy(() => UserAnswerUncheckedUpdateWithoutUserInputSchema) ]),
+  create: z.union([ z.lazy(() => UserAnswerCreateWithoutUserInputSchema),z.lazy(() => UserAnswerUncheckedCreateWithoutUserInputSchema) ]),
+}).strict();
+
+export const UserAnswerUpdateWithWhereUniqueWithoutUserInputSchema: z.ZodType<Prisma.UserAnswerUpdateWithWhereUniqueWithoutUserInput> = z.object({
+  where: z.lazy(() => UserAnswerWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => UserAnswerUpdateWithoutUserInputSchema),z.lazy(() => UserAnswerUncheckedUpdateWithoutUserInputSchema) ]),
+}).strict();
+
+export const UserAnswerUpdateManyWithWhereWithoutUserInputSchema: z.ZodType<Prisma.UserAnswerUpdateManyWithWhereWithoutUserInput> = z.object({
+  where: z.lazy(() => UserAnswerScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => UserAnswerUpdateManyMutationInputSchema),z.lazy(() => UserAnswerUncheckedUpdateManyWithoutUserInputSchema) ]),
+}).strict();
+
+export const UserAnswerScalarWhereInputSchema: z.ZodType<Prisma.UserAnswerScalarWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => UserAnswerScalarWhereInputSchema),z.lazy(() => UserAnswerScalarWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => UserAnswerScalarWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => UserAnswerScalarWhereInputSchema),z.lazy(() => UserAnswerScalarWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  userId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  questionId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  communityId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  value: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  answeredAt: z.union([ z.lazy(() => DateTimeFilterSchema),z.coerce.date() ]).optional(),
+}).strict();
+
+export const CommunityQuestionUpsertWithWhereUniqueWithoutCreatedByInputSchema: z.ZodType<Prisma.CommunityQuestionUpsertWithWhereUniqueWithoutCreatedByInput> = z.object({
+  where: z.lazy(() => CommunityQuestionWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => CommunityQuestionUpdateWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionUncheckedUpdateWithoutCreatedByInputSchema) ]),
+  create: z.union([ z.lazy(() => CommunityQuestionCreateWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCreatedByInputSchema) ]),
+}).strict();
+
+export const CommunityQuestionUpdateWithWhereUniqueWithoutCreatedByInputSchema: z.ZodType<Prisma.CommunityQuestionUpdateWithWhereUniqueWithoutCreatedByInput> = z.object({
+  where: z.lazy(() => CommunityQuestionWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => CommunityQuestionUpdateWithoutCreatedByInputSchema),z.lazy(() => CommunityQuestionUncheckedUpdateWithoutCreatedByInputSchema) ]),
+}).strict();
+
+export const CommunityQuestionUpdateManyWithWhereWithoutCreatedByInputSchema: z.ZodType<Prisma.CommunityQuestionUpdateManyWithWhereWithoutCreatedByInput> = z.object({
+  where: z.lazy(() => CommunityQuestionScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => CommunityQuestionUpdateManyMutationInputSchema),z.lazy(() => CommunityQuestionUncheckedUpdateManyWithoutCreatedByInputSchema) ]),
+}).strict();
+
+export const CommunityQuestionScalarWhereInputSchema: z.ZodType<Prisma.CommunityQuestionScalarWhereInput> = z.object({
+  AND: z.union([ z.lazy(() => CommunityQuestionScalarWhereInputSchema),z.lazy(() => CommunityQuestionScalarWhereInputSchema).array() ]).optional(),
+  OR: z.lazy(() => CommunityQuestionScalarWhereInputSchema).array().optional(),
+  NOT: z.union([ z.lazy(() => CommunityQuestionScalarWhereInputSchema),z.lazy(() => CommunityQuestionScalarWhereInputSchema).array() ]).optional(),
+  id: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  communityId: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  createdById: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  label: z.union([ z.lazy(() => StringFilterSchema),z.string() ]).optional(),
+  type: z.union([ z.lazy(() => EnumQuestionTypeFilterSchema),z.lazy(() => QuestionTypeSchema) ]).optional(),
+  options: z.lazy(() => StringNullableListFilterSchema).optional(),
+  required: z.union([ z.lazy(() => BoolFilterSchema),z.boolean() ]).optional(),
+  order: z.union([ z.lazy(() => IntFilterSchema),z.number() ]).optional(),
+}).strict();
+
 export const AccountUpsertWithWhereUniqueWithoutUserInputSchema: z.ZodType<Prisma.AccountUpsertWithWhereUniqueWithoutUserInput> = z.object({
   where: z.lazy(() => AccountWhereUniqueInputSchema),
   update: z.union([ z.lazy(() => AccountUpdateWithoutUserInputSchema),z.lazy(() => AccountUncheckedUpdateWithoutUserInputSchema) ]),
@@ -4308,6 +5947,9 @@ export const UserCreateWithoutTasksInputSchema: z.ZodType<Prisma.UserCreateWitho
   email: z.string().optional().nullable(),
   emailVerified: z.coerce.date().optional().nullable(),
   image: z.string().optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipCreateNestedManyWithoutUserInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerCreateNestedManyWithoutUserInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionCreateNestedManyWithoutCreatedByInputSchema).optional(),
   accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
   posts: z.lazy(() => PostCreateNestedManyWithoutCreatedByInputSchema).optional(),
@@ -4321,6 +5963,9 @@ export const UserUncheckedCreateWithoutTasksInputSchema: z.ZodType<Prisma.UserUn
   email: z.string().optional().nullable(),
   emailVerified: z.coerce.date().optional().nullable(),
   image: z.string().optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   posts: z.lazy(() => PostUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
@@ -4350,6 +5995,9 @@ export const UserUpdateWithoutTasksInputSchema: z.ZodType<Prisma.UserUpdateWitho
   email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUpdateManyWithoutUserNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUpdateManyWithoutUserNestedInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
   posts: z.lazy(() => PostUpdateManyWithoutCreatedByNestedInputSchema).optional(),
@@ -4363,6 +6011,9 @@ export const UserUncheckedUpdateWithoutTasksInputSchema: z.ZodType<Prisma.UserUn
   email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   posts: z.lazy(() => PostUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
@@ -4376,6 +6027,9 @@ export const UserCreateWithoutPipelineInputSchema: z.ZodType<Prisma.UserCreateWi
   email: z.string().optional().nullable(),
   emailVerified: z.coerce.date().optional().nullable(),
   image: z.string().optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipCreateNestedManyWithoutUserInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerCreateNestedManyWithoutUserInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionCreateNestedManyWithoutCreatedByInputSchema).optional(),
   accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
   posts: z.lazy(() => PostCreateNestedManyWithoutCreatedByInputSchema).optional(),
@@ -4389,6 +6043,9 @@ export const UserUncheckedCreateWithoutPipelineInputSchema: z.ZodType<Prisma.Use
   email: z.string().optional().nullable(),
   emailVerified: z.coerce.date().optional().nullable(),
   image: z.string().optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   posts: z.lazy(() => PostUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
@@ -4524,6 +6181,9 @@ export const UserUpdateWithoutPipelineInputSchema: z.ZodType<Prisma.UserUpdateWi
   email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUpdateManyWithoutUserNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUpdateManyWithoutUserNestedInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
   posts: z.lazy(() => PostUpdateManyWithoutCreatedByNestedInputSchema).optional(),
@@ -4537,6 +6197,9 @@ export const UserUncheckedUpdateWithoutPipelineInputSchema: z.ZodType<Prisma.Use
   email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   posts: z.lazy(() => PostUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
@@ -4892,6 +6555,9 @@ export const UserCreateWithoutLeadInputSchema: z.ZodType<Prisma.UserCreateWithou
   email: z.string().optional().nullable(),
   emailVerified: z.coerce.date().optional().nullable(),
   image: z.string().optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipCreateNestedManyWithoutUserInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerCreateNestedManyWithoutUserInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionCreateNestedManyWithoutCreatedByInputSchema).optional(),
   accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
   posts: z.lazy(() => PostCreateNestedManyWithoutCreatedByInputSchema).optional(),
@@ -4905,6 +6571,9 @@ export const UserUncheckedCreateWithoutLeadInputSchema: z.ZodType<Prisma.UserUnc
   email: z.string().optional().nullable(),
   emailVerified: z.coerce.date().optional().nullable(),
   image: z.string().optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
   posts: z.lazy(() => PostUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
@@ -4979,6 +6648,9 @@ export const UserUpdateWithoutLeadInputSchema: z.ZodType<Prisma.UserUpdateWithou
   email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUpdateManyWithoutUserNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUpdateManyWithoutUserNestedInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
   posts: z.lazy(() => PostUpdateManyWithoutCreatedByNestedInputSchema).optional(),
@@ -4992,6 +6664,9 @@ export const UserUncheckedUpdateWithoutLeadInputSchema: z.ZodType<Prisma.UserUnc
   email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   posts: z.lazy(() => PostUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
@@ -5054,6 +6729,671 @@ export const PipelineSegmentUncheckedUpdateWithoutLeadInputSchema: z.ZodType<Pri
   deleted: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
   pipelineId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   segmentData: z.lazy(() => PipelineSegmentDataUncheckedUpdateManyWithoutSegmentNestedInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionCreateWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityQuestionCreateWithoutCommunityInput> = z.object({
+  id: z.string().cuid().optional(),
+  label: z.string(),
+  type: z.lazy(() => QuestionTypeSchema),
+  options: z.union([ z.lazy(() => CommunityQuestionCreateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.boolean().optional(),
+  order: z.number().int().optional(),
+  createdBy: z.lazy(() => UserCreateNestedOneWithoutQuestionsCreatedInputSchema),
+  answers: z.lazy(() => UserAnswerCreateNestedManyWithoutQuestionInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionUncheckedCreateWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityQuestionUncheckedCreateWithoutCommunityInput> = z.object({
+  id: z.string().cuid().optional(),
+  createdById: z.string(),
+  label: z.string(),
+  type: z.lazy(() => QuestionTypeSchema),
+  options: z.union([ z.lazy(() => CommunityQuestionCreateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.boolean().optional(),
+  order: z.number().int().optional(),
+  answers: z.lazy(() => UserAnswerUncheckedCreateNestedManyWithoutQuestionInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionCreateOrConnectWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityQuestionCreateOrConnectWithoutCommunityInput> = z.object({
+  where: z.lazy(() => CommunityQuestionWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => CommunityQuestionCreateWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCommunityInputSchema) ]),
+}).strict();
+
+export const CommunityQuestionCreateManyCommunityInputEnvelopeSchema: z.ZodType<Prisma.CommunityQuestionCreateManyCommunityInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => CommunityQuestionCreateManyCommunityInputSchema),z.lazy(() => CommunityQuestionCreateManyCommunityInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
+}).strict();
+
+export const CommunityMembershipCreateWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityMembershipCreateWithoutCommunityInput> = z.object({
+  id: z.string().cuid().optional(),
+  role: z.lazy(() => MembershipRoleSchema).optional(),
+  joinedAt: z.coerce.date().optional(),
+  user: z.lazy(() => UserCreateNestedOneWithoutMembershipsInputSchema)
+}).strict();
+
+export const CommunityMembershipUncheckedCreateWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityMembershipUncheckedCreateWithoutCommunityInput> = z.object({
+  id: z.string().cuid().optional(),
+  userId: z.string(),
+  role: z.lazy(() => MembershipRoleSchema).optional(),
+  joinedAt: z.coerce.date().optional()
+}).strict();
+
+export const CommunityMembershipCreateOrConnectWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityMembershipCreateOrConnectWithoutCommunityInput> = z.object({
+  where: z.lazy(() => CommunityMembershipWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => CommunityMembershipCreateWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipUncheckedCreateWithoutCommunityInputSchema) ]),
+}).strict();
+
+export const CommunityMembershipCreateManyCommunityInputEnvelopeSchema: z.ZodType<Prisma.CommunityMembershipCreateManyCommunityInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => CommunityMembershipCreateManyCommunityInputSchema),z.lazy(() => CommunityMembershipCreateManyCommunityInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
+}).strict();
+
+export const UserAnswerCreateWithoutCommunityInputSchema: z.ZodType<Prisma.UserAnswerCreateWithoutCommunityInput> = z.object({
+  id: z.string().cuid().optional(),
+  value: z.string(),
+  answeredAt: z.coerce.date().optional(),
+  user: z.lazy(() => UserCreateNestedOneWithoutAnswersInputSchema),
+  question: z.lazy(() => CommunityQuestionCreateNestedOneWithoutAnswersInputSchema)
+}).strict();
+
+export const UserAnswerUncheckedCreateWithoutCommunityInputSchema: z.ZodType<Prisma.UserAnswerUncheckedCreateWithoutCommunityInput> = z.object({
+  id: z.string().cuid().optional(),
+  userId: z.string(),
+  questionId: z.string(),
+  value: z.string(),
+  answeredAt: z.coerce.date().optional()
+}).strict();
+
+export const UserAnswerCreateOrConnectWithoutCommunityInputSchema: z.ZodType<Prisma.UserAnswerCreateOrConnectWithoutCommunityInput> = z.object({
+  where: z.lazy(() => UserAnswerWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => UserAnswerCreateWithoutCommunityInputSchema),z.lazy(() => UserAnswerUncheckedCreateWithoutCommunityInputSchema) ]),
+}).strict();
+
+export const UserAnswerCreateManyCommunityInputEnvelopeSchema: z.ZodType<Prisma.UserAnswerCreateManyCommunityInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => UserAnswerCreateManyCommunityInputSchema),z.lazy(() => UserAnswerCreateManyCommunityInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
+}).strict();
+
+export const CommunityQuestionUpsertWithWhereUniqueWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityQuestionUpsertWithWhereUniqueWithoutCommunityInput> = z.object({
+  where: z.lazy(() => CommunityQuestionWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => CommunityQuestionUpdateWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionUncheckedUpdateWithoutCommunityInputSchema) ]),
+  create: z.union([ z.lazy(() => CommunityQuestionCreateWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionUncheckedCreateWithoutCommunityInputSchema) ]),
+}).strict();
+
+export const CommunityQuestionUpdateWithWhereUniqueWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityQuestionUpdateWithWhereUniqueWithoutCommunityInput> = z.object({
+  where: z.lazy(() => CommunityQuestionWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => CommunityQuestionUpdateWithoutCommunityInputSchema),z.lazy(() => CommunityQuestionUncheckedUpdateWithoutCommunityInputSchema) ]),
+}).strict();
+
+export const CommunityQuestionUpdateManyWithWhereWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityQuestionUpdateManyWithWhereWithoutCommunityInput> = z.object({
+  where: z.lazy(() => CommunityQuestionScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => CommunityQuestionUpdateManyMutationInputSchema),z.lazy(() => CommunityQuestionUncheckedUpdateManyWithoutCommunityInputSchema) ]),
+}).strict();
+
+export const CommunityMembershipUpsertWithWhereUniqueWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityMembershipUpsertWithWhereUniqueWithoutCommunityInput> = z.object({
+  where: z.lazy(() => CommunityMembershipWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => CommunityMembershipUpdateWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipUncheckedUpdateWithoutCommunityInputSchema) ]),
+  create: z.union([ z.lazy(() => CommunityMembershipCreateWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipUncheckedCreateWithoutCommunityInputSchema) ]),
+}).strict();
+
+export const CommunityMembershipUpdateWithWhereUniqueWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityMembershipUpdateWithWhereUniqueWithoutCommunityInput> = z.object({
+  where: z.lazy(() => CommunityMembershipWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => CommunityMembershipUpdateWithoutCommunityInputSchema),z.lazy(() => CommunityMembershipUncheckedUpdateWithoutCommunityInputSchema) ]),
+}).strict();
+
+export const CommunityMembershipUpdateManyWithWhereWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityMembershipUpdateManyWithWhereWithoutCommunityInput> = z.object({
+  where: z.lazy(() => CommunityMembershipScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => CommunityMembershipUpdateManyMutationInputSchema),z.lazy(() => CommunityMembershipUncheckedUpdateManyWithoutCommunityInputSchema) ]),
+}).strict();
+
+export const UserAnswerUpsertWithWhereUniqueWithoutCommunityInputSchema: z.ZodType<Prisma.UserAnswerUpsertWithWhereUniqueWithoutCommunityInput> = z.object({
+  where: z.lazy(() => UserAnswerWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => UserAnswerUpdateWithoutCommunityInputSchema),z.lazy(() => UserAnswerUncheckedUpdateWithoutCommunityInputSchema) ]),
+  create: z.union([ z.lazy(() => UserAnswerCreateWithoutCommunityInputSchema),z.lazy(() => UserAnswerUncheckedCreateWithoutCommunityInputSchema) ]),
+}).strict();
+
+export const UserAnswerUpdateWithWhereUniqueWithoutCommunityInputSchema: z.ZodType<Prisma.UserAnswerUpdateWithWhereUniqueWithoutCommunityInput> = z.object({
+  where: z.lazy(() => UserAnswerWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => UserAnswerUpdateWithoutCommunityInputSchema),z.lazy(() => UserAnswerUncheckedUpdateWithoutCommunityInputSchema) ]),
+}).strict();
+
+export const UserAnswerUpdateManyWithWhereWithoutCommunityInputSchema: z.ZodType<Prisma.UserAnswerUpdateManyWithWhereWithoutCommunityInput> = z.object({
+  where: z.lazy(() => UserAnswerScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => UserAnswerUpdateManyMutationInputSchema),z.lazy(() => UserAnswerUncheckedUpdateManyWithoutCommunityInputSchema) ]),
+}).strict();
+
+export const UserCreateWithoutMembershipsInputSchema: z.ZodType<Prisma.UserCreateWithoutMembershipsInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string().optional().nullable(),
+  email: z.string().optional().nullable(),
+  emailVerified: z.coerce.date().optional().nullable(),
+  image: z.string().optional().nullable(),
+  answers: z.lazy(() => UserAnswerCreateNestedManyWithoutUserInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
+  sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
+  posts: z.lazy(() => PostCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  tasks: z.lazy(() => TaskCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Lead: z.lazy(() => LeadCreateNestedManyWithoutCreatedByInputSchema).optional()
+}).strict();
+
+export const UserUncheckedCreateWithoutMembershipsInputSchema: z.ZodType<Prisma.UserUncheckedCreateWithoutMembershipsInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string().optional().nullable(),
+  email: z.string().optional().nullable(),
+  emailVerified: z.coerce.date().optional().nullable(),
+  image: z.string().optional().nullable(),
+  answers: z.lazy(() => UserAnswerUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  posts: z.lazy(() => PostUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  tasks: z.lazy(() => TaskUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional()
+}).strict();
+
+export const UserCreateOrConnectWithoutMembershipsInputSchema: z.ZodType<Prisma.UserCreateOrConnectWithoutMembershipsInput> = z.object({
+  where: z.lazy(() => UserWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => UserCreateWithoutMembershipsInputSchema),z.lazy(() => UserUncheckedCreateWithoutMembershipsInputSchema) ]),
+}).strict();
+
+export const CommunityCreateWithoutMembersInputSchema: z.ZodType<Prisma.CommunityCreateWithoutMembersInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  questions: z.lazy(() => CommunityQuestionCreateNestedManyWithoutCommunityInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerCreateNestedManyWithoutCommunityInputSchema).optional()
+}).strict();
+
+export const CommunityUncheckedCreateWithoutMembersInputSchema: z.ZodType<Prisma.CommunityUncheckedCreateWithoutMembersInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  questions: z.lazy(() => CommunityQuestionUncheckedCreateNestedManyWithoutCommunityInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedCreateNestedManyWithoutCommunityInputSchema).optional()
+}).strict();
+
+export const CommunityCreateOrConnectWithoutMembersInputSchema: z.ZodType<Prisma.CommunityCreateOrConnectWithoutMembersInput> = z.object({
+  where: z.lazy(() => CommunityWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => CommunityCreateWithoutMembersInputSchema),z.lazy(() => CommunityUncheckedCreateWithoutMembersInputSchema) ]),
+}).strict();
+
+export const UserUpsertWithoutMembershipsInputSchema: z.ZodType<Prisma.UserUpsertWithoutMembershipsInput> = z.object({
+  update: z.union([ z.lazy(() => UserUpdateWithoutMembershipsInputSchema),z.lazy(() => UserUncheckedUpdateWithoutMembershipsInputSchema) ]),
+  create: z.union([ z.lazy(() => UserCreateWithoutMembershipsInputSchema),z.lazy(() => UserUncheckedCreateWithoutMembershipsInputSchema) ]),
+  where: z.lazy(() => UserWhereInputSchema).optional()
+}).strict();
+
+export const UserUpdateToOneWithWhereWithoutMembershipsInputSchema: z.ZodType<Prisma.UserUpdateToOneWithWhereWithoutMembershipsInput> = z.object({
+  where: z.lazy(() => UserWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => UserUpdateWithoutMembershipsInputSchema),z.lazy(() => UserUncheckedUpdateWithoutMembershipsInputSchema) ]),
+}).strict();
+
+export const UserUpdateWithoutMembershipsInputSchema: z.ZodType<Prisma.UserUpdateWithoutMembershipsInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  answers: z.lazy(() => UserAnswerUpdateManyWithoutUserNestedInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
+  sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
+  posts: z.lazy(() => PostUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  tasks: z.lazy(() => TaskUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUpdateManyWithoutCreatedByNestedInputSchema).optional()
+}).strict();
+
+export const UserUncheckedUpdateWithoutMembershipsInputSchema: z.ZodType<Prisma.UserUncheckedUpdateWithoutMembershipsInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  answers: z.lazy(() => UserAnswerUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  posts: z.lazy(() => PostUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  tasks: z.lazy(() => TaskUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional()
+}).strict();
+
+export const CommunityUpsertWithoutMembersInputSchema: z.ZodType<Prisma.CommunityUpsertWithoutMembersInput> = z.object({
+  update: z.union([ z.lazy(() => CommunityUpdateWithoutMembersInputSchema),z.lazy(() => CommunityUncheckedUpdateWithoutMembersInputSchema) ]),
+  create: z.union([ z.lazy(() => CommunityCreateWithoutMembersInputSchema),z.lazy(() => CommunityUncheckedCreateWithoutMembersInputSchema) ]),
+  where: z.lazy(() => CommunityWhereInputSchema).optional()
+}).strict();
+
+export const CommunityUpdateToOneWithWhereWithoutMembersInputSchema: z.ZodType<Prisma.CommunityUpdateToOneWithWhereWithoutMembersInput> = z.object({
+  where: z.lazy(() => CommunityWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => CommunityUpdateWithoutMembersInputSchema),z.lazy(() => CommunityUncheckedUpdateWithoutMembersInputSchema) ]),
+}).strict();
+
+export const CommunityUpdateWithoutMembersInputSchema: z.ZodType<Prisma.CommunityUpdateWithoutMembersInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  questions: z.lazy(() => CommunityQuestionUpdateManyWithoutCommunityNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUpdateManyWithoutCommunityNestedInputSchema).optional()
+}).strict();
+
+export const CommunityUncheckedUpdateWithoutMembersInputSchema: z.ZodType<Prisma.CommunityUncheckedUpdateWithoutMembersInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  questions: z.lazy(() => CommunityQuestionUncheckedUpdateManyWithoutCommunityNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedUpdateManyWithoutCommunityNestedInputSchema).optional()
+}).strict();
+
+export const CommunityCreateWithoutQuestionsInputSchema: z.ZodType<Prisma.CommunityCreateWithoutQuestionsInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  members: z.lazy(() => CommunityMembershipCreateNestedManyWithoutCommunityInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerCreateNestedManyWithoutCommunityInputSchema).optional()
+}).strict();
+
+export const CommunityUncheckedCreateWithoutQuestionsInputSchema: z.ZodType<Prisma.CommunityUncheckedCreateWithoutQuestionsInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  members: z.lazy(() => CommunityMembershipUncheckedCreateNestedManyWithoutCommunityInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedCreateNestedManyWithoutCommunityInputSchema).optional()
+}).strict();
+
+export const CommunityCreateOrConnectWithoutQuestionsInputSchema: z.ZodType<Prisma.CommunityCreateOrConnectWithoutQuestionsInput> = z.object({
+  where: z.lazy(() => CommunityWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => CommunityCreateWithoutQuestionsInputSchema),z.lazy(() => CommunityUncheckedCreateWithoutQuestionsInputSchema) ]),
+}).strict();
+
+export const UserCreateWithoutQuestionsCreatedInputSchema: z.ZodType<Prisma.UserCreateWithoutQuestionsCreatedInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string().optional().nullable(),
+  email: z.string().optional().nullable(),
+  emailVerified: z.coerce.date().optional().nullable(),
+  image: z.string().optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipCreateNestedManyWithoutUserInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerCreateNestedManyWithoutUserInputSchema).optional(),
+  accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
+  sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
+  posts: z.lazy(() => PostCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  tasks: z.lazy(() => TaskCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Lead: z.lazy(() => LeadCreateNestedManyWithoutCreatedByInputSchema).optional()
+}).strict();
+
+export const UserUncheckedCreateWithoutQuestionsCreatedInputSchema: z.ZodType<Prisma.UserUncheckedCreateWithoutQuestionsCreatedInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string().optional().nullable(),
+  email: z.string().optional().nullable(),
+  emailVerified: z.coerce.date().optional().nullable(),
+  image: z.string().optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  posts: z.lazy(() => PostUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  tasks: z.lazy(() => TaskUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional()
+}).strict();
+
+export const UserCreateOrConnectWithoutQuestionsCreatedInputSchema: z.ZodType<Prisma.UserCreateOrConnectWithoutQuestionsCreatedInput> = z.object({
+  where: z.lazy(() => UserWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => UserCreateWithoutQuestionsCreatedInputSchema),z.lazy(() => UserUncheckedCreateWithoutQuestionsCreatedInputSchema) ]),
+}).strict();
+
+export const UserAnswerCreateWithoutQuestionInputSchema: z.ZodType<Prisma.UserAnswerCreateWithoutQuestionInput> = z.object({
+  id: z.string().cuid().optional(),
+  value: z.string(),
+  answeredAt: z.coerce.date().optional(),
+  user: z.lazy(() => UserCreateNestedOneWithoutAnswersInputSchema),
+  community: z.lazy(() => CommunityCreateNestedOneWithoutAnswersInputSchema)
+}).strict();
+
+export const UserAnswerUncheckedCreateWithoutQuestionInputSchema: z.ZodType<Prisma.UserAnswerUncheckedCreateWithoutQuestionInput> = z.object({
+  id: z.string().cuid().optional(),
+  userId: z.string(),
+  communityId: z.string(),
+  value: z.string(),
+  answeredAt: z.coerce.date().optional()
+}).strict();
+
+export const UserAnswerCreateOrConnectWithoutQuestionInputSchema: z.ZodType<Prisma.UserAnswerCreateOrConnectWithoutQuestionInput> = z.object({
+  where: z.lazy(() => UserAnswerWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => UserAnswerCreateWithoutQuestionInputSchema),z.lazy(() => UserAnswerUncheckedCreateWithoutQuestionInputSchema) ]),
+}).strict();
+
+export const UserAnswerCreateManyQuestionInputEnvelopeSchema: z.ZodType<Prisma.UserAnswerCreateManyQuestionInputEnvelope> = z.object({
+  data: z.union([ z.lazy(() => UserAnswerCreateManyQuestionInputSchema),z.lazy(() => UserAnswerCreateManyQuestionInputSchema).array() ]),
+  skipDuplicates: z.boolean().optional()
+}).strict();
+
+export const CommunityUpsertWithoutQuestionsInputSchema: z.ZodType<Prisma.CommunityUpsertWithoutQuestionsInput> = z.object({
+  update: z.union([ z.lazy(() => CommunityUpdateWithoutQuestionsInputSchema),z.lazy(() => CommunityUncheckedUpdateWithoutQuestionsInputSchema) ]),
+  create: z.union([ z.lazy(() => CommunityCreateWithoutQuestionsInputSchema),z.lazy(() => CommunityUncheckedCreateWithoutQuestionsInputSchema) ]),
+  where: z.lazy(() => CommunityWhereInputSchema).optional()
+}).strict();
+
+export const CommunityUpdateToOneWithWhereWithoutQuestionsInputSchema: z.ZodType<Prisma.CommunityUpdateToOneWithWhereWithoutQuestionsInput> = z.object({
+  where: z.lazy(() => CommunityWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => CommunityUpdateWithoutQuestionsInputSchema),z.lazy(() => CommunityUncheckedUpdateWithoutQuestionsInputSchema) ]),
+}).strict();
+
+export const CommunityUpdateWithoutQuestionsInputSchema: z.ZodType<Prisma.CommunityUpdateWithoutQuestionsInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  members: z.lazy(() => CommunityMembershipUpdateManyWithoutCommunityNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUpdateManyWithoutCommunityNestedInputSchema).optional()
+}).strict();
+
+export const CommunityUncheckedUpdateWithoutQuestionsInputSchema: z.ZodType<Prisma.CommunityUncheckedUpdateWithoutQuestionsInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  members: z.lazy(() => CommunityMembershipUncheckedUpdateManyWithoutCommunityNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedUpdateManyWithoutCommunityNestedInputSchema).optional()
+}).strict();
+
+export const UserUpsertWithoutQuestionsCreatedInputSchema: z.ZodType<Prisma.UserUpsertWithoutQuestionsCreatedInput> = z.object({
+  update: z.union([ z.lazy(() => UserUpdateWithoutQuestionsCreatedInputSchema),z.lazy(() => UserUncheckedUpdateWithoutQuestionsCreatedInputSchema) ]),
+  create: z.union([ z.lazy(() => UserCreateWithoutQuestionsCreatedInputSchema),z.lazy(() => UserUncheckedCreateWithoutQuestionsCreatedInputSchema) ]),
+  where: z.lazy(() => UserWhereInputSchema).optional()
+}).strict();
+
+export const UserUpdateToOneWithWhereWithoutQuestionsCreatedInputSchema: z.ZodType<Prisma.UserUpdateToOneWithWhereWithoutQuestionsCreatedInput> = z.object({
+  where: z.lazy(() => UserWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => UserUpdateWithoutQuestionsCreatedInputSchema),z.lazy(() => UserUncheckedUpdateWithoutQuestionsCreatedInputSchema) ]),
+}).strict();
+
+export const UserUpdateWithoutQuestionsCreatedInputSchema: z.ZodType<Prisma.UserUpdateWithoutQuestionsCreatedInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUpdateManyWithoutUserNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUpdateManyWithoutUserNestedInputSchema).optional(),
+  accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
+  sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
+  posts: z.lazy(() => PostUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  tasks: z.lazy(() => TaskUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUpdateManyWithoutCreatedByNestedInputSchema).optional()
+}).strict();
+
+export const UserUncheckedUpdateWithoutQuestionsCreatedInputSchema: z.ZodType<Prisma.UserUncheckedUpdateWithoutQuestionsCreatedInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  posts: z.lazy(() => PostUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  tasks: z.lazy(() => TaskUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional()
+}).strict();
+
+export const UserAnswerUpsertWithWhereUniqueWithoutQuestionInputSchema: z.ZodType<Prisma.UserAnswerUpsertWithWhereUniqueWithoutQuestionInput> = z.object({
+  where: z.lazy(() => UserAnswerWhereUniqueInputSchema),
+  update: z.union([ z.lazy(() => UserAnswerUpdateWithoutQuestionInputSchema),z.lazy(() => UserAnswerUncheckedUpdateWithoutQuestionInputSchema) ]),
+  create: z.union([ z.lazy(() => UserAnswerCreateWithoutQuestionInputSchema),z.lazy(() => UserAnswerUncheckedCreateWithoutQuestionInputSchema) ]),
+}).strict();
+
+export const UserAnswerUpdateWithWhereUniqueWithoutQuestionInputSchema: z.ZodType<Prisma.UserAnswerUpdateWithWhereUniqueWithoutQuestionInput> = z.object({
+  where: z.lazy(() => UserAnswerWhereUniqueInputSchema),
+  data: z.union([ z.lazy(() => UserAnswerUpdateWithoutQuestionInputSchema),z.lazy(() => UserAnswerUncheckedUpdateWithoutQuestionInputSchema) ]),
+}).strict();
+
+export const UserAnswerUpdateManyWithWhereWithoutQuestionInputSchema: z.ZodType<Prisma.UserAnswerUpdateManyWithWhereWithoutQuestionInput> = z.object({
+  where: z.lazy(() => UserAnswerScalarWhereInputSchema),
+  data: z.union([ z.lazy(() => UserAnswerUpdateManyMutationInputSchema),z.lazy(() => UserAnswerUncheckedUpdateManyWithoutQuestionInputSchema) ]),
+}).strict();
+
+export const UserCreateWithoutAnswersInputSchema: z.ZodType<Prisma.UserCreateWithoutAnswersInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string().optional().nullable(),
+  email: z.string().optional().nullable(),
+  emailVerified: z.coerce.date().optional().nullable(),
+  image: z.string().optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipCreateNestedManyWithoutUserInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  accounts: z.lazy(() => AccountCreateNestedManyWithoutUserInputSchema).optional(),
+  sessions: z.lazy(() => SessionCreateNestedManyWithoutUserInputSchema).optional(),
+  posts: z.lazy(() => PostCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  tasks: z.lazy(() => TaskCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Lead: z.lazy(() => LeadCreateNestedManyWithoutCreatedByInputSchema).optional()
+}).strict();
+
+export const UserUncheckedCreateWithoutAnswersInputSchema: z.ZodType<Prisma.UserUncheckedCreateWithoutAnswersInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string().optional().nullable(),
+  email: z.string().optional().nullable(),
+  emailVerified: z.coerce.date().optional().nullable(),
+  image: z.string().optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutUserInputSchema).optional(),
+  posts: z.lazy(() => PostUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  tasks: z.lazy(() => TaskUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedCreateNestedManyWithoutCreatedByInputSchema).optional()
+}).strict();
+
+export const UserCreateOrConnectWithoutAnswersInputSchema: z.ZodType<Prisma.UserCreateOrConnectWithoutAnswersInput> = z.object({
+  where: z.lazy(() => UserWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => UserCreateWithoutAnswersInputSchema),z.lazy(() => UserUncheckedCreateWithoutAnswersInputSchema) ]),
+}).strict();
+
+export const CommunityQuestionCreateWithoutAnswersInputSchema: z.ZodType<Prisma.CommunityQuestionCreateWithoutAnswersInput> = z.object({
+  id: z.string().cuid().optional(),
+  label: z.string(),
+  type: z.lazy(() => QuestionTypeSchema),
+  options: z.union([ z.lazy(() => CommunityQuestionCreateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.boolean().optional(),
+  order: z.number().int().optional(),
+  community: z.lazy(() => CommunityCreateNestedOneWithoutQuestionsInputSchema),
+  createdBy: z.lazy(() => UserCreateNestedOneWithoutQuestionsCreatedInputSchema)
+}).strict();
+
+export const CommunityQuestionUncheckedCreateWithoutAnswersInputSchema: z.ZodType<Prisma.CommunityQuestionUncheckedCreateWithoutAnswersInput> = z.object({
+  id: z.string().cuid().optional(),
+  communityId: z.string(),
+  createdById: z.string(),
+  label: z.string(),
+  type: z.lazy(() => QuestionTypeSchema),
+  options: z.union([ z.lazy(() => CommunityQuestionCreateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.boolean().optional(),
+  order: z.number().int().optional()
+}).strict();
+
+export const CommunityQuestionCreateOrConnectWithoutAnswersInputSchema: z.ZodType<Prisma.CommunityQuestionCreateOrConnectWithoutAnswersInput> = z.object({
+  where: z.lazy(() => CommunityQuestionWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => CommunityQuestionCreateWithoutAnswersInputSchema),z.lazy(() => CommunityQuestionUncheckedCreateWithoutAnswersInputSchema) ]),
+}).strict();
+
+export const CommunityCreateWithoutAnswersInputSchema: z.ZodType<Prisma.CommunityCreateWithoutAnswersInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  questions: z.lazy(() => CommunityQuestionCreateNestedManyWithoutCommunityInputSchema).optional(),
+  members: z.lazy(() => CommunityMembershipCreateNestedManyWithoutCommunityInputSchema).optional()
+}).strict();
+
+export const CommunityUncheckedCreateWithoutAnswersInputSchema: z.ZodType<Prisma.CommunityUncheckedCreateWithoutAnswersInput> = z.object({
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  questions: z.lazy(() => CommunityQuestionUncheckedCreateNestedManyWithoutCommunityInputSchema).optional(),
+  members: z.lazy(() => CommunityMembershipUncheckedCreateNestedManyWithoutCommunityInputSchema).optional()
+}).strict();
+
+export const CommunityCreateOrConnectWithoutAnswersInputSchema: z.ZodType<Prisma.CommunityCreateOrConnectWithoutAnswersInput> = z.object({
+  where: z.lazy(() => CommunityWhereUniqueInputSchema),
+  create: z.union([ z.lazy(() => CommunityCreateWithoutAnswersInputSchema),z.lazy(() => CommunityUncheckedCreateWithoutAnswersInputSchema) ]),
+}).strict();
+
+export const UserUpsertWithoutAnswersInputSchema: z.ZodType<Prisma.UserUpsertWithoutAnswersInput> = z.object({
+  update: z.union([ z.lazy(() => UserUpdateWithoutAnswersInputSchema),z.lazy(() => UserUncheckedUpdateWithoutAnswersInputSchema) ]),
+  create: z.union([ z.lazy(() => UserCreateWithoutAnswersInputSchema),z.lazy(() => UserUncheckedCreateWithoutAnswersInputSchema) ]),
+  where: z.lazy(() => UserWhereInputSchema).optional()
+}).strict();
+
+export const UserUpdateToOneWithWhereWithoutAnswersInputSchema: z.ZodType<Prisma.UserUpdateToOneWithWhereWithoutAnswersInput> = z.object({
+  where: z.lazy(() => UserWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => UserUpdateWithoutAnswersInputSchema),z.lazy(() => UserUncheckedUpdateWithoutAnswersInputSchema) ]),
+}).strict();
+
+export const UserUpdateWithoutAnswersInputSchema: z.ZodType<Prisma.UserUpdateWithoutAnswersInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUpdateManyWithoutUserNestedInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  accounts: z.lazy(() => AccountUpdateManyWithoutUserNestedInputSchema).optional(),
+  sessions: z.lazy(() => SessionUpdateManyWithoutUserNestedInputSchema).optional(),
+  posts: z.lazy(() => PostUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  tasks: z.lazy(() => TaskUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUpdateManyWithoutCreatedByNestedInputSchema).optional()
+}).strict();
+
+export const UserUncheckedUpdateWithoutAnswersInputSchema: z.ZodType<Prisma.UserUncheckedUpdateWithoutAnswersInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  email: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  emailVerified: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  image: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  memberships: z.lazy(() => CommunityMembershipUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  questionsCreated: z.lazy(() => CommunityQuestionUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  posts: z.lazy(() => PostUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  tasks: z.lazy(() => TaskUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Pipeline: z.lazy(() => PipelineUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional(),
+  Lead: z.lazy(() => LeadUncheckedUpdateManyWithoutCreatedByNestedInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionUpsertWithoutAnswersInputSchema: z.ZodType<Prisma.CommunityQuestionUpsertWithoutAnswersInput> = z.object({
+  update: z.union([ z.lazy(() => CommunityQuestionUpdateWithoutAnswersInputSchema),z.lazy(() => CommunityQuestionUncheckedUpdateWithoutAnswersInputSchema) ]),
+  create: z.union([ z.lazy(() => CommunityQuestionCreateWithoutAnswersInputSchema),z.lazy(() => CommunityQuestionUncheckedCreateWithoutAnswersInputSchema) ]),
+  where: z.lazy(() => CommunityQuestionWhereInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionUpdateToOneWithWhereWithoutAnswersInputSchema: z.ZodType<Prisma.CommunityQuestionUpdateToOneWithWhereWithoutAnswersInput> = z.object({
+  where: z.lazy(() => CommunityQuestionWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => CommunityQuestionUpdateWithoutAnswersInputSchema),z.lazy(() => CommunityQuestionUncheckedUpdateWithoutAnswersInputSchema) ]),
+}).strict();
+
+export const CommunityQuestionUpdateWithoutAnswersInputSchema: z.ZodType<Prisma.CommunityQuestionUpdateWithoutAnswersInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  label: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => QuestionTypeSchema),z.lazy(() => EnumQuestionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  options: z.union([ z.lazy(() => CommunityQuestionUpdateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  order: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  community: z.lazy(() => CommunityUpdateOneRequiredWithoutQuestionsNestedInputSchema).optional(),
+  createdBy: z.lazy(() => UserUpdateOneRequiredWithoutQuestionsCreatedNestedInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionUncheckedUpdateWithoutAnswersInputSchema: z.ZodType<Prisma.CommunityQuestionUncheckedUpdateWithoutAnswersInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  communityId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdById: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  label: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => QuestionTypeSchema),z.lazy(() => EnumQuestionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  options: z.union([ z.lazy(() => CommunityQuestionUpdateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  order: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const CommunityUpsertWithoutAnswersInputSchema: z.ZodType<Prisma.CommunityUpsertWithoutAnswersInput> = z.object({
+  update: z.union([ z.lazy(() => CommunityUpdateWithoutAnswersInputSchema),z.lazy(() => CommunityUncheckedUpdateWithoutAnswersInputSchema) ]),
+  create: z.union([ z.lazy(() => CommunityCreateWithoutAnswersInputSchema),z.lazy(() => CommunityUncheckedCreateWithoutAnswersInputSchema) ]),
+  where: z.lazy(() => CommunityWhereInputSchema).optional()
+}).strict();
+
+export const CommunityUpdateToOneWithWhereWithoutAnswersInputSchema: z.ZodType<Prisma.CommunityUpdateToOneWithWhereWithoutAnswersInput> = z.object({
+  where: z.lazy(() => CommunityWhereInputSchema).optional(),
+  data: z.union([ z.lazy(() => CommunityUpdateWithoutAnswersInputSchema),z.lazy(() => CommunityUncheckedUpdateWithoutAnswersInputSchema) ]),
+}).strict();
+
+export const CommunityUpdateWithoutAnswersInputSchema: z.ZodType<Prisma.CommunityUpdateWithoutAnswersInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  questions: z.lazy(() => CommunityQuestionUpdateManyWithoutCommunityNestedInputSchema).optional(),
+  members: z.lazy(() => CommunityMembershipUpdateManyWithoutCommunityNestedInputSchema).optional()
+}).strict();
+
+export const CommunityUncheckedUpdateWithoutAnswersInputSchema: z.ZodType<Prisma.CommunityUncheckedUpdateWithoutAnswersInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  description: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  questions: z.lazy(() => CommunityQuestionUncheckedUpdateManyWithoutCommunityNestedInputSchema).optional(),
+  members: z.lazy(() => CommunityMembershipUncheckedUpdateManyWithoutCommunityNestedInputSchema).optional()
+}).strict();
+
+export const CommunityMembershipCreateManyUserInputSchema: z.ZodType<Prisma.CommunityMembershipCreateManyUserInput> = z.object({
+  id: z.string().cuid().optional(),
+  communityId: z.string(),
+  role: z.lazy(() => MembershipRoleSchema).optional(),
+  joinedAt: z.coerce.date().optional()
+}).strict();
+
+export const UserAnswerCreateManyUserInputSchema: z.ZodType<Prisma.UserAnswerCreateManyUserInput> = z.object({
+  id: z.string().cuid().optional(),
+  questionId: z.string(),
+  communityId: z.string(),
+  value: z.string(),
+  answeredAt: z.coerce.date().optional()
+}).strict();
+
+export const CommunityQuestionCreateManyCreatedByInputSchema: z.ZodType<Prisma.CommunityQuestionCreateManyCreatedByInput> = z.object({
+  id: z.string().cuid().optional(),
+  communityId: z.string(),
+  label: z.string(),
+  type: z.lazy(() => QuestionTypeSchema),
+  options: z.union([ z.lazy(() => CommunityQuestionCreateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.boolean().optional(),
+  order: z.number().int().optional()
 }).strict();
 
 export const AccountCreateManyUserInputSchema: z.ZodType<Prisma.AccountCreateManyUserInput> = z.object({
@@ -5122,6 +7462,83 @@ export const LeadCreateManyCreatedByInputSchema: z.ZodType<Prisma.LeadCreateMany
   segmentId: z.number().int().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional()
+}).strict();
+
+export const CommunityMembershipUpdateWithoutUserInputSchema: z.ZodType<Prisma.CommunityMembershipUpdateWithoutUserInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  role: z.union([ z.lazy(() => MembershipRoleSchema),z.lazy(() => EnumMembershipRoleFieldUpdateOperationsInputSchema) ]).optional(),
+  joinedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  community: z.lazy(() => CommunityUpdateOneRequiredWithoutMembersNestedInputSchema).optional()
+}).strict();
+
+export const CommunityMembershipUncheckedUpdateWithoutUserInputSchema: z.ZodType<Prisma.CommunityMembershipUncheckedUpdateWithoutUserInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  communityId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  role: z.union([ z.lazy(() => MembershipRoleSchema),z.lazy(() => EnumMembershipRoleFieldUpdateOperationsInputSchema) ]).optional(),
+  joinedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const CommunityMembershipUncheckedUpdateManyWithoutUserInputSchema: z.ZodType<Prisma.CommunityMembershipUncheckedUpdateManyWithoutUserInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  communityId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  role: z.union([ z.lazy(() => MembershipRoleSchema),z.lazy(() => EnumMembershipRoleFieldUpdateOperationsInputSchema) ]).optional(),
+  joinedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const UserAnswerUpdateWithoutUserInputSchema: z.ZodType<Prisma.UserAnswerUpdateWithoutUserInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  value: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  answeredAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  question: z.lazy(() => CommunityQuestionUpdateOneRequiredWithoutAnswersNestedInputSchema).optional(),
+  community: z.lazy(() => CommunityUpdateOneRequiredWithoutAnswersNestedInputSchema).optional()
+}).strict();
+
+export const UserAnswerUncheckedUpdateWithoutUserInputSchema: z.ZodType<Prisma.UserAnswerUncheckedUpdateWithoutUserInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  questionId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  communityId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  value: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  answeredAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const UserAnswerUncheckedUpdateManyWithoutUserInputSchema: z.ZodType<Prisma.UserAnswerUncheckedUpdateManyWithoutUserInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  questionId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  communityId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  value: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  answeredAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const CommunityQuestionUpdateWithoutCreatedByInputSchema: z.ZodType<Prisma.CommunityQuestionUpdateWithoutCreatedByInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  label: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => QuestionTypeSchema),z.lazy(() => EnumQuestionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  options: z.union([ z.lazy(() => CommunityQuestionUpdateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  order: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  community: z.lazy(() => CommunityUpdateOneRequiredWithoutQuestionsNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUpdateManyWithoutQuestionNestedInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionUncheckedUpdateWithoutCreatedByInputSchema: z.ZodType<Prisma.CommunityQuestionUncheckedUpdateWithoutCreatedByInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  communityId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  label: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => QuestionTypeSchema),z.lazy(() => EnumQuestionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  options: z.union([ z.lazy(() => CommunityQuestionUpdateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  order: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedUpdateManyWithoutQuestionNestedInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionUncheckedUpdateManyWithoutCreatedByInputSchema: z.ZodType<Prisma.CommunityQuestionUncheckedUpdateManyWithoutCreatedByInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  communityId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  label: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => QuestionTypeSchema),z.lazy(() => EnumQuestionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  options: z.union([ z.lazy(() => CommunityQuestionUpdateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  order: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 export const AccountUpdateWithoutUserInputSchema: z.ZodType<Prisma.AccountUpdateWithoutUserInput> = z.object({
@@ -5603,6 +8020,140 @@ export const LeadUncheckedUpdateManyWithoutSegmentInputSchema: z.ZodType<Prisma.
   pipelineId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const CommunityQuestionCreateManyCommunityInputSchema: z.ZodType<Prisma.CommunityQuestionCreateManyCommunityInput> = z.object({
+  id: z.string().cuid().optional(),
+  createdById: z.string(),
+  label: z.string(),
+  type: z.lazy(() => QuestionTypeSchema),
+  options: z.union([ z.lazy(() => CommunityQuestionCreateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.boolean().optional(),
+  order: z.number().int().optional()
+}).strict();
+
+export const CommunityMembershipCreateManyCommunityInputSchema: z.ZodType<Prisma.CommunityMembershipCreateManyCommunityInput> = z.object({
+  id: z.string().cuid().optional(),
+  userId: z.string(),
+  role: z.lazy(() => MembershipRoleSchema).optional(),
+  joinedAt: z.coerce.date().optional()
+}).strict();
+
+export const UserAnswerCreateManyCommunityInputSchema: z.ZodType<Prisma.UserAnswerCreateManyCommunityInput> = z.object({
+  id: z.string().cuid().optional(),
+  userId: z.string(),
+  questionId: z.string(),
+  value: z.string(),
+  answeredAt: z.coerce.date().optional()
+}).strict();
+
+export const CommunityQuestionUpdateWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityQuestionUpdateWithoutCommunityInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  label: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => QuestionTypeSchema),z.lazy(() => EnumQuestionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  options: z.union([ z.lazy(() => CommunityQuestionUpdateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  order: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  createdBy: z.lazy(() => UserUpdateOneRequiredWithoutQuestionsCreatedNestedInputSchema).optional(),
+  answers: z.lazy(() => UserAnswerUpdateManyWithoutQuestionNestedInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionUncheckedUpdateWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityQuestionUncheckedUpdateWithoutCommunityInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdById: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  label: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => QuestionTypeSchema),z.lazy(() => EnumQuestionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  options: z.union([ z.lazy(() => CommunityQuestionUpdateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  order: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  answers: z.lazy(() => UserAnswerUncheckedUpdateManyWithoutQuestionNestedInputSchema).optional()
+}).strict();
+
+export const CommunityQuestionUncheckedUpdateManyWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityQuestionUncheckedUpdateManyWithoutCommunityInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  createdById: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  label: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  type: z.union([ z.lazy(() => QuestionTypeSchema),z.lazy(() => EnumQuestionTypeFieldUpdateOperationsInputSchema) ]).optional(),
+  options: z.union([ z.lazy(() => CommunityQuestionUpdateoptionsInputSchema),z.string().array() ]).optional(),
+  required: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
+  order: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const CommunityMembershipUpdateWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityMembershipUpdateWithoutCommunityInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  role: z.union([ z.lazy(() => MembershipRoleSchema),z.lazy(() => EnumMembershipRoleFieldUpdateOperationsInputSchema) ]).optional(),
+  joinedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  user: z.lazy(() => UserUpdateOneRequiredWithoutMembershipsNestedInputSchema).optional()
+}).strict();
+
+export const CommunityMembershipUncheckedUpdateWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityMembershipUncheckedUpdateWithoutCommunityInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  role: z.union([ z.lazy(() => MembershipRoleSchema),z.lazy(() => EnumMembershipRoleFieldUpdateOperationsInputSchema) ]).optional(),
+  joinedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const CommunityMembershipUncheckedUpdateManyWithoutCommunityInputSchema: z.ZodType<Prisma.CommunityMembershipUncheckedUpdateManyWithoutCommunityInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  role: z.union([ z.lazy(() => MembershipRoleSchema),z.lazy(() => EnumMembershipRoleFieldUpdateOperationsInputSchema) ]).optional(),
+  joinedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const UserAnswerUpdateWithoutCommunityInputSchema: z.ZodType<Prisma.UserAnswerUpdateWithoutCommunityInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  value: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  answeredAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  user: z.lazy(() => UserUpdateOneRequiredWithoutAnswersNestedInputSchema).optional(),
+  question: z.lazy(() => CommunityQuestionUpdateOneRequiredWithoutAnswersNestedInputSchema).optional()
+}).strict();
+
+export const UserAnswerUncheckedUpdateWithoutCommunityInputSchema: z.ZodType<Prisma.UserAnswerUncheckedUpdateWithoutCommunityInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  questionId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  value: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  answeredAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const UserAnswerUncheckedUpdateManyWithoutCommunityInputSchema: z.ZodType<Prisma.UserAnswerUncheckedUpdateManyWithoutCommunityInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  questionId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  value: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  answeredAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const UserAnswerCreateManyQuestionInputSchema: z.ZodType<Prisma.UserAnswerCreateManyQuestionInput> = z.object({
+  id: z.string().cuid().optional(),
+  userId: z.string(),
+  communityId: z.string(),
+  value: z.string(),
+  answeredAt: z.coerce.date().optional()
+}).strict();
+
+export const UserAnswerUpdateWithoutQuestionInputSchema: z.ZodType<Prisma.UserAnswerUpdateWithoutQuestionInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  value: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  answeredAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  user: z.lazy(() => UserUpdateOneRequiredWithoutAnswersNestedInputSchema).optional(),
+  community: z.lazy(() => CommunityUpdateOneRequiredWithoutAnswersNestedInputSchema).optional()
+}).strict();
+
+export const UserAnswerUncheckedUpdateWithoutQuestionInputSchema: z.ZodType<Prisma.UserAnswerUncheckedUpdateWithoutQuestionInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  communityId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  value: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  answeredAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+}).strict();
+
+export const UserAnswerUncheckedUpdateManyWithoutQuestionInputSchema: z.ZodType<Prisma.UserAnswerUncheckedUpdateManyWithoutQuestionInput> = z.object({
+  id: z.union([ z.string().cuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  communityId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  value: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  answeredAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
 }).strict();
 
 /////////////////////////////////////////
@@ -6224,6 +8775,254 @@ export const LeadFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.LeadFindUniqueOrT
   where: LeadWhereUniqueInputSchema,
 }).strict() ;
 
+export const CommunityFindFirstArgsSchema: z.ZodType<Prisma.CommunityFindFirstArgs> = z.object({
+  select: CommunitySelectSchema.optional(),
+  include: CommunityIncludeSchema.optional(),
+  where: CommunityWhereInputSchema.optional(),
+  orderBy: z.union([ CommunityOrderByWithRelationInputSchema.array(),CommunityOrderByWithRelationInputSchema ]).optional(),
+  cursor: CommunityWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ CommunityScalarFieldEnumSchema,CommunityScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const CommunityFindFirstOrThrowArgsSchema: z.ZodType<Prisma.CommunityFindFirstOrThrowArgs> = z.object({
+  select: CommunitySelectSchema.optional(),
+  include: CommunityIncludeSchema.optional(),
+  where: CommunityWhereInputSchema.optional(),
+  orderBy: z.union([ CommunityOrderByWithRelationInputSchema.array(),CommunityOrderByWithRelationInputSchema ]).optional(),
+  cursor: CommunityWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ CommunityScalarFieldEnumSchema,CommunityScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const CommunityFindManyArgsSchema: z.ZodType<Prisma.CommunityFindManyArgs> = z.object({
+  select: CommunitySelectSchema.optional(),
+  include: CommunityIncludeSchema.optional(),
+  where: CommunityWhereInputSchema.optional(),
+  orderBy: z.union([ CommunityOrderByWithRelationInputSchema.array(),CommunityOrderByWithRelationInputSchema ]).optional(),
+  cursor: CommunityWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ CommunityScalarFieldEnumSchema,CommunityScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const CommunityAggregateArgsSchema: z.ZodType<Prisma.CommunityAggregateArgs> = z.object({
+  where: CommunityWhereInputSchema.optional(),
+  orderBy: z.union([ CommunityOrderByWithRelationInputSchema.array(),CommunityOrderByWithRelationInputSchema ]).optional(),
+  cursor: CommunityWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const CommunityGroupByArgsSchema: z.ZodType<Prisma.CommunityGroupByArgs> = z.object({
+  where: CommunityWhereInputSchema.optional(),
+  orderBy: z.union([ CommunityOrderByWithAggregationInputSchema.array(),CommunityOrderByWithAggregationInputSchema ]).optional(),
+  by: CommunityScalarFieldEnumSchema.array(),
+  having: CommunityScalarWhereWithAggregatesInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const CommunityFindUniqueArgsSchema: z.ZodType<Prisma.CommunityFindUniqueArgs> = z.object({
+  select: CommunitySelectSchema.optional(),
+  include: CommunityIncludeSchema.optional(),
+  where: CommunityWhereUniqueInputSchema,
+}).strict() ;
+
+export const CommunityFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.CommunityFindUniqueOrThrowArgs> = z.object({
+  select: CommunitySelectSchema.optional(),
+  include: CommunityIncludeSchema.optional(),
+  where: CommunityWhereUniqueInputSchema,
+}).strict() ;
+
+export const CommunityMembershipFindFirstArgsSchema: z.ZodType<Prisma.CommunityMembershipFindFirstArgs> = z.object({
+  select: CommunityMembershipSelectSchema.optional(),
+  include: CommunityMembershipIncludeSchema.optional(),
+  where: CommunityMembershipWhereInputSchema.optional(),
+  orderBy: z.union([ CommunityMembershipOrderByWithRelationInputSchema.array(),CommunityMembershipOrderByWithRelationInputSchema ]).optional(),
+  cursor: CommunityMembershipWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ CommunityMembershipScalarFieldEnumSchema,CommunityMembershipScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const CommunityMembershipFindFirstOrThrowArgsSchema: z.ZodType<Prisma.CommunityMembershipFindFirstOrThrowArgs> = z.object({
+  select: CommunityMembershipSelectSchema.optional(),
+  include: CommunityMembershipIncludeSchema.optional(),
+  where: CommunityMembershipWhereInputSchema.optional(),
+  orderBy: z.union([ CommunityMembershipOrderByWithRelationInputSchema.array(),CommunityMembershipOrderByWithRelationInputSchema ]).optional(),
+  cursor: CommunityMembershipWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ CommunityMembershipScalarFieldEnumSchema,CommunityMembershipScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const CommunityMembershipFindManyArgsSchema: z.ZodType<Prisma.CommunityMembershipFindManyArgs> = z.object({
+  select: CommunityMembershipSelectSchema.optional(),
+  include: CommunityMembershipIncludeSchema.optional(),
+  where: CommunityMembershipWhereInputSchema.optional(),
+  orderBy: z.union([ CommunityMembershipOrderByWithRelationInputSchema.array(),CommunityMembershipOrderByWithRelationInputSchema ]).optional(),
+  cursor: CommunityMembershipWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ CommunityMembershipScalarFieldEnumSchema,CommunityMembershipScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const CommunityMembershipAggregateArgsSchema: z.ZodType<Prisma.CommunityMembershipAggregateArgs> = z.object({
+  where: CommunityMembershipWhereInputSchema.optional(),
+  orderBy: z.union([ CommunityMembershipOrderByWithRelationInputSchema.array(),CommunityMembershipOrderByWithRelationInputSchema ]).optional(),
+  cursor: CommunityMembershipWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const CommunityMembershipGroupByArgsSchema: z.ZodType<Prisma.CommunityMembershipGroupByArgs> = z.object({
+  where: CommunityMembershipWhereInputSchema.optional(),
+  orderBy: z.union([ CommunityMembershipOrderByWithAggregationInputSchema.array(),CommunityMembershipOrderByWithAggregationInputSchema ]).optional(),
+  by: CommunityMembershipScalarFieldEnumSchema.array(),
+  having: CommunityMembershipScalarWhereWithAggregatesInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const CommunityMembershipFindUniqueArgsSchema: z.ZodType<Prisma.CommunityMembershipFindUniqueArgs> = z.object({
+  select: CommunityMembershipSelectSchema.optional(),
+  include: CommunityMembershipIncludeSchema.optional(),
+  where: CommunityMembershipWhereUniqueInputSchema,
+}).strict() ;
+
+export const CommunityMembershipFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.CommunityMembershipFindUniqueOrThrowArgs> = z.object({
+  select: CommunityMembershipSelectSchema.optional(),
+  include: CommunityMembershipIncludeSchema.optional(),
+  where: CommunityMembershipWhereUniqueInputSchema,
+}).strict() ;
+
+export const CommunityQuestionFindFirstArgsSchema: z.ZodType<Prisma.CommunityQuestionFindFirstArgs> = z.object({
+  select: CommunityQuestionSelectSchema.optional(),
+  include: CommunityQuestionIncludeSchema.optional(),
+  where: CommunityQuestionWhereInputSchema.optional(),
+  orderBy: z.union([ CommunityQuestionOrderByWithRelationInputSchema.array(),CommunityQuestionOrderByWithRelationInputSchema ]).optional(),
+  cursor: CommunityQuestionWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ CommunityQuestionScalarFieldEnumSchema,CommunityQuestionScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const CommunityQuestionFindFirstOrThrowArgsSchema: z.ZodType<Prisma.CommunityQuestionFindFirstOrThrowArgs> = z.object({
+  select: CommunityQuestionSelectSchema.optional(),
+  include: CommunityQuestionIncludeSchema.optional(),
+  where: CommunityQuestionWhereInputSchema.optional(),
+  orderBy: z.union([ CommunityQuestionOrderByWithRelationInputSchema.array(),CommunityQuestionOrderByWithRelationInputSchema ]).optional(),
+  cursor: CommunityQuestionWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ CommunityQuestionScalarFieldEnumSchema,CommunityQuestionScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const CommunityQuestionFindManyArgsSchema: z.ZodType<Prisma.CommunityQuestionFindManyArgs> = z.object({
+  select: CommunityQuestionSelectSchema.optional(),
+  include: CommunityQuestionIncludeSchema.optional(),
+  where: CommunityQuestionWhereInputSchema.optional(),
+  orderBy: z.union([ CommunityQuestionOrderByWithRelationInputSchema.array(),CommunityQuestionOrderByWithRelationInputSchema ]).optional(),
+  cursor: CommunityQuestionWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ CommunityQuestionScalarFieldEnumSchema,CommunityQuestionScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const CommunityQuestionAggregateArgsSchema: z.ZodType<Prisma.CommunityQuestionAggregateArgs> = z.object({
+  where: CommunityQuestionWhereInputSchema.optional(),
+  orderBy: z.union([ CommunityQuestionOrderByWithRelationInputSchema.array(),CommunityQuestionOrderByWithRelationInputSchema ]).optional(),
+  cursor: CommunityQuestionWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const CommunityQuestionGroupByArgsSchema: z.ZodType<Prisma.CommunityQuestionGroupByArgs> = z.object({
+  where: CommunityQuestionWhereInputSchema.optional(),
+  orderBy: z.union([ CommunityQuestionOrderByWithAggregationInputSchema.array(),CommunityQuestionOrderByWithAggregationInputSchema ]).optional(),
+  by: CommunityQuestionScalarFieldEnumSchema.array(),
+  having: CommunityQuestionScalarWhereWithAggregatesInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const CommunityQuestionFindUniqueArgsSchema: z.ZodType<Prisma.CommunityQuestionFindUniqueArgs> = z.object({
+  select: CommunityQuestionSelectSchema.optional(),
+  include: CommunityQuestionIncludeSchema.optional(),
+  where: CommunityQuestionWhereUniqueInputSchema,
+}).strict() ;
+
+export const CommunityQuestionFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.CommunityQuestionFindUniqueOrThrowArgs> = z.object({
+  select: CommunityQuestionSelectSchema.optional(),
+  include: CommunityQuestionIncludeSchema.optional(),
+  where: CommunityQuestionWhereUniqueInputSchema,
+}).strict() ;
+
+export const UserAnswerFindFirstArgsSchema: z.ZodType<Prisma.UserAnswerFindFirstArgs> = z.object({
+  select: UserAnswerSelectSchema.optional(),
+  include: UserAnswerIncludeSchema.optional(),
+  where: UserAnswerWhereInputSchema.optional(),
+  orderBy: z.union([ UserAnswerOrderByWithRelationInputSchema.array(),UserAnswerOrderByWithRelationInputSchema ]).optional(),
+  cursor: UserAnswerWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ UserAnswerScalarFieldEnumSchema,UserAnswerScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const UserAnswerFindFirstOrThrowArgsSchema: z.ZodType<Prisma.UserAnswerFindFirstOrThrowArgs> = z.object({
+  select: UserAnswerSelectSchema.optional(),
+  include: UserAnswerIncludeSchema.optional(),
+  where: UserAnswerWhereInputSchema.optional(),
+  orderBy: z.union([ UserAnswerOrderByWithRelationInputSchema.array(),UserAnswerOrderByWithRelationInputSchema ]).optional(),
+  cursor: UserAnswerWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ UserAnswerScalarFieldEnumSchema,UserAnswerScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const UserAnswerFindManyArgsSchema: z.ZodType<Prisma.UserAnswerFindManyArgs> = z.object({
+  select: UserAnswerSelectSchema.optional(),
+  include: UserAnswerIncludeSchema.optional(),
+  where: UserAnswerWhereInputSchema.optional(),
+  orderBy: z.union([ UserAnswerOrderByWithRelationInputSchema.array(),UserAnswerOrderByWithRelationInputSchema ]).optional(),
+  cursor: UserAnswerWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+  distinct: z.union([ UserAnswerScalarFieldEnumSchema,UserAnswerScalarFieldEnumSchema.array() ]).optional(),
+}).strict() ;
+
+export const UserAnswerAggregateArgsSchema: z.ZodType<Prisma.UserAnswerAggregateArgs> = z.object({
+  where: UserAnswerWhereInputSchema.optional(),
+  orderBy: z.union([ UserAnswerOrderByWithRelationInputSchema.array(),UserAnswerOrderByWithRelationInputSchema ]).optional(),
+  cursor: UserAnswerWhereUniqueInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const UserAnswerGroupByArgsSchema: z.ZodType<Prisma.UserAnswerGroupByArgs> = z.object({
+  where: UserAnswerWhereInputSchema.optional(),
+  orderBy: z.union([ UserAnswerOrderByWithAggregationInputSchema.array(),UserAnswerOrderByWithAggregationInputSchema ]).optional(),
+  by: UserAnswerScalarFieldEnumSchema.array(),
+  having: UserAnswerScalarWhereWithAggregatesInputSchema.optional(),
+  take: z.number().optional(),
+  skip: z.number().optional(),
+}).strict() ;
+
+export const UserAnswerFindUniqueArgsSchema: z.ZodType<Prisma.UserAnswerFindUniqueArgs> = z.object({
+  select: UserAnswerSelectSchema.optional(),
+  include: UserAnswerIncludeSchema.optional(),
+  where: UserAnswerWhereUniqueInputSchema,
+}).strict() ;
+
+export const UserAnswerFindUniqueOrThrowArgsSchema: z.ZodType<Prisma.UserAnswerFindUniqueOrThrowArgs> = z.object({
+  select: UserAnswerSelectSchema.optional(),
+  include: UserAnswerIncludeSchema.optional(),
+  where: UserAnswerWhereUniqueInputSchema,
+}).strict() ;
+
 export const PostCreateArgsSchema: z.ZodType<Prisma.PostCreateArgs> = z.object({
   select: PostSelectSchema.optional(),
   include: PostIncludeSchema.optional(),
@@ -6757,5 +9556,221 @@ export const LeadUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.LeadUpdateManyA
 
 export const LeadDeleteManyArgsSchema: z.ZodType<Prisma.LeadDeleteManyArgs> = z.object({
   where: LeadWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const CommunityCreateArgsSchema: z.ZodType<Prisma.CommunityCreateArgs> = z.object({
+  select: CommunitySelectSchema.optional(),
+  include: CommunityIncludeSchema.optional(),
+  data: z.union([ CommunityCreateInputSchema,CommunityUncheckedCreateInputSchema ]),
+}).strict() ;
+
+export const CommunityUpsertArgsSchema: z.ZodType<Prisma.CommunityUpsertArgs> = z.object({
+  select: CommunitySelectSchema.optional(),
+  include: CommunityIncludeSchema.optional(),
+  where: CommunityWhereUniqueInputSchema,
+  create: z.union([ CommunityCreateInputSchema,CommunityUncheckedCreateInputSchema ]),
+  update: z.union([ CommunityUpdateInputSchema,CommunityUncheckedUpdateInputSchema ]),
+}).strict() ;
+
+export const CommunityCreateManyArgsSchema: z.ZodType<Prisma.CommunityCreateManyArgs> = z.object({
+  data: z.union([ CommunityCreateManyInputSchema,CommunityCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const CommunityCreateManyAndReturnArgsSchema: z.ZodType<Prisma.CommunityCreateManyAndReturnArgs> = z.object({
+  data: z.union([ CommunityCreateManyInputSchema,CommunityCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const CommunityDeleteArgsSchema: z.ZodType<Prisma.CommunityDeleteArgs> = z.object({
+  select: CommunitySelectSchema.optional(),
+  include: CommunityIncludeSchema.optional(),
+  where: CommunityWhereUniqueInputSchema,
+}).strict() ;
+
+export const CommunityUpdateArgsSchema: z.ZodType<Prisma.CommunityUpdateArgs> = z.object({
+  select: CommunitySelectSchema.optional(),
+  include: CommunityIncludeSchema.optional(),
+  data: z.union([ CommunityUpdateInputSchema,CommunityUncheckedUpdateInputSchema ]),
+  where: CommunityWhereUniqueInputSchema,
+}).strict() ;
+
+export const CommunityUpdateManyArgsSchema: z.ZodType<Prisma.CommunityUpdateManyArgs> = z.object({
+  data: z.union([ CommunityUpdateManyMutationInputSchema,CommunityUncheckedUpdateManyInputSchema ]),
+  where: CommunityWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const CommunityUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.CommunityUpdateManyAndReturnArgs> = z.object({
+  data: z.union([ CommunityUpdateManyMutationInputSchema,CommunityUncheckedUpdateManyInputSchema ]),
+  where: CommunityWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const CommunityDeleteManyArgsSchema: z.ZodType<Prisma.CommunityDeleteManyArgs> = z.object({
+  where: CommunityWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const CommunityMembershipCreateArgsSchema: z.ZodType<Prisma.CommunityMembershipCreateArgs> = z.object({
+  select: CommunityMembershipSelectSchema.optional(),
+  include: CommunityMembershipIncludeSchema.optional(),
+  data: z.union([ CommunityMembershipCreateInputSchema,CommunityMembershipUncheckedCreateInputSchema ]),
+}).strict() ;
+
+export const CommunityMembershipUpsertArgsSchema: z.ZodType<Prisma.CommunityMembershipUpsertArgs> = z.object({
+  select: CommunityMembershipSelectSchema.optional(),
+  include: CommunityMembershipIncludeSchema.optional(),
+  where: CommunityMembershipWhereUniqueInputSchema,
+  create: z.union([ CommunityMembershipCreateInputSchema,CommunityMembershipUncheckedCreateInputSchema ]),
+  update: z.union([ CommunityMembershipUpdateInputSchema,CommunityMembershipUncheckedUpdateInputSchema ]),
+}).strict() ;
+
+export const CommunityMembershipCreateManyArgsSchema: z.ZodType<Prisma.CommunityMembershipCreateManyArgs> = z.object({
+  data: z.union([ CommunityMembershipCreateManyInputSchema,CommunityMembershipCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const CommunityMembershipCreateManyAndReturnArgsSchema: z.ZodType<Prisma.CommunityMembershipCreateManyAndReturnArgs> = z.object({
+  data: z.union([ CommunityMembershipCreateManyInputSchema,CommunityMembershipCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const CommunityMembershipDeleteArgsSchema: z.ZodType<Prisma.CommunityMembershipDeleteArgs> = z.object({
+  select: CommunityMembershipSelectSchema.optional(),
+  include: CommunityMembershipIncludeSchema.optional(),
+  where: CommunityMembershipWhereUniqueInputSchema,
+}).strict() ;
+
+export const CommunityMembershipUpdateArgsSchema: z.ZodType<Prisma.CommunityMembershipUpdateArgs> = z.object({
+  select: CommunityMembershipSelectSchema.optional(),
+  include: CommunityMembershipIncludeSchema.optional(),
+  data: z.union([ CommunityMembershipUpdateInputSchema,CommunityMembershipUncheckedUpdateInputSchema ]),
+  where: CommunityMembershipWhereUniqueInputSchema,
+}).strict() ;
+
+export const CommunityMembershipUpdateManyArgsSchema: z.ZodType<Prisma.CommunityMembershipUpdateManyArgs> = z.object({
+  data: z.union([ CommunityMembershipUpdateManyMutationInputSchema,CommunityMembershipUncheckedUpdateManyInputSchema ]),
+  where: CommunityMembershipWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const CommunityMembershipUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.CommunityMembershipUpdateManyAndReturnArgs> = z.object({
+  data: z.union([ CommunityMembershipUpdateManyMutationInputSchema,CommunityMembershipUncheckedUpdateManyInputSchema ]),
+  where: CommunityMembershipWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const CommunityMembershipDeleteManyArgsSchema: z.ZodType<Prisma.CommunityMembershipDeleteManyArgs> = z.object({
+  where: CommunityMembershipWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const CommunityQuestionCreateArgsSchema: z.ZodType<Prisma.CommunityQuestionCreateArgs> = z.object({
+  select: CommunityQuestionSelectSchema.optional(),
+  include: CommunityQuestionIncludeSchema.optional(),
+  data: z.union([ CommunityQuestionCreateInputSchema,CommunityQuestionUncheckedCreateInputSchema ]),
+}).strict() ;
+
+export const CommunityQuestionUpsertArgsSchema: z.ZodType<Prisma.CommunityQuestionUpsertArgs> = z.object({
+  select: CommunityQuestionSelectSchema.optional(),
+  include: CommunityQuestionIncludeSchema.optional(),
+  where: CommunityQuestionWhereUniqueInputSchema,
+  create: z.union([ CommunityQuestionCreateInputSchema,CommunityQuestionUncheckedCreateInputSchema ]),
+  update: z.union([ CommunityQuestionUpdateInputSchema,CommunityQuestionUncheckedUpdateInputSchema ]),
+}).strict() ;
+
+export const CommunityQuestionCreateManyArgsSchema: z.ZodType<Prisma.CommunityQuestionCreateManyArgs> = z.object({
+  data: z.union([ CommunityQuestionCreateManyInputSchema,CommunityQuestionCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const CommunityQuestionCreateManyAndReturnArgsSchema: z.ZodType<Prisma.CommunityQuestionCreateManyAndReturnArgs> = z.object({
+  data: z.union([ CommunityQuestionCreateManyInputSchema,CommunityQuestionCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const CommunityQuestionDeleteArgsSchema: z.ZodType<Prisma.CommunityQuestionDeleteArgs> = z.object({
+  select: CommunityQuestionSelectSchema.optional(),
+  include: CommunityQuestionIncludeSchema.optional(),
+  where: CommunityQuestionWhereUniqueInputSchema,
+}).strict() ;
+
+export const CommunityQuestionUpdateArgsSchema: z.ZodType<Prisma.CommunityQuestionUpdateArgs> = z.object({
+  select: CommunityQuestionSelectSchema.optional(),
+  include: CommunityQuestionIncludeSchema.optional(),
+  data: z.union([ CommunityQuestionUpdateInputSchema,CommunityQuestionUncheckedUpdateInputSchema ]),
+  where: CommunityQuestionWhereUniqueInputSchema,
+}).strict() ;
+
+export const CommunityQuestionUpdateManyArgsSchema: z.ZodType<Prisma.CommunityQuestionUpdateManyArgs> = z.object({
+  data: z.union([ CommunityQuestionUpdateManyMutationInputSchema,CommunityQuestionUncheckedUpdateManyInputSchema ]),
+  where: CommunityQuestionWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const CommunityQuestionUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.CommunityQuestionUpdateManyAndReturnArgs> = z.object({
+  data: z.union([ CommunityQuestionUpdateManyMutationInputSchema,CommunityQuestionUncheckedUpdateManyInputSchema ]),
+  where: CommunityQuestionWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const CommunityQuestionDeleteManyArgsSchema: z.ZodType<Prisma.CommunityQuestionDeleteManyArgs> = z.object({
+  where: CommunityQuestionWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const UserAnswerCreateArgsSchema: z.ZodType<Prisma.UserAnswerCreateArgs> = z.object({
+  select: UserAnswerSelectSchema.optional(),
+  include: UserAnswerIncludeSchema.optional(),
+  data: z.union([ UserAnswerCreateInputSchema,UserAnswerUncheckedCreateInputSchema ]),
+}).strict() ;
+
+export const UserAnswerUpsertArgsSchema: z.ZodType<Prisma.UserAnswerUpsertArgs> = z.object({
+  select: UserAnswerSelectSchema.optional(),
+  include: UserAnswerIncludeSchema.optional(),
+  where: UserAnswerWhereUniqueInputSchema,
+  create: z.union([ UserAnswerCreateInputSchema,UserAnswerUncheckedCreateInputSchema ]),
+  update: z.union([ UserAnswerUpdateInputSchema,UserAnswerUncheckedUpdateInputSchema ]),
+}).strict() ;
+
+export const UserAnswerCreateManyArgsSchema: z.ZodType<Prisma.UserAnswerCreateManyArgs> = z.object({
+  data: z.union([ UserAnswerCreateManyInputSchema,UserAnswerCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const UserAnswerCreateManyAndReturnArgsSchema: z.ZodType<Prisma.UserAnswerCreateManyAndReturnArgs> = z.object({
+  data: z.union([ UserAnswerCreateManyInputSchema,UserAnswerCreateManyInputSchema.array() ]),
+  skipDuplicates: z.boolean().optional(),
+}).strict() ;
+
+export const UserAnswerDeleteArgsSchema: z.ZodType<Prisma.UserAnswerDeleteArgs> = z.object({
+  select: UserAnswerSelectSchema.optional(),
+  include: UserAnswerIncludeSchema.optional(),
+  where: UserAnswerWhereUniqueInputSchema,
+}).strict() ;
+
+export const UserAnswerUpdateArgsSchema: z.ZodType<Prisma.UserAnswerUpdateArgs> = z.object({
+  select: UserAnswerSelectSchema.optional(),
+  include: UserAnswerIncludeSchema.optional(),
+  data: z.union([ UserAnswerUpdateInputSchema,UserAnswerUncheckedUpdateInputSchema ]),
+  where: UserAnswerWhereUniqueInputSchema,
+}).strict() ;
+
+export const UserAnswerUpdateManyArgsSchema: z.ZodType<Prisma.UserAnswerUpdateManyArgs> = z.object({
+  data: z.union([ UserAnswerUpdateManyMutationInputSchema,UserAnswerUncheckedUpdateManyInputSchema ]),
+  where: UserAnswerWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const UserAnswerUpdateManyAndReturnArgsSchema: z.ZodType<Prisma.UserAnswerUpdateManyAndReturnArgs> = z.object({
+  data: z.union([ UserAnswerUpdateManyMutationInputSchema,UserAnswerUncheckedUpdateManyInputSchema ]),
+  where: UserAnswerWhereInputSchema.optional(),
+  limit: z.number().optional(),
+}).strict() ;
+
+export const UserAnswerDeleteManyArgsSchema: z.ZodType<Prisma.UserAnswerDeleteManyArgs> = z.object({
+  where: UserAnswerWhereInputSchema.optional(),
   limit: z.number().optional(),
 }).strict() ;

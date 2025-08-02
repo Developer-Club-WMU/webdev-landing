@@ -23,7 +23,6 @@ export const PipelineHeader = () => {
   const handleCreatePipeline = async (data: PipelineCreationData) => {
     await createPipeline.mutateAsync(data, {
       onSuccess: (createdPipeline) => {
-        console.log("Pipeline created!", createdPipeline);
         // Invalidate and refetch the pipeline list
         void utils.crm.pipelines.grabAll.invalidate();
         setIsModalOpen(false);

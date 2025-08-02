@@ -58,12 +58,18 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+
 model User {
   id            String     @id @default(cuid())
   name          String?
   email         String?    @unique
   emailVerified DateTime?
   image         String?
+
+  memberships   CommunityMembership[]
+  answers       UserAnswer[]
+  questionsCreated CommunityQuestion[]
+
   accounts      Account[]
   sessions      Session[]
   posts         Post[]
@@ -196,4 +202,81 @@ model Lead {
   @@index([status])
   @@index([pipelineId])
   @@index([segmentId])
+}
+
+model Community {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  description String?
+
+  questions   CommunityQuestion[]
+  members     CommunityMembership[]
+  answers     UserAnswer[]
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model CommunityMembership {
+  id          String     @id @default(cuid())
+  userId      String
+  communityId String
+  role        MembershipRole @default(MEMBER)
+  joinedAt    DateTime   @default(now())
+
+  user        User       @relation(fields: [userId], references: [id])
+  community   Community  @relation(fields: [communityId], references: [id])
+
+  @@unique([userId, communityId])
+}
+
+model CommunityQuestion {
+  id          String     @id @default(cuid())
+  communityId String
+  createdById String
+  label       String
+  type        QuestionType
+  options     String[]   // For select/multiselect
+  required    Boolean    @default(false)
+  order       Int        @default(0)
+
+  community   Community  @relation(fields: [communityId], references: [id])
+  createdBy   User   @relation(fields: [createdById], references: [id])
+  answers     UserAnswer[]
+
+
+  @@index([communityId])
+}
+
+model UserAnswer {
+  id              String     @id @default(cuid())
+  userId          String
+  questionId      String
+  communityId     String
+  value           String     // store as JSON if necessary
+  answeredAt      DateTime   @default(now())
+
+  user            User       @relation(fields: [userId], references: [id])
+  question        CommunityQuestion @relation(fields: [questionId], references: [id])
+  community       Community  @relation(fields: [communityId], references: [id])
+
+  @@index([userId, communityId])
+  @@unique([userId, questionId])
+}
+
+enum QuestionType {
+  TEXT
+  TEXTAREA
+  SELECT
+  MULTISELECT
+  NUMBER
+  DATE
+  BOOLEAN
+}
+
+enum MembershipRole {
+  MEMBER
+  OFFICER
+  MENTOR
+  CLIENT
 }

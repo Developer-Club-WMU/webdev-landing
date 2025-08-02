@@ -25,7 +25,6 @@ const SidePanel = ({ isOpen, onClose, children }: SidePanelProps) => {
         // Close only if backdrop itself is clicked
         // if (e.target === e.currentTarget) {
         if (e.target === backdropRef.current) {
-          console.log("Clicking");
           onClose();
         }
       }}

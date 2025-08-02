@@ -49,7 +49,7 @@ const JoinCommunityPage: React.FC = () => {
   };
 
   return (
-      <main className="bg-bg dark:bg-bg-inverted text-white h-screen flex items-center justify-center p-4 w-full">
+      <main className="bg-bg dark:bg-bg-inverted text-white min-h-screen flex items-center justify-center p-4 w-full overflow-auto">
         <div className="bg-white/50 dark:bg-black/40 shadow-xl shadow-gray-500/20 rounded-xl p-8 w-full max-w-4xl flex flex-col items-center">
         <ProgressBar
           currentQuestionIndex={currentQuestionIndex}

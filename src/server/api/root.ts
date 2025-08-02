@@ -1,5 +1,6 @@
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { crmRouter } from "./routers/crm";
+import { communityQuestionsRouter } from "./routers/public/community-questions";
 
 /**
  * This is the primary router for your server.
@@ -7,7 +8,8 @@ import { crmRouter } from "./routers/crm";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  crm: crmRouter
+  crm: crmRouter,
+  communityQuestions: communityQuestionsRouter,
   // post: postRouter,
 });
 

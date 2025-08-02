@@ -25,7 +25,6 @@ const LeadSummaryPanel: React.FC<LeadSummaryPanelProps> = ({
       month: "short",
       day: "numeric",
     });
-  console.log("Hello");
 
   return (
     <div className="flex flex-col gap-4 p-2 text-sm text-gray-800 dark:text-white">
