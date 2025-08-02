@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AppSideBarConfig } from "./useAppSideBar";
-import type { AppSideBarProtocol } from "@/models";
 import OfficerNavigationContent from "./OfficerNavigationContent/OfficerNavigationContent";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 /**
  * Defines a reusable side bar that can be configured
@@ -13,7 +12,8 @@ import { signOut } from "next-auth/react";
  */
 const AppSideBar = () => {
   const pathname = usePathname();
-  const config: AppSideBarProtocol = new AppSideBarConfig(pathname);
+  const { data: session } = useSession();
+  const config = new AppSideBarConfig(pathname, session);
 
   return (
     <div className="bg-bg dark:bg-bg-inverted sticky top-0 z-20 hidden h-screen min-w-[300px] flex-col border-gray-500/50 shadow-xl lg:flex dark:border-r">
@@ -25,7 +25,6 @@ const AppSideBar = () => {
                 onClick={() => config.clearOpenKey()}
                 className="cursor-pointer"
               >
-                {config.emoji}{" "}
                 <span className="text-xl font-black uppercase">
                   {config.title}
                 </span>

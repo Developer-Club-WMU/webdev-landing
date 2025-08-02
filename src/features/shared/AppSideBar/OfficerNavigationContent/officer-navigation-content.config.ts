@@ -22,6 +22,7 @@ export const officerlinks: AppSideBarLink[] = [
       { title: "Posts", icon: "📝", link: "/officer/cms/posts" },
       { title: "Pages", icon: "📄", link: "/officer/cms/pages" },
       { title: "Media", icon: "🖼️", link: "/officer/cms/media" },
+      { title: "Questions", icon: "🙋🏽", link: "/officer/cms/questions" },
     ],
     link: "/officer/cms",
   },
