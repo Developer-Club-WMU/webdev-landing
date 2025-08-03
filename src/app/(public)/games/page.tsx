@@ -1,4 +1,14 @@
 import CommunityDetails from "@/features/public/CommunityDetails/CommunityDetails";
+import CommunityHero from "@/features/public/CommunityHero/CommunityHero";
+import type { HeroDetails } from "@/models";
+
+const gamesHero: HeroDetails = {
+  title: "games",
+  description: "Design meets playability",
+  secondDescription:
+    "Whether you're building 2D pixel art or 3D multiplayer worlds, our game community thrives on innovation, engines, and creativity.",
+  color: "games",
+};
 
 const content = {
   header: "GAMES",
@@ -31,7 +41,12 @@ const content = {
 };
 
 const GamesPage = () => {
-  return <CommunityDetails content={content} />;
+  return (
+    <div className="page">
+      <CommunityHero details={gamesHero} />
+      <CommunityDetails content={content} />
+    </div>
+  );
 };
 
 export default GamesPage;

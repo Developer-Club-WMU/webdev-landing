@@ -1,37 +1,61 @@
 import CommunityDetails from "@/features/public/CommunityDetails/CommunityDetails";
+import CommunityHero from "@/features/public/CommunityHero/CommunityHero";
+import type { HeroDetails } from "@/models";
 
 const content = {
   header: "WEB",
   description: {
-    main: "We are a community dedicated to helping Developer Club members explore mobile-first application development.",
-    sub: "Whether you're a complete beginner or already building apps, we have something for you, starting with challenges at our coding meetups and progressing to advanced features like camera access, animations, GPS, maps, and graphing.",
+    main: "We are a passionate community focused on building modern, responsive, and scalable web applications.",
+    sub: "Whether you’re just learning HTML/CSS or deploying full-stack projects with React and Next.js, there’s a place for you here. Join us for collaborative coding sessions, mini-projects, and real-world challenges that help sharpen your frontend and backend skills—from APIs to animations, authentication, databases, and beyond.",
   },
   technologies: {
-    languages: ["Dart", "JavaScript", "Swift", "Kotlin"],
-    frameworks: ["Flutter", "React Native", "Swift UI", "Springboot"],
+    languages: ["JavaScript", "TypeScript", "HTML", "CSS"],
+    frameworks: ["React", "Next.js", "Node.js", "Tailwind CSS"],
   },
   meetingInfo: "TBD time/day @ Parkview Campus break room",
-  teamLeads: ["Khang Nguyen", "Jordan Johnson"],
+  teamLeads: [
+    "Julio Flores",
+    "Benwin George",
+    "Shaga Sresthaa",
+    "Arriza F. Wibowo",
+  ],
   contact: {
-    email: "dsy1090@wmich.edu",
+    email: "julio.c.florescercado@wmich.edu",
     discord: "https://discord.gg/R9ewFdGa",
   },
   tags: [
-    "app",
+    "web",
     "frontend",
-    "dart",
-    "flutter",
+    "backend",
     "javascript",
-    "reactnative",
-    "swift",
-    "swiftui",
-    "kotlin",
-    "springboot",
+    "typescript",
+    "react",
+    "nextjs",
+    "nodejs",
+    "express",
+    "html",
+    "css",
+    "tailwind",
+    "fullstack",
+    "web development",
   ],
 };
 
+const webHero: HeroDetails = {
+  title: "web",
+  description: "From React to full-stack TypeScript",
+  secondDescription:
+    "We craft modern, performant, and accessible web experiences using the latest in frontend and backend technologies.",
+  color: "web",
+};
+
 const WebPage = () => {
-  return <CommunityDetails content={content} />;
+  return (
+    <div className="page">
+      <CommunityHero details={webHero} />
+      <CommunityDetails content={content} />
+    </div>
+  );
 };
 
 export default WebPage;

@@ -1,4 +1,6 @@
 import CommunityDetails from "@/features/public/CommunityDetails/CommunityDetails";
+import CommunityHero from "@/features/public/CommunityHero/CommunityHero";
+import type { HeroDetails } from "@/models";
 
 const content = {
   header: "AI",
@@ -20,7 +22,19 @@ const content = {
 };
 
 const AIPage = () => {
-  return <CommunityDetails content={content} />;
+  const aiHero: HeroDetails = {
+    title: "AI",
+    description: "Explore the Intelligence of Tomorrow",
+    secondDescription:
+      "We dive into machine learning, large language models, and AI-powered systems that solve real-world problems.",
+    color: "ai",
+  };
+  return (
+    <div className="page">
+      <CommunityHero details={aiHero} />
+      <CommunityDetails content={content} />
+    </div>
+  );
 };
 
 export default AIPage;

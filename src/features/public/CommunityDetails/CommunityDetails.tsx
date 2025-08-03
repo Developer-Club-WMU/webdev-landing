@@ -19,7 +19,7 @@ type Content = {
 
 const CommunityDetails = ({ content }: { content: Content }) => {
   return (
-    <div className="bg-black text-white px-6 md:px-10 py-12 max-w-4xl mx-auto font-sans">
+    <div className="mt-10 bg-black text-white px-6 md:px-10 py-12 max-w-4xl mx-auto font-sans">
       {/* Header */}
       <h2 className="text-4xl font-extrabold mb-6 bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text flex items-center gap-3">
         🚀 {content.header} <span>COMMUNITY</span>
