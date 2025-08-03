@@ -49,6 +49,7 @@ const LoginFormContent = () => {
       <button
         className="flex w-full items-center justify-center gap-2 rounded-lg border border-black/20 bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-white hover:text-black"
         onClick={() => {
+          console.log("Attempting Discord sign-in with callback:", callbackUrl);
           return signIn("discord", { callbackUrl });
         }}
       >
