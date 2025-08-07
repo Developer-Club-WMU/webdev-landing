@@ -28,7 +28,7 @@ const PageIsUnderConstruction = ({ showButton }: { showButton: boolean }) => {
         <h1 className="title text-hackathon drop-shadow-lg">
           Page Under Construction
         </h1>
-        <p className="text-lg sm:text-xl text-muted dark:text-text-muted max-w-md">
+        <p className="text-lg sm:text-xl text-black dark:text-text-muted max-w-md">
           {messages[messageIndex]}
         </p>
         {showButton && (

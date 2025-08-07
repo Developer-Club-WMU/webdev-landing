@@ -290,7 +290,7 @@ model UserAnswer {
 model CommunityRole {
   id                    String     @id @default(cuid())
   membershipId          String
-  role                  MembershipRole @default(CLIENT)
+  role                  MembershipRole @default(MEMBER)
 
   membership            CommunityMembership @relation(fields: [membershipId], references: [id])
 

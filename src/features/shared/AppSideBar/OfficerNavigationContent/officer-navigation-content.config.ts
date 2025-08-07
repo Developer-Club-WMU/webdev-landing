@@ -3,10 +3,10 @@ import type { AppSideBarLink, SideBarLinkLeaf } from "@/models";
 export const officerlinks: AppSideBarLink[] = [
   {
     title: "",
-    prefix: "Communities",
+    prefix: "Members",
     titleColor: "ai",
     childLinks: [
-      { title: "Add", icon: "+", link: "/officer/communities" },
+      { title: "View", icon: "👥", link: "/officer/members" },
       // { title: "Todo", icon: "👥", link: "/officer/todo" },
       // { title: "Contacts", icon: "👥", link: "/officer/crm/contacts" },
       // { title: "Deals", icon: "💼", link: "/officer/crm/deals" },

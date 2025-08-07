@@ -60,6 +60,7 @@ export const membershipRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const session = ctx.session;
       if (!session) return;
+
       const user = session.user;
       if (!user) return;
 
@@ -69,7 +70,20 @@ export const membershipRouter = createTRPCRouter({
 
       if (!community) return;
 
-      const membership = ctx.db.communityMembership.create({
+      // Check for existing membership
+      const existingMembership = await ctx.db.communityMembership.findFirst({
+        where: {
+          userId: user.id,
+          communityId: community.id,
+        },
+      });
+
+      if (existingMembership) {
+        return existingMembership; // or throw error, or silently return null
+      }
+
+      // Create new membership
+      const membership = await ctx.db.communityMembership.create({
         data: {
           userId: user.id,
           communityId: community.id,
@@ -78,4 +92,52 @@ export const membershipRouter = createTRPCRouter({
 
       return membership;
     }),
+
+  getRelevantMembers: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+
+    // Step 1: Get all communityIds where the user is an OFFICER
+    const officerMemberships = await ctx.db.communityMembership.findMany({
+      where: {
+        userId,
+        roles: {
+          some: {
+            role: MembershipRole.OFFICER,
+          },
+        },
+      },
+      select: {
+        communityId: true,
+      },
+    });
+
+    const officerCommunityIds = officerMemberships.map((m) => m.communityId);
+
+    if (officerCommunityIds.length === 0) return [];
+
+    // Step 2: Find MEMBERS in those communities (excluding the current user)
+    const memberMemberships = await ctx.db.communityMembership.findMany({
+      where: {
+        communityId: { in: officerCommunityIds },
+        roles: {
+          some: {
+            role: MembershipRole.MEMBER,
+          },
+        },
+        userId: {
+          not: userId,
+        },
+      },
+      include: {
+        user: true,
+        community: true,
+      },
+    });
+
+    // Return list of user + community pairs
+    return memberMemberships.map((m) => ({
+      user: m.user,
+      community: m.community,
+    }));
+  }),
 });

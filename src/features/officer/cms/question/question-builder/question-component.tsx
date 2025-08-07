@@ -1,5 +1,6 @@
 "use client";
 
+import { useCachedSession } from "@/hooks/userCachedSession";
 import { api } from "@/trpc/react";
 import { type QuestionType, type CommunityName } from "@prisma/client";
 import React, { useState } from "react";
@@ -233,7 +234,12 @@ const JoinCommunityForm: React.FC = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [selectedCommunity, setSelectedCommunity] = useState<CommunityName | null>(null);
+  const session = useCachedSession();
   const { data: forms, isLoading } = api.communityForms.getLatestPerCommunity.useQuery();
+  const attachMembershipToUser = api.membership.attachMembershipToUser.useMutation();
+  
+  if (!session || !session.data?.user) return <div>... You must be logged in</div>;
+  const userId = session.data.user.id;
 
   const selectedForm = forms?.find((form) => form.communityTag === selectedCommunity);
   const questions: CommunityFormQuestion[] = selectedForm
@@ -276,7 +282,24 @@ const JoinCommunityForm: React.FC = () => {
   };
 
   const handleSubmit = () => {
-    location.href = "/member"
+    if (!selectedCommunity) return;
+
+    attachMembershipToUser.mutate(
+      {
+        userId: userId,
+        communityName: selectedCommunity,
+      },
+      {
+        onSuccess: () => {
+          // Redirect only on success
+          window.location.href = "/member";
+        },
+        onError: (error) => {
+          console.error("Failed to attach membership:", error);
+          alert("There was a problem joining the community. Please try again.");
+        },
+      }
+    );
   };
 
   const renderContent = () => {
