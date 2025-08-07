@@ -12,7 +12,6 @@ export async function middleware(req: NextRequest) {
   console.log("Secret: ", env.NEXTAUTH_SECRET);
 
   console.log("🔐 Middleware - token:", token);
-  console.log("🔒 Path:", req.nextUrl.pathname);
 
   const isProtectedRoute = req.nextUrl.pathname.startsWith("/officer");
 
