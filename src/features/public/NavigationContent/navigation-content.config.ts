@@ -29,5 +29,4 @@ export const simpleLinks: SideBarLinkLeaf[] = [
   { title: "Contact", icon: "✉️", link: "/contact" },
   { title: "About Us", icon: "�", link: "/about-us" },
   { title: "Events", icon: "📅", link: "/events" },
-  { title: "Join Us", icon: "🎉", link: "/join-community" },
 ];

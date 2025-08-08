@@ -278,9 +278,6 @@ export interface SocialInformation {
 }
 
 export interface AppSideBarProtocol {
-  // This will change to something more professional
-  emoji: string;
-
   /**
    * Defines the title of the sidebar
    */

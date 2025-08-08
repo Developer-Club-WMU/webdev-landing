@@ -4,6 +4,7 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import SideBar from "../../features/public/Sidebar/SideBar";
 import TopNav from "../../features/public/TopNav/TopNav";
+import { TRPCReactProvider } from "@/trpc/react";
 
 export const metadata: Metadata = {
   title: "WMU Developer Club",
@@ -61,7 +62,7 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col min-w-0 lg:flex-row w-full transition-all duration-300">
         <SideBar />
         <TopNav />
-        {children}
+        <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
     </html>
   );

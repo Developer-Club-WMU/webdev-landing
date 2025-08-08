@@ -5,6 +5,7 @@ import {
   leadConversations,
   leadMessages,
 } from "../RecentActivity/recent-activitiy.config";
+import Image from "next/image";
 
 interface LeadSummaryPanelProps {
   lead: LeadInfo;
@@ -30,7 +31,7 @@ const LeadSummaryPanel: React.FC<LeadSummaryPanelProps> = ({
     <div className="flex flex-col gap-4 p-2 text-sm text-gray-800 dark:text-white">
       <div className="flex items-center gap-4">
         {lead.avatarURL ? (
-          <img
+          <Image
             src={lead.avatarURL}
             alt={lead.contactName}
             className="h-14 w-14 rounded-full object-cover shadow"

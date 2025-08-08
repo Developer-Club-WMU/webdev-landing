@@ -1,6 +1,10 @@
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { crmRouter } from "./routers/crm";
 import { communityQuestionsRouter } from "./routers/public/community-questions";
+import { userRouter } from "./routers/user";
+import { joinCommunityFormRouter } from "./routers/cms/join-community-form";
+import { communityRouter } from "./routers/cms/community";
+import { membershipRouter } from "./routers/membership";
 
 /**
  * This is the primary router for your server.
@@ -10,6 +14,10 @@ import { communityQuestionsRouter } from "./routers/public/community-questions";
 export const appRouter = createTRPCRouter({
   crm: crmRouter,
   communityQuestions: communityQuestionsRouter,
+  user: userRouter,
+  communityForms: joinCommunityFormRouter,
+  community: communityRouter,
+  membership: membershipRouter,
   // post: postRouter,
 });
 

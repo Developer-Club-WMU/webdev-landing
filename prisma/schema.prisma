@@ -5,9 +5,9 @@ generator client {
   provider = "prisma-client-js"
 }
 
-generator zod {
-  provider = "zod-prisma-types"
-}
+// generator zod {
+//   provider = "zod-prisma-types"
+// }
 
 datasource db {
   provider = "postgresql"
@@ -65,6 +65,7 @@ model User {
   email         String?    @unique
   emailVerified DateTime?
   image         String?
+  userRole      UserRole @default(STANDARD)
 
   memberships   CommunityMembership[]
   answers       UserAnswer[]
@@ -76,6 +77,7 @@ model User {
   tasks         Task[]
   Pipeline      Pipeline[]
   Lead          Lead[]
+  form          CommunityForm[]
 }
 
 model VerificationToken {
@@ -206,12 +208,11 @@ model Lead {
 
 model Community {
   id          String     @id @default(cuid())
-  name        String     @unique
+  name        CommunityName     @unique
   description String?
 
-  questions   CommunityQuestion[]
+  forms       CommunityForm[]
   members     CommunityMembership[]
-  answers     UserAnswer[]
 
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -221,31 +222,52 @@ model CommunityMembership {
   id          String     @id @default(cuid())
   userId      String
   communityId String
-  role        MembershipRole @default(MEMBER)
   joinedAt    DateTime   @default(now())
 
   user        User       @relation(fields: [userId], references: [id])
   community   Community  @relation(fields: [communityId], references: [id])
 
-  @@unique([userId, communityId])
+  roles       CommunityRole[]
+}
+
+model CommunityForm {
+  id String @id @default(cuid())
+  title String
+  description String?
+  questions CommunityQuestion[]
+  communityTag CommunityName
+  communityId String
+  createdById String
+
+  isActive       Boolean          @default(false)
+  createdByName String @default("Unknown")
+
+  answers   UserAnswer[]
+  community Community @relation(fields: [communityId], references: [id])
+
+  createAt DateTime @default(now())
+  createdBy User @relation(fields: [createdById], references: [id])
+
+  @@index([communityTag])
 }
 
 model CommunityQuestion {
   id          String     @id @default(cuid())
-  communityId String
   createdById String
+  formId String
   label       String
   type        QuestionType
+  form      CommunityForm     @relation(fields: [formId], references: [id])
   options     String[]   // For select/multiselect
   required    Boolean    @default(false)
   order       Int        @default(0)
 
-  community   Community  @relation(fields: [communityId], references: [id])
   createdBy   User   @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
   answers     UserAnswer[]
 
 
-  @@index([communityId])
+  @@index([formId])
 }
 
 model UserAnswer {
@@ -253,15 +275,26 @@ model UserAnswer {
   userId          String
   questionId      String
   communityId     String
+  formId          String
   value           String     // store as JSON if necessary
   answeredAt      DateTime   @default(now())
 
   user            User       @relation(fields: [userId], references: [id])
   question        CommunityQuestion @relation(fields: [questionId], references: [id])
-  community       Community  @relation(fields: [communityId], references: [id])
+  form            CommunityForm @relation(fields: [formId], references: [id])
 
   @@index([userId, communityId])
   @@unique([userId, questionId])
+}
+
+model CommunityRole {
+  id                    String     @id @default(cuid())
+  membershipId          String
+  role                  MembershipRole @default(CLIENT)
+
+  membership            CommunityMembership @relation(fields: [membershipId], references: [id])
+
+  @@unique([membershipId, role])
 }
 
 enum QuestionType {
@@ -279,4 +312,19 @@ enum MembershipRole {
   OFFICER
   MENTOR
   CLIENT
+  ADMIN
+}
+
+enum CommunityName {
+  WEB
+  HACKATHON
+  AI
+  APPS
+  GAMES
+  SYSTEMS
+}
+
+enum UserRole {
+  ADMIN
+  STANDARD
 }

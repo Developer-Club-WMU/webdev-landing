@@ -59,3 +59,22 @@ export class Observe<T> implements DataObserver<T> {
     return this.trackableValue;
   }
 }
+
+export class Signal<T> extends Observe<T> {
+  constructor(callback: T) {
+    super(callback);
+  }
+
+  /**
+   * Subscribes to the event while providing a way to invoke
+   * the unsubscribe method
+   * @param listener callback
+   * @returns A function that when invoked, unregisters the listener
+   */
+  listen(listener: (value: T) => void): () => void {
+    const listenerID = this.addChangeListener(listener);
+    return () => {
+      this.removeListener(listenerID);
+    };
+  }
+}

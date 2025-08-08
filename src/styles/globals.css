@@ -52,7 +52,8 @@
   --color-app: oklch(80% 0.31 35); /* Bright orange */
   --color-games: oklch(70% 0.28 330); /* Playful magenta-purple */
   --color-systems: oklch(78% 0.23 200); /* Cool steel blue */
-  --color-hackathon: oklch(85% 0.28 75); /* High-energy yellow-green */
+  --color-hackathon: oklch(85% 0.34 100); /* Rich, high-energy yellow */
+  /*--color-hackathon: oklch(85% 0.28 75); /* High-energy yellow-green */
 
   --color-text-inclusive: var(--color-text);
 }
@@ -101,10 +102,59 @@
   color: var(--color-dark-brown);
 }
 
+.aurora-bg {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(100px);
+  opacity: 0.9; /* increase visibility */
+  transform: scale(1.4);
+  transition: transform 4s ease-in-out;
+  animation: auroraShift 10s ease-in-out infinite alternate;
+  border-radius: 50%;
+}
+
+@keyframes auroraShift {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(30px, -20px) scale(1.1);
+  }
+}
+
+/* One aurora class per community color */
+.aurora-ai {
+  background: radial-gradient(circle at 30% 30%, #3b82f6, #9333ea);
+}
+.aurora-web {
+  background: radial-gradient(circle at 60% 40%, #06b6d4, #3b82f6);
+}
+.aurora-app {
+  background: radial-gradient(circle at 40% 60%, #ec4899, #f59e0b);
+}
+.aurora-games {
+  background: radial-gradient(circle at 50% 30%, #10b981, #8b5cf6);
+}
+.aurora-systems {
+  background: radial-gradient(circle at 20% 80%, #64748b, #0ea5e9);
+}
+.aurora-hackathon {
+  background: radial-gradient(circle at 70% 50%, #f43f5e, #f97316);
+}
+
 /* Custom tailwind classes */
 @layer components {
   .text-inclusive {
     @apply text-text dark:text-text-inverted;
+  }
+
+  .standard-btn {
+    @apply py-1 px-2 bg-bg-inverted dark:bg-bg dark:text-black text-text-inverted rounded-sm w-full cursor-pointer;
   }
 
   .page {

@@ -1,12 +1,18 @@
-"use client";
+"use client"
 
 import Link from "next/link";
 import { useAppTopNav } from "./useAppTopNav";
-import { appTopNavEmoji, appTopNavTitle } from "./app-top-nav.config";
 import OfficerNavigationContent from "../../AppSideBar/OfficerNavigationContent/OfficerNavigationContent";
+import { useCachedSession } from "@/hooks/userCachedSession";
 
 const AppTopNav = () => {
   const { isOpen, toggleOpen, closeNavAndResetSidebar } = useAppTopNav();
+
+  const session = useCachedSession();
+
+  if (!session.data) return <div>...Could not verify</div>
+
+  const user = session.data.user;
 
   return (
     <>
@@ -18,9 +24,10 @@ const AppTopNav = () => {
               onClick={closeNavAndResetSidebar}
               className="cursor-pointer"
             >
-              {appTopNavEmoji}{" "}
+              😁{" "}
               <span className="text-text dark:text-text-inverted text-xl font-black uppercase">
-                {appTopNavTitle}
+                {user.name}
+                {/*Julio*/}
               </span>
             </button>
           </Link>

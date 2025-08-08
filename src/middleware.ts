@@ -7,16 +7,11 @@ export async function middleware(req: NextRequest) {
   const token = await getToken({
     req,
     secret: env.NEXTAUTH_SECRET,
-    cookieName: "__Secure-authjs.session-token",
+    // cookieName: "__Secure-authjs.session-token",
   });
-  console.log("Secret: ", env.NEXTAUTH_SECRET);
-
-  console.log("🔐 Middleware - token:", token);
-
   const isProtectedRoute = req.nextUrl.pathname.startsWith("/officer");
 
   if (isProtectedRoute && !token) {
-    console.log("➡️ Redirecting to sign-in...");
     const signInUrl = new URL("/auth/signin", req.url);
     signInUrl.searchParams.set("callbackUrl", req.nextUrl.pathname);
     return NextResponse.redirect(signInUrl);

@@ -4,19 +4,29 @@ import { useNavigationLinkOpenState } from "./useNavigationContent";
 import SidebarButton from "./SidebarButton";
 import SimpleNavigationLink from "./SimpleNavigationLink";
 import type { SideBarLink } from "@/models";
+import Link from "next/link";
 
 const NavigationContent = () => {
   return (
-    <div>
-      <div className="flex flex-col gap-1 border-b border-gray-500/10 p-2 dark:border-gray-500/50">
-        {links.map((link, index) => (
-          <NavigationLinkContainer key={index} link={link} />
-        ))}
+    <div className="flex flex-col justify-between h-full">
+      <div>
+        <div className="flex flex-col gap-1 border-b border-gray-500/10 p-2 dark:border-gray-500/50">
+          {links.map((link, index) => (
+            <NavigationLinkContainer key={index} link={link} />
+          ))}
+        </div>
+        <div className="flex flex-col gap-1 border-b border-gray-500/10 p-2 dark:border-gray-500/50">
+          {simpleLinks.map((link, index) => (
+            <SimpleNavigationLink key={index} value={link} />
+          ))}
+        </div>
       </div>
-      <div className="flex flex-col gap-1 border-b border-gray-500/10 p-2 dark:border-gray-500/50">
-        {simpleLinks.map((link, index) => (
-          <SimpleNavigationLink key={index} value={link} />
-        ))}
+      <div className="p-2 w-full flex">
+          <Link
+            className="standard-btn flex justify-center"
+            href="auth/signin">
+            Sign In
+          </Link>
       </div>
     </div>
   );
