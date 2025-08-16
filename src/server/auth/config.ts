@@ -42,7 +42,7 @@ export const authConfig = {
   providers: [
     DiscordProvider({
       clientId: env.AUTH_DISCORD_ID,
-      clientSecret: env.NEXTAUTH_SECRET,
+      clientSecret: env.AUTH_DISCORD_SECRET,
     }),
   ],
   session: {
