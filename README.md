@@ -29,7 +29,7 @@ Make sure you have Node.js and pnpm installed. Then run:
 pnpm install
 ```
 
-If you are using npm or yarn instead, you can run:
+If you are using npm or yarn instead, you can run (pnpm prefered):
 
 ```bash
 npm install
@@ -53,16 +53,38 @@ Open `.env` in your editor and fill in the required values (e.g., database URL, 
 pnpm dev
 ```
 
+### 5. Generate the necessary types
+
+```bash
+npx prisma generate
+```
+
+### 6. Push the schema to postgress
+
+```bash
+pnpm db:push
+```
+
+### 6. Seed the database
+
+```bash
+pnpm seed
+```
+
 Once the server is running, open [http://localhost:3000](http://localhost:3000) in your browser to view the app.
 
-## Deployment
+### 7. Setup your login admin account
 
-Refer to these deployment guides for specific instructions:
+* Ensure that you have a disord account
+* Login with that discord account and start up the databrowser
 
-- [Vercel](https://create.t3.gg/en/deployment/vercel)
-- [Netlify](https://create.t3.gg/en/deployment/netlify)
-- [Docker](https://create.t3.gg/en/deployment/docker)
-
+```bash
+pnpm db:studio
+```
+1. Once the databrowser is open, open [http://localhost:5555](http://localhost:5555) in your browser to view the databrowser
+2. Search in the sidebar for User
+3. Change userRole to "ADMIN"
+4. Click save up on the top, and leave.
 
 # Club Website - Project Overview
 
