@@ -37,7 +37,7 @@ export const authConfig = {
   secret: env.NEXTAUTH_SECRET,
   debug: true,
   basePath: "/api/auth",
-  // trustHost: true, // ✅ Include this for local prod testing
+  trustHost: true, // ✅ Include this for local prod testing
   ...(env.NEXTAUTH_URL && { url: env.NEXTAUTH_URL }),
   providers: [
     DiscordProvider({

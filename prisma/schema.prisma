@@ -18,6 +18,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// This should get deleted eventually
 model Post {
   id        Int      @id @default(autoincrement())
   name      String
@@ -213,6 +214,7 @@ model Community {
 
   forms       CommunityForm[]
   members     CommunityMembership[]
+  communityPermissionGrants CommunityPermissionGrant[]
 
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -226,6 +228,7 @@ model CommunityMembership {
 
   user        User       @relation(fields: [userId], references: [id])
   community   Community  @relation(fields: [communityId], references: [id])
+  membershipPermissions MembershipPermission[]
 
   roles       CommunityRole[]
 }
@@ -313,6 +316,7 @@ enum MembershipRole {
   MENTOR
   CLIENT
   ADMIN
+  MARKETING
 }
 
 enum CommunityName {
@@ -322,9 +326,43 @@ enum CommunityName {
   APPS
   GAMES
   SYSTEMS
+  ORG
 }
 
 enum UserRole {
   ADMIN
   STANDARD
+}
+
+// Permission catalog
+model Permission {
+  id   String @id @default(cuid())
+  key  String @unique
+  description String?
+  grants CommunityPermissionGrant[]
+  memberGrants MembershipPermission[]
+}
+
+// Grants by role within a community (including ORG)
+model CommunityPermissionGrant {
+  communityId  String
+  role         MembershipRole
+  permissionId String
+
+  community   Community   @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  permission  Permission  @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([communityId, role, permissionId])
+  @@index([communityId, role])
+}
+
+// One-off direct grants to a member
+model MembershipPermission {
+  membershipId String
+  permissionId String
+
+  membership CommunityMembership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  permission  Permission        @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([membershipId, permissionId])
 }

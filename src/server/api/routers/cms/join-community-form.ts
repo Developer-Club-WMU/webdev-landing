@@ -39,7 +39,10 @@ export const joinCommunityFormRouter = createTRPCRouter({
     }),
 
   getLatestPerCommunity: publicProcedure.query(async ({ ctx }) => {
-    const communityTags = Object.values(CommunityName);
+    // Exclude ORG
+    const communityTags = Object.values(CommunityName).filter(
+      (tag) => tag !== CommunityName.ORG
+    );
 
     const results = await Promise.all(
       communityTags.map(async (tag) => {
