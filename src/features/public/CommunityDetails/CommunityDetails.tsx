@@ -106,7 +106,7 @@ const CommunityDetails = ({ content }: { content: Content }) => {
         <p className="text-gray-800 dark:text-gray-200 mb-2">
           Join our{" "}
           <a
-            href={content.contact.discord}
+            href={"https://discord.com/invite/G9yE5s6NFM"}
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-600 dark:text-blue-400 underline hover:text-blue-500 dark:hover:text-blue-300"

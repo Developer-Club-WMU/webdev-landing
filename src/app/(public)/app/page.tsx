@@ -16,7 +16,7 @@ const content = {
   teamLeads: ["Khang Nguyen", "Jordan Johnson"],
   contact: {
     email: "dsy1090@wmich.edu",
-    discord: "https://discord.gg/R9ewFdGa",
+    discord: "https://discord.com/invite/G9yE5s6NFM",
   },
   tags: [
     "app",

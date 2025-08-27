@@ -5,6 +5,7 @@ import SidebarButton from "./SidebarButton";
 import SimpleNavigationLink from "./SimpleNavigationLink";
 import type { SideBarLink } from "@/models";
 import Link from "next/link";
+import { SVG_DISCORD, SVG_INSTAGRAM, SVG_LINKEDIN, SVG_TIKTOK } from "@/features/shared/svgs/svg";
 
 const NavigationContent = () => {
   return (
@@ -21,12 +22,18 @@ const NavigationContent = () => {
           ))}
         </div>
       </div>
-      <div className="p-2 w-full flex">
-          <Link
-            className="standard-btn flex justify-center"
-            href="auth/signin">
-            Sign In
-          </Link>
+      <div className="p-2 w-full flex flex-col gap-4">
+        <div className="flex items-center justify-center gap-4">
+          <SVG_DISCORD url={"https://discord.com/invite/G9yE5s6NFM"} newTab={true}/>
+          <SVG_INSTAGRAM url={"https://www.instagram.com/developerclubwmu?utm_source=ig_web_button_share_sheet&igsh=NDRncjQwbHYyM3Bx"} newTab={true} />
+          <SVG_LINKEDIN url={"https://www.linkedin.com/company/developer-club-wmu/"} newTab={true}/>
+          <SVG_TIKTOK url={"https://www.tiktok.com/@developerclubwmu"} newTab={true}/>
+        </div>
+        <Link
+          className="standard-btn flex justify-center"
+          href="auth/signin">
+          Sign In
+        </Link>
       </div>
     </div>
   );

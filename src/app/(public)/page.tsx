@@ -9,6 +9,7 @@ import MissionSection from "./landing-page/mission-section";
 import TechStackSection from "./landing-page/tech-stack-section";
 import { useIsMobile } from "@/state/observe/IsMobile";
 import MobileLandingPage from "./landing-page/mobile-landing-page";
+import CallToActionButtons from "./landing-page/call-to-action";
 
 export default function HomePage() {
   const isMobile = useIsMobile();
@@ -39,8 +40,9 @@ export default function HomePage() {
         className="absolute inset-0 w-full h-full no-scrollbar"
       >
         <ParallaxLayer offset={0} speed={0.5}>
-          <div className="h-screen flex items-center justify-center">
+          <div className="h-screen flex flex-col gap-8 items-center justify-center">
             <CommunityHero details={clubHero} />
+            <CallToActionButtons/>
           </div>
         </ParallaxLayer>
 
