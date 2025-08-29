@@ -5,8 +5,6 @@ const db = new PrismaClient();
 // Initializes the necessary tables in the database
 // to quickly start developing
 
-const ORG_NAME: CommunityName = CommunityName.ORG;
-
 /**
  * Default questions for all communities except ORG
  */
@@ -28,7 +26,7 @@ async function ensureCommunities() {
       update: {},
       create: {
         name,
-        description: name === ORG_NAME ? "Organization scope" : null,
+        description: "Default description",
       },
     });
   }

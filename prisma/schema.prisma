@@ -211,6 +211,7 @@ model Community {
   id          String     @id @default(cuid())
   name        CommunityName     @unique
   description String?
+  visible     Boolean @default(false)
 
   forms       CommunityForm[]
   members     CommunityMembership[]
@@ -311,12 +312,10 @@ enum QuestionType {
 }
 
 enum MembershipRole {
-  MEMBER
-  OFFICER
-  MENTOR
-  CLIENT
   ADMIN
-  MARKETING
+  OFFICER
+  MEMBER
+  CLIENT
 }
 
 enum CommunityName {
@@ -326,7 +325,9 @@ enum CommunityName {
   APPS
   GAMES
   SYSTEMS
-  ORG
+  MARKETING
+  EVENTS
+  FINANCE
 }
 
 enum UserRole {
@@ -343,7 +344,7 @@ model Permission {
   memberGrants MembershipPermission[]
 }
 
-// Grants by role within a community (including ORG)
+// Grants by role within a community
 model CommunityPermissionGrant {
   communityId  String
   role         MembershipRole

@@ -4,7 +4,7 @@ import DiscordProvider from "next-auth/providers/discord";
 
 import { db } from "@/server/db";
 import { env } from "@/env";
-import type { CommunityName, MembershipRole } from "@prisma/client";
+import { MembershipRole, type CommunityName } from "@prisma/client";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -28,6 +28,26 @@ declare module "next-auth/jwt" {
     communityTag?: CommunityName;
   }
 }
+
+/** Highest → lowest via rank number (smaller = higher) */
+const ROLE_RANK = {
+  ADMIN: 0,
+  OFFICER: 1,
+  MEMBER: 2,
+  CLIENT: 3,
+} as const satisfies Record<MembershipRole, number>;
+
+// Runtime exhaustiveness check: fails fast if enum changes and map is stale
+(function assertRoleRankCoversEnum() {
+  const all = Object.values(MembershipRole) as MembershipRole[];
+  const missing = all.filter((r) => ROLE_RANK[r] === undefined);
+  if (missing.length)
+    throw new Error(`ROLE_RANK missing: ${missing.join(", ")}`);
+})();
+
+const rank = (r: MembershipRole) => ROLE_RANK[r];
+const better = (a: MembershipRole | undefined, b: MembershipRole) =>
+  a === undefined || rank(b) < rank(a) ? b : a;
 
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
@@ -55,37 +75,34 @@ export const authConfig = {
           token.id = user.id!;
           token.email = user.email!;
 
-          const membership = await db.communityMembership.findFirst({
+          const memberships = await db.communityMembership.findMany({
             where: { userId: user.id },
             include: { community: true, roles: true },
           });
 
-          if (membership) {
-            const roles = membership.roles;
+          if (!memberships.length) return token;
+
+          // Highest role per community
+          const perCommunity = new Map<CommunityName, MembershipRole>();
+          for (const m of memberships) {
             let highest: MembershipRole | undefined;
-            for (const role of roles) {
-              switch (role.role) {
-                case "ADMIN":
-                  highest = "ADMIN";
-                  break;
-                case "OFFICER":
-                  if (highest !== "ADMIN") highest = "OFFICER";
-                  break;
-                case "MENTOR":
-                  if (!highest || highest === "MEMBER" || highest === "CLIENT")
-                    highest = "MENTOR";
-                  break;
-                case "MEMBER":
-                  if (!highest || highest === "CLIENT") highest = "MEMBER";
-                  break;
-                case "CLIENT":
-                  highest ??= "CLIENT";
-                  break;
-              }
-            }
-            token.role = highest;
-            token.communityTag = membership.community.name;
+            for (const rr of m.roles) highest = better(highest, rr.role);
+            if (highest) perCommunity.set(m.community.name, highest);
           }
+          if (!perCommunity.size) return token;
+
+          // Global highest across communities
+          let bestRole: MembershipRole | undefined;
+          let bestCommunity: CommunityName | undefined;
+          for (const [c, r] of perCommunity) {
+            if (!bestRole || rank(r) < rank(bestRole)) {
+              bestRole = r;
+              bestCommunity = c;
+            }
+          }
+
+          token.role = bestRole;
+          token.communityTag = bestCommunity;
         }
         return token;
       } catch (e) {
