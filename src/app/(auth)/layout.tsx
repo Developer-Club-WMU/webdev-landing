@@ -4,6 +4,7 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 
 import { TRPCReactProvider } from "@/trpc/react";
+import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
   title: "Club - Signin",
@@ -22,11 +23,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geist.variable}`}>
       <body className="min-h-screen bg-gray-50 font-sans antialiased">
+        <SessionProvider >
         <TRPCReactProvider>
           <main className="flex min-h-screen items-center justify-center px-4 sm:px-6">
             {children}
           </main>
         </TRPCReactProvider>
+        </SessionProvider>
       </body>
     </html>
   );
