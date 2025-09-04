@@ -7,6 +7,7 @@ import {
 import z from "zod";
 import { CommunityName, type CommunityForm } from "@prisma/client";
 import { fail, ok, type Result } from "../../types";
+import { grabAllCommunities } from "./community";
 
 const communityNameEnum = z.nativeEnum(CommunityName);
 
@@ -39,36 +40,26 @@ export const joinCommunityFormRouter = createTRPCRouter({
     }),
 
   getLatestPerCommunity: publicProcedure.query(async ({ ctx }) => {
-    // Exclude ORG
-    const communityTags = Object.values(CommunityName).filter(
-      (tag) => tag !== CommunityName.ORG
+    // Get only visible communities
+    const communities = await grabAllCommunities(
+      { isVisible: "visible" },
+      ctx.db
     );
 
-    const results = await Promise.all(
-      communityTags.map(async (tag) => {
-        try {
-          const form = await ctx.db.communityForm.findFirst({
-            where: {
-              communityTag: tag,
-              isActive: true,
-            },
-            orderBy: {
-              createAt: "desc",
-            },
-            include: {
-              questions: true,
-            },
-          });
-          return form ?? null;
-        } catch (err) {
-          console.error(`Error loading form for tag ${tag}:`, err);
-          return null;
-        }
-      })
+    // For each community, load the latest active form (with questions)
+    const forms = await Promise.all(
+      communities.map((c) =>
+        ctx.db.communityForm.findFirst({
+          where: { communityTag: c.name, isActive: true },
+          orderBy: { createAt: "desc" },
+          include: { questions: true },
+        })
+      )
     );
 
-    const filtered = results.filter(
-      (form): form is NonNullable<typeof form> => !!form
+    // Drop nulls
+    const filtered = forms.filter(
+      (form): form is NonNullable<typeof form> => form !== null
     );
 
     return filtered;

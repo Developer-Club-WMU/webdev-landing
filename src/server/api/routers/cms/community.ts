@@ -1,17 +1,24 @@
 import z from "zod";
 import { createTRPCRouter, protectedProcedure } from "../../trpc";
-import { CommunityName } from "@prisma/client";
+import { CommunityName, type PrismaClient } from "@prisma/client";
 
 const communityNameEnum = z.nativeEnum(CommunityName);
 
 export const communityRouter = createTRPCRouter({
-  grabAll: protectedProcedure.query(async ({ ctx }) => {
-    const communities = await ctx.db.community.findMany({
-      orderBy: { createdAt: "desc" },
-    });
+  grabAll: protectedProcedure
+    .input(z.object({ isVisible: z.enum(["all", "visible", "hidden"]) }))
+    .query(async ({ ctx, input }) => {
+      // const communities = await ctx.db.community.findMany({
+      //   orderBy: { createdAt: "desc" },
+      //   where:
+      //     input.isVisible === "all"
+      //       ? {}
+      //       : { visible: input.isVisible === "visible" },
+      // });
 
-    return communities;
-  }),
+      // return communities;
+      return grabAllCommunities(input, ctx.db);
+    }),
 
   // in communityRouter.ts
   createCommunity: protectedProcedure
@@ -38,3 +45,18 @@ export const communityRouter = createTRPCRouter({
       return created;
     }),
 });
+
+export type IsVisible = "all" | "visible" | "hidden";
+
+export const grabAllCommunities = async (
+  input: { isVisible: IsVisible },
+  prisma: PrismaClient
+) => {
+  return prisma.community.findMany({
+    orderBy: { createdAt: "desc" },
+    where:
+      input.isVisible === "all"
+        ? {}
+        : { visible: input.isVisible === "visible" },
+  });
+};
