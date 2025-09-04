@@ -17,6 +17,8 @@ const DEFAULT_QUESTIONS: Array<{ label: string; type: QuestionType }> = [
   { label: "What do you hope to gain by joining?", type: QuestionType.TEXT },
 ];
 
+const notVisibleNames: CommunityName[] = ["EVENTS", "FINANCE", "MARKETING"];
+
 // ---- helpers
 async function ensureCommunities() {
   const names = Object.values(CommunityName);
@@ -27,6 +29,7 @@ async function ensureCommunities() {
       create: {
         name,
         description: "Default description",
+        visible: notVisibleNames.includes(name) ? false : true,
       },
     });
   }

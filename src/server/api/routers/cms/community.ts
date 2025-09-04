@@ -8,16 +8,7 @@ export const communityRouter = createTRPCRouter({
   grabAll: protectedProcedure
     .input(z.object({ isVisible: z.enum(["all", "visible", "hidden"]) }))
     .query(async ({ ctx, input }) => {
-      // const communities = await ctx.db.community.findMany({
-      //   orderBy: { createdAt: "desc" },
-      //   where:
-      //     input.isVisible === "all"
-      //       ? {}
-      //       : { visible: input.isVisible === "visible" },
-      // });
-
-      // return communities;
-      return grabAllCommunities(input, ctx.db);
+      return await grabAllCommunities(input, ctx.db);
     }),
 
   // in communityRouter.ts

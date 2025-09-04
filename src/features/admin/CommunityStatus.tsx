@@ -9,7 +9,7 @@ export default function CommunityHealthDashboard() {
   const [activating, setActivating] = useState<CommunityName | null>(null);
 
   const utils = api.useUtils();
-  const { data: existingCommunities, isLoading } = api.community.grabAll.useQuery();
+  const { data: existingCommunities, isLoading } = api.community.grabAll.useQuery({isVisible: "all"});
   const createCommunity = api.community.createCommunity.useMutation({
     onSuccess: async () => {
       await utils.community.grabAll.invalidate();

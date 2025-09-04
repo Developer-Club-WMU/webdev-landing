@@ -14,7 +14,7 @@ export default function AddMembershipForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const { data: communities, isLoading } = api.community.grabAll.useQuery();
+  const { data: communities, isLoading } = api.community.grabAll.useQuery({isVisible: "all"});
   const utils = api.useUtils();
   const addMembership = api.membership.createMembership.useMutation({
     onSuccess: async () => {

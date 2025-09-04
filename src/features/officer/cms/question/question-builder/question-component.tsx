@@ -236,8 +236,8 @@ const JoinCommunityForm: React.FC = () => {
   const [selectedCommunity, setSelectedCommunity] = useState<CommunityName | null>(null);
   const session = useCachedSession();
   const { data: forms, isLoading } = api.communityForms.getLatestPerCommunity.useQuery();
-  const attachMembershipToUser = api.membership.attachMembershipToUser.useMutation();
-  
+  const attachMembershipToUserByID = api.membership.attachMembershipToUserByID.useMutation();
+
   if (!session || !session.data?.user) return <div>... You must be logged in</div>;
   const userId = session.data.user.id;
 
@@ -284,7 +284,7 @@ const JoinCommunityForm: React.FC = () => {
   const handleSubmit = () => {
     if (!selectedCommunity) return;
 
-    attachMembershipToUser.mutate(
+    attachMembershipToUserByID.mutate(
       {
         userId: userId,
         communityName: selectedCommunity,

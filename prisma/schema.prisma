@@ -232,6 +232,10 @@ model CommunityMembership {
   membershipPermissions MembershipPermission[]
 
   roles       CommunityRole[]
+
+  @@unique([userId, communityId], name: "userId_communityId")
+  @@index([userId])
+  @@index([communityId])
 }
 
 model CommunityForm {
@@ -298,7 +302,7 @@ model CommunityRole {
 
   membership            CommunityMembership @relation(fields: [membershipId], references: [id])
 
-  @@unique([membershipId, role])
+  @@unique([membershipId, role], name: "membershipId_role") // idempotent role add
 }
 
 enum QuestionType {

@@ -7,6 +7,7 @@ import { api } from "@/trpc/react";
 import { useRouter } from "next/navigation";
 import AddMembershipForm from "@/features/officer/cms/community/AddCommunityMembershipForm";
 import { InitializeCommunityFormsButton } from "@/features/admin/InitCommunityForms";
+import AttachMembershipForm from "@/features/admin/AddMembership";
 
 const AdminDashboard = () => {
   const session = useCachedSession();
@@ -32,6 +33,7 @@ const AdminDashboard = () => {
       <CommunityHealthDashboard />
       <AddMembershipForm />
       <InitializeCommunityFormsButton />
+      <AttachMembershipForm />
     </div>
   );
 };
