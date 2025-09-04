@@ -247,6 +247,11 @@ export interface LeadInfo {
   pipelineStage?: string;
 
   /**
+   * ID of the pipeline segment this lead belongs to.
+   */
+  segmentId?: string;
+
+  /**
    * Whether the lead is archived or no longer active.
    */
   isArchived?: boolean;

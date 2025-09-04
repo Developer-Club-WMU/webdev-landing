@@ -6,7 +6,6 @@ import { KanbanColumnViewModel } from "@/features/shared/Kanban/KanbanColumn/Kan
 import type { LeadStatus, LeadType, PipelineCellProps } from "@/models";
 import type { RouterOutputs } from "@/trpc/react";
 import { api } from "@/trpc/react";
-import type { PipelineSegment } from "@zod/index";
 import { useEffect, useState } from "react";
 
 type LeadFromDB = RouterOutputs["crm"]["leads"]["getByPipelineId"][number];
@@ -26,7 +25,7 @@ export function usePipelineContainerViewModel(pipelineId?: string) {
     { id: pipelineId! },
     {
       enabled: !!pipelineId,
-    },
+    }
   );
 
   // Fetch leads for the specific pipeline
@@ -38,7 +37,7 @@ export function usePipelineContainerViewModel(pipelineId?: string) {
     { pipelineId: pipelineId! },
     {
       enabled: !!pipelineId,
-    },
+    }
   );
 
   // Update deals when real pipeline data is available
@@ -74,12 +73,13 @@ export function usePipelineContainerViewModel(pipelineId?: string) {
             status: lead.status as LeadStatus,
             leadType: lead.leadType as LeadType,
             pipelineStage: lead.pipelineStage ?? undefined,
+            segmentId: lead.segmentId ?? undefined,
             isArchived: lead.isArchived,
             source: lead.source ?? undefined,
             tags: lead.tags,
             ownerID: lead.createdById,
           },
-        }),
+        })
       );
       setDeals(convertedDeals);
     } else {
@@ -92,14 +92,14 @@ export function usePipelineContainerViewModel(pipelineId?: string) {
     // Update local state immediately for UI responsiveness
     setDeals((prev: PipelineCellProps[]) =>
       prev.map((deal) =>
-        deal.ID === dealId ? { ...deal, status: newStage } : deal,
-      ),
+        deal.ID === dealId ? { ...deal, status: newStage } : deal
+      )
     );
 
     // If we have pipeline data, find the target segment and update in database
     if (pipelineData && pipelineId) {
       const targetSegment = pipelineData.segments.find(
-        (segment: PipelineSegment) => segment.name === newStage,
+        (segment) => segment.name === newStage
       );
 
       if (targetSegment) {
@@ -148,12 +148,13 @@ export function usePipelineContainerViewModel(pipelineId?: string) {
               status: lead.status as LeadStatus,
               leadType: lead.leadType as LeadType,
               pipelineStage: lead.pipelineStage ?? undefined,
+              segmentId: lead.segmentId ?? undefined,
               isArchived: lead.isArchived,
               source: lead.source ?? undefined,
               tags: lead.tags,
               ownerID: lead.createdById,
             },
-          }),
+          })
         );
         setDeals(originalDeals);
       }
@@ -171,9 +172,9 @@ export function usePipelineContainerViewModel(pipelineId?: string) {
   // Creates an array of column view models using stage info or real segments
   const viewModels: KanbanColumnViewModel[] =
     pipelineId && pipelineData?.segments
-      ? pipelineData.segments.map((segment: PipelineSegment) => {
+      ? pipelineData.segments.map((segment) => {
           const filteredDeals = deals.filter(
-            (deal) => deal.status === (segment.name as LeadStatus),
+            (deal) => deal.leadInfo?.segmentId === segment.id
           );
           const header = {
             title: segment.name,
@@ -190,12 +191,12 @@ export function usePipelineContainerViewModel(pipelineId?: string) {
             segment.name as LeadStatus,
             header,
             deals,
-            segment.id,
+            segment.id
           );
         })
       : pipelineStages.map((stage) => {
           const filteredDeals = deals.filter(
-            (deal) => deal.status === stage.status,
+            (deal) => deal.status === stage.status
           );
           const header = {
             ...stage.header,
@@ -205,7 +206,7 @@ export function usePipelineContainerViewModel(pipelineId?: string) {
             stage.status,
             header,
             deals,
-            undefined,
+            undefined
           );
         });
 

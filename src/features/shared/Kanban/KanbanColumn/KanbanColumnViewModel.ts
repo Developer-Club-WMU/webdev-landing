@@ -7,28 +7,34 @@ import type {
 export class KanbanColumnViewModel {
   readonly stage: LeadStatus;
   readonly header: KanbanColumnHeader;
-  readonly segmentId?: number;
+  readonly segmentId?: string;
   private deals: PipelineCellProps[];
 
   constructor(
     stage: LeadStatus,
     header: KanbanColumnHeader,
     deals: PipelineCellProps[],
-    segmentId?: number,
+    segmentId?: string
   ) {
     this.stage = stage;
     this.segmentId = segmentId;
     this.header = {
       ...header,
-      totalItems: deals.filter(
-        (deal: PipelineCellProps) => deal.status === stage,
-      ).length,
+      totalItems: this.segmentId
+        ? deals.filter(
+            (deal: PipelineCellProps) =>
+              deal.leadInfo?.segmentId === this.segmentId
+          ).length
+        : deals.filter((deal: PipelineCellProps) => deal.status === stage)
+            .length,
     };
     this.deals = deals;
   }
 
   get filteredDeals(): PipelineCellProps[] {
-    return this.deals.filter((deal) => deal.status === this.stage);
+    return this.segmentId
+      ? this.deals.filter((deal) => deal.leadInfo?.segmentId === this.segmentId)
+      : this.deals.filter((deal) => deal.status === this.stage);
   }
 
   moveDeal(dealId: string, newStage: LeadStatus) {

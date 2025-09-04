@@ -24,7 +24,7 @@ const PipelineContainer = ({ pipelineId }: PipelineContainerProps) => {
         title={pipelineId ? "Pipeline Details" : "Pipeline (Reference)"}
       />
       <div className="no-scrollbar dark:bg-github-lbg flex h-1/2 w-full flex-row gap-4 overflow-x-auto rounded-2xl border border-gray-300 bg-white p-6 shadow-sm dark:border-gray-600">
-        {columnViewModels.map((column: KanbanColumnViewModel) => (
+        {columnViewModels.map((column: KanbanColumnViewModel, index: number) => (
           <KanbanColumn
             key={column.stage}
             viewModel={column}
@@ -32,6 +32,10 @@ const PipelineContainer = ({ pipelineId }: PipelineContainerProps) => {
             header={column.header}
             pipelineId={pipelineId}
             segmentId={column.segmentId}
+            columnIndex={index}
+            totalColumns={columnViewModels.length}
+            isFirstColumn={index === 0}
+            isLastColumn={index === columnViewModels.length - 1}
           />
         ))}
       </div>

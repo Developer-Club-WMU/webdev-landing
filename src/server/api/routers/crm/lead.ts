@@ -18,7 +18,7 @@ export const LeadCreateInputSchema = z.object({
   source: z.string().optional(),
   tags: z.array(z.string()).default([]),
   pipelineId: z.string().optional(),
-  segmentId: z.number().optional(),
+  segmentId: z.string().optional(),
 });
 
 /**
@@ -39,7 +39,7 @@ export const LeadUpdateInputSchema = z.object({
   source: z.string().optional(),
   tags: z.array(z.string()).optional(),
   pipelineId: z.string().optional(),
-  segmentId: z.number().optional(),
+  segmentId: z.string().optional(),
   isArchived: z.boolean().optional(),
 });
 
@@ -87,10 +87,10 @@ export const leadRouter = createTRPCRouter({
     .input(
       z.object({
         pipelineId: z.string().optional(),
-        segmentId: z.number().optional(),
+        segmentId: z.string().optional(),
         status: z.string().optional(),
         includeArchived: z.boolean().default(false),
-      }),
+      })
     )
     .query(async ({ ctx, input }) => {
       const where = {
@@ -105,7 +105,7 @@ export const leadRouter = createTRPCRouter({
       Object.keys(where).forEach(
         (key) =>
           where[key as keyof typeof where] === undefined &&
-          delete where[key as keyof typeof where],
+          delete where[key as keyof typeof where]
       );
 
       return ctx.db.lead.findMany({
@@ -206,9 +206,9 @@ export const leadRouter = createTRPCRouter({
     .input(
       z.object({
         leadId: z.string(),
-        segmentId: z.number(),
+        segmentId: z.string(),
         status: z.string().optional(),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       return ctx.db.lead.update({

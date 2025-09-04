@@ -16,29 +16,32 @@ const LeadInfoCapture: React.FC<LeadInfoCaptureProps> = ({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-    >
-      <div
-        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-6 shadow-xl dark:bg-[#1e1e1e]"
-        onClick={(e) => e.stopPropagation()} // prevent backdrop close
-      >
-        <div className="mb-4 flex justify-between">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Lead Info Capture
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60"
+          onClick={onClose}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-gray-200 bg-white p-6 shadow-2xl
+                       dark:border-white/10 dark:bg-neutral-900"
+            onClick={(e) => e.stopPropagation()}
           >
-            ✕
-          </button>
-        </div>
-        {children}
-      </div>
-    </div>,
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Lead Info Capture
+              </h2>
+              <button
+                onClick={onClose}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-700
+                           dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="text-gray-800 dark:text-gray-200">{children}</div>
+          </div>
+        </div>,
     document.body,
   );
 };

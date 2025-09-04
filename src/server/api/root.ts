@@ -5,6 +5,7 @@ import { userRouter } from "./routers/user";
 import { joinCommunityFormRouter } from "./routers/cms/join-community-form";
 import { communityRouter } from "./routers/cms/community";
 import { membershipRouter } from "./routers/membership";
+import { pipelineSegmentRouter } from "./routers/crm/pipeline-segment";
 
 /**
  * This is the primary router for your server.
@@ -18,7 +19,7 @@ export const appRouter = createTRPCRouter({
   communityForms: joinCommunityFormRouter,
   community: communityRouter,
   membership: membershipRouter,
-  // post: postRouter,
+  pipelineSegment: pipelineSegmentRouter,
 });
 
 // export type definition of API

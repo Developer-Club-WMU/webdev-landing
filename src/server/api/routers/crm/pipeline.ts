@@ -33,14 +33,36 @@ export const pipelineRouter = createTRPCRouter({
             connect: { id: userId },
           },
           segments: {
-            create: input.segments.map((segmentName) => ({
+            create: input.segments.map((segmentName, index) => ({
               name: segmentName,
+              order: index,
             })),
           },
         },
         include: {
           segments: true,
           createdBy: true,
+        },
+      });
+    }),
+
+  /**
+   * Updates metadata of the pipeline
+   * @param id The UUID of the pipeline
+   * @param name The new name of the pipeline
+   */
+  update: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        name: z.string(), // If more, make all properties optional
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.pipeline.update({
+        where: { id: input.id },
+        data: {
+          name: input.name,
         },
       });
     }),
@@ -87,7 +109,7 @@ export const pipelineRouter = createTRPCRouter({
           createdBy: true,
           segments: {
             orderBy: {
-              id: "asc",
+              order: "asc",
             },
           },
           segmentData: {

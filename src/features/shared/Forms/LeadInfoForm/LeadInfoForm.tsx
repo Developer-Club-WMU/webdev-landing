@@ -7,7 +7,7 @@ interface LeadFormPropsExtended {
   initialValues?: Partial<LeadInfo>;
   onSubmit?: (lead: LeadInfo) => void;
   pipelineId?: string;
-  segmentId?: number;
+  segmentId?: string;
   segmentName?: string;
 }
 
@@ -24,24 +24,17 @@ const LeadForm: React.FC<LeadFormPropsExtended> = ({
     isArchived: initialValues.isArchived ?? false,
     status: initialValues.status ?? (segmentName as LeadStatus) ?? "new",
   });
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const utils = api.useUtils();
 
-  // Create lead mutation
   const createLead = api.crm.leads.create.useMutation({
     onSuccess: (createdLead) => {
       setIsSubmitting(false);
       setSubmitError(null);
-
-      // Invalidate relevant queries to refresh the UI
-      if (pipelineId) {
-        void utils.crm.leads.getByPipelineId.invalidate({ pipelineId });
-      }
+      if (pipelineId) void utils.crm.leads.getByPipelineId.invalidate({ pipelineId });
       void utils.crm.leads.getAll.invalidate();
 
-      // Convert database lead to LeadInfo format
       const leadInfo: LeadInfo = {
         id: createdLead.id,
         title: createdLead.title,
@@ -53,21 +46,16 @@ const LeadForm: React.FC<LeadFormPropsExtended> = ({
         addedOn: createdLead.addedOn.toISOString(),
         dueDate: createdLead.dueDate?.toISOString() ?? new Date().toISOString(),
         status: createdLead.status as LeadStatus,
-        leadType: createdLead.leadType as
-          | "customer"
-          | "partner"
-          | "vendor"
-          | "individual",
+        leadType: createdLead.leadType as "customer" | "partner" | "vendor" | "individual",
         pipelineStage: createdLead.pipelineStage ?? undefined,
+        segmentId: createdLead.segmentId ?? undefined,
         isArchived: createdLead.isArchived,
         source: createdLead.source ?? undefined,
         tags: createdLead.tags,
         ownerID: createdLead.createdById,
       };
 
-      if (onSubmit) {
-        onSubmit(leadInfo);
-      }
+      onSubmit?.(leadInfo);
     },
     onError: (error) => {
       setIsSubmitting(false);
@@ -76,25 +64,17 @@ const LeadForm: React.FC<LeadFormPropsExtended> = ({
   });
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >,
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
     const target = e.target;
     const { name, value, type } = target;
-
     const nextValue =
-      type === "checkbox" && target instanceof HTMLInputElement
-        ? target.checked
-        : value;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: nextValue,
-    }));
+      type === "checkbox" && target instanceof HTMLInputElement ? target.checked : value;
+    setForm((prev) => ({ ...prev, [name]: nextValue }));
   };
+
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const tags = e.target.value.split(",").map((tag) => tag.trim());
+    const tags = e.target.value.split(",").map((t) => t.trim()).filter(Boolean);
     setForm((prev) => ({ ...prev, tags }));
   };
 
@@ -103,7 +83,6 @@ const LeadForm: React.FC<LeadFormPropsExtended> = ({
     setIsSubmitting(true);
     setSubmitError(null);
 
-    // Prepare data for API
     const leadData = {
       title: form.title ?? "",
       description: form.description ?? "",
@@ -125,80 +104,36 @@ const LeadForm: React.FC<LeadFormPropsExtended> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-4">
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-xl rounded-xl border border-gray-200 bg-white p-4 text-gray-900 shadow
+                 dark:border-white/10 dark:bg-neutral-900 dark:text-gray-100"
+    >
       {submitError && (
-        <div className="rounded-md bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
+        <div className="mb-3 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700
+                        dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-300">
           Error: {submitError}
         </div>
       )}
 
       {pipelineId && segmentName && (
-        <div className="rounded-md bg-blue-50 p-3 text-sm text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
+        <div className="mb-3 rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700
+                        dark:border-blue-900/30 dark:bg-blue-900/20 dark:text-blue-300">
           Adding lead to: <strong>{segmentName}</strong>
         </div>
       )}
-      <Input
-        name="title"
-        label="Title"
-        value={form.title}
-        onChange={handleChange}
-        required
-      />
-      <Textarea
-        name="description"
-        label="Description"
-        value={form.description}
-        onChange={handleChange}
-      />
 
-      <Input
-        name="capitalValue"
-        label="Capital ($)"
-        type="number"
-        value={form.capitalValue}
-        onChange={handleChange}
-      />
-      <Input
-        name="avatarURL"
-        label="Avatar URL"
-        value={form.avatarURL}
-        onChange={handleChange}
-      />
-      <Input
-        name="contactName"
-        label="Contact Name"
-        value={form.contactName}
-        onChange={handleChange}
-        required
-      />
-      <Input
-        name="companyName"
-        label="Company Name"
-        value={form.companyName}
-        onChange={handleChange}
-        required
-      />
-      <Input
-        name="addedOn"
-        label="Added On"
-        type="date"
-        value={form.addedOn?.slice(0, 10)}
-        onChange={handleChange}
-      />
-      <Input
-        name="dueDate"
-        label="Due Date"
-        type="date"
-        value={form.dueDate?.slice(0, 10)}
-        onChange={handleChange}
-      />
+      <Input name="title" label="Title" value={form.title} onChange={handleChange} required />
+      <Textarea name="description" label="Description" value={form.description} onChange={handleChange} />
 
-      <Select
-        name="status"
-        label="Status"
-        value={form.status}
-        onChange={handleChange}
-      >
+      <Input name="capitalValue" label="Capital ($)" type="number" value={form.capitalValue} onChange={handleChange} />
+      <Input name="avatarURL" label="Avatar URL" value={form.avatarURL} onChange={handleChange} />
+      <Input name="contactName" label="Contact Name" value={form.contactName} onChange={handleChange} required />
+      <Input name="companyName" label="Company Name" value={form.companyName} onChange={handleChange} required />
+      <Input name="addedOn" label="Added On" type="date" value={form.addedOn?.slice(0, 10)} onChange={handleChange} />
+      <Input name="dueDate" label="Due Date" type="date" value={form.dueDate?.slice(0, 10)} onChange={handleChange} />
+
+      <Select name="status" label="Status" value={form.status} onChange={handleChange}>
         <option value="new">New</option>
         <option value="qualified">Qualified</option>
         <option value="working">Working</option>
@@ -208,36 +143,16 @@ const LeadForm: React.FC<LeadFormPropsExtended> = ({
         <option value="closed_lost">Closed - Lost</option>
       </Select>
 
-      <Select
-        name="leadType"
-        label="Lead Type"
-        value={form.leadType}
-        onChange={handleChange}
-      >
+      <Select name="leadType" label="Lead Type" value={form.leadType} onChange={handleChange}>
         <option value="customer">Customer</option>
         <option value="partner">Partner</option>
         <option value="vendor">Vendor</option>
         <option value="individual">Individual</option>
       </Select>
 
-      <Input
-        name="pipelineStage"
-        label="Pipeline Stage"
-        value={form.pipelineStage}
-        onChange={handleChange}
-      />
-      <Input
-        name="source"
-        label="Source"
-        value={form.source}
-        onChange={handleChange}
-      />
-      <Input
-        name="ownerID"
-        label="Owner ID"
-        value={form.ownerID}
-        onChange={handleChange}
-      />
+      <Input name="pipelineStage" label="Pipeline Stage" value={form.pipelineStage} onChange={handleChange} />
+      <Input name="source" label="Source" value={form.source} onChange={handleChange} />
+      <Input name="ownerID" label="Owner ID" value={form.ownerID} onChange={handleChange} />
       <Input
         name="tags"
         label="Tags (comma-separated)"
@@ -245,13 +160,14 @@ const LeadForm: React.FC<LeadFormPropsExtended> = ({
         onChange={handleTagsChange}
       />
 
-      <label className="flex items-center gap-2 text-sm">
+      <label className="mt-1 flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
         <input
           type="checkbox"
           name="isArchived"
-          checked={form.isArchived}
+          checked={!!form.isArchived}
           onChange={handleChange}
-          className="accent-blue-600"
+          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500
+                     dark:border-white/10 dark:bg-neutral-800 dark:text-blue-500"
         />
         Archived
       </label>
@@ -259,13 +175,25 @@ const LeadForm: React.FC<LeadFormPropsExtended> = ({
       <button
         type="submit"
         disabled={isSubmitting}
-        className="mt-4 w-full rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+        className="mt-4 w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700
+                   disabled:cursor-not-allowed disabled:opacity-50
+                   dark:bg-blue-500 dark:hover:bg-blue-600 focus:outline-none
+                   focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2
+                   dark:focus-visible:ring-offset-neutral-900"
       >
         {isSubmitting ? "Saving..." : "Save Lead"}
       </button>
     </form>
   );
 };
+
+const fieldBase =
+  "rounded-md border px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 " +
+  "border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 " +
+  "dark:border-white/10 dark:bg-neutral-800 dark:text-gray-100 dark:placeholder:text-gray-400 " +
+  "focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900";
+
+const labelBase = "mb-1 text-sm font-medium text-gray-700 dark:text-white";
 
 const Input = ({
   name,
@@ -282,8 +210,8 @@ const Input = ({
   onChange: React.ChangeEventHandler<HTMLInputElement>;
   required?: boolean;
 }) => (
-  <div className="flex flex-col">
-    <label htmlFor={name} className="mb-1 text-sm font-medium">
+  <div className="mb-3 flex flex-col text-white">
+    <label htmlFor={name} className={labelBase}>
       {label}
     </label>
     <input
@@ -293,7 +221,7 @@ const Input = ({
       value={value ?? ""}
       onChange={onChange}
       required={required}
-      className="rounded border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+      className={fieldBase}
     />
   </div>
 );
@@ -309,8 +237,8 @@ const Textarea = ({
   value?: string;
   onChange: React.ChangeEventHandler<HTMLTextAreaElement>;
 }) => (
-  <div className="flex flex-col">
-    <label htmlFor={name} className="mb-1 text-sm font-medium">
+  <div className="mb-3 flex flex-col">
+    <label htmlFor={name} className={labelBase}>
       {label}
     </label>
     <textarea
@@ -318,8 +246,8 @@ const Textarea = ({
       name={name}
       value={value ?? ""}
       onChange={onChange}
-      className="rounded border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
       rows={3}
+      className={fieldBase}
     />
   </div>
 );
@@ -337,17 +265,11 @@ const Select = ({
   onChange: React.ChangeEventHandler<HTMLSelectElement>;
   children: React.ReactNode;
 }) => (
-  <div className="flex flex-col">
-    <label htmlFor={name} className="mb-1 text-sm font-medium">
+  <div className="mb-3 flex flex-col">
+    <label htmlFor={name} className={labelBase}>
       {label}
     </label>
-    <select
-      id={name}
-      name={name}
-      value={value ?? ""}
-      onChange={onChange}
-      className="rounded border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-    >
+    <select id={name} name={name} value={value ?? ""} onChange={onChange} className={fieldBase}>
       {children}
     </select>
   </div>
