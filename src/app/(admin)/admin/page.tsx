@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect } from "react";
+import AttachMembershipForm from "@/features/admin/AddMembership";
 import CommunityHealthDashboard from "@/features/admin/CommunityStatus";
+import { InitializeCommunityFormsButton } from "@/features/admin/InitCommunityForms";
+import ToggleAdminForm from "@/features/admin/ToggleAdmin";
+import AddMembershipForm from "@/features/officer/cms/community/AddCommunityMembershipForm";
 import { useCachedSession } from "@/hooks/userCachedSession";
 import { api } from "@/trpc/react";
 import { useRouter } from "next/navigation";
-import AddMembershipForm from "@/features/officer/cms/community/AddCommunityMembershipForm";
-import { InitializeCommunityFormsButton } from "@/features/admin/InitCommunityForms";
-import AttachMembershipForm from "@/features/admin/AddMembership";
+import { useEffect } from "react";
 
 const AdminDashboard = () => {
   const session = useCachedSession();
@@ -29,11 +30,12 @@ const AdminDashboard = () => {
   if (user.userRole !== "ADMIN") return null; // avoid flashing the admin panel before redirect
 
   return (
-    <div>
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       <CommunityHealthDashboard />
       <AddMembershipForm />
       <InitializeCommunityFormsButton />
       <AttachMembershipForm />
+      <ToggleAdminForm />
     </div>
   );
 };
