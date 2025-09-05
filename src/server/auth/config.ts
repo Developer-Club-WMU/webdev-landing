@@ -5,6 +5,8 @@ import DiscordProvider from "next-auth/providers/discord";
 import { db } from "@/server/db";
 import { env } from "@/env";
 import { MembershipRole, type CommunityName } from "@prisma/client";
+import { useSession } from "next-auth/react";
+import { options } from "prettier-plugin-tailwindcss";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -69,8 +71,24 @@ export const authConfig = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       try {
+        // On profile update from client: accept chosen communityTag if valid
+        if (trigger === "update" && session?.communityTag && token.id) {
+          const membership = await db.communityMembership.findFirst({
+            where: {
+              userId: token.id,
+              community: { name: session.communityTag },
+            },
+            include: { community: true },
+          });
+          if (membership) {
+            token.communityTag = membership.community.name;
+          }
+          return token;
+        }
+
+        // On sign-in: compute defaults (highest role + its community)
         if (user) {
           token.id = user.id!;
           token.email = user.email!;
@@ -79,10 +97,9 @@ export const authConfig = {
             where: { userId: user.id },
             include: { community: true, roles: true },
           });
-
           if (!memberships.length) return token;
 
-          // Highest role per community
+          // highest role per community
           const perCommunity = new Map<CommunityName, MembershipRole>();
           for (const m of memberships) {
             let highest: MembershipRole | undefined;
@@ -91,7 +108,7 @@ export const authConfig = {
           }
           if (!perCommunity.size) return token;
 
-          // Global highest across communities
+          // global highest
           let bestRole: MembershipRole | undefined;
           let bestCommunity: CommunityName | undefined;
           for (const [c, r] of perCommunity) {
@@ -104,12 +121,14 @@ export const authConfig = {
           token.role = bestRole;
           token.communityTag = bestCommunity;
         }
+
         return token;
       } catch (e) {
-        console.error("ERROR: failed JWT", e);
+        console.error("jwt callback error", e);
         return token;
       }
     },
+
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id;
@@ -118,11 +137,6 @@ export const authConfig = {
         session.user.communityTag = token.communityTag;
       }
       return session;
-    },
-    async redirect({ url, baseUrl }) {
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      if (new URL(url).origin === baseUrl) return url;
-      return baseUrl;
     },
   },
 } satisfies NextAuthConfig;
