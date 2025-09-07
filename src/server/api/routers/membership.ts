@@ -1,9 +1,13 @@
 // server/api/routers/membership.ts
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { MembershipRole, type PrismaClient } from "@prisma/client";
+import { MembershipRole, type Prisma, type PrismaClient } from "@prisma/client";
 import { communityNamesEnum } from "@/api/apis";
 import { membershipRoleEnum } from "./api";
+
+const CommunityNameInputSchema = z
+  .union([z.literal("ALL"), z.array(communityNamesEnum).nonempty()])
+  .optional();
 
 export const membershipRouter = createTRPCRouter({
   createMembership: protectedProcedure
@@ -43,11 +47,36 @@ export const membershipRouter = createTRPCRouter({
     }),
 
   findUserMemberships: publicProcedure
-    .input(z.string().cuid())
+    .input(
+      z.object({
+        id: z.string().cuid().nullable().optional(),
+        type: z
+          .union([
+            z.literal("ALL"),
+            z.array(membershipRoleEnum).nonempty(), // one or more roles
+          ])
+          .optional(),
+        communityName: CommunityNameInputSchema,
+      })
+    )
     .query(async ({ ctx, input }) => {
+      const { id, type, communityName } = input;
+      if (!id) return [];
+
+      const where: Prisma.CommunityMembershipWhereInput = {
+        userId: id,
+        ...(type && type !== "ALL"
+          ? { roles: { some: { role: { in: type } } } }
+          : {}),
+        ...(communityName && communityName !== "ALL"
+          ? { community: { name: { in: communityName } } }
+          : {}),
+      };
+
       return ctx.db.communityMembership.findMany({
-        where: { userId: input },
-        include: { community: true },
+        where,
+        include: { community: true, roles: true },
+        orderBy: { joinedAt: "desc" },
       });
     }),
 

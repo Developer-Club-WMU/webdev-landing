@@ -22,9 +22,11 @@ const JoinCommunityFormTable = () => {
   const [allForms, setAllForms] = useState<CommunityFormWithCreator[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const userId = session?.user.id ?? null;
+
   const membershipsQuery = api.membership.findUserMemberships.useQuery(
-    session?.user.id ?? "",
-    { enabled: !!session?.user.id }
+    { id: userId }, // input only when we have i
+    { enabled: !!userId }
   );
 
   const formsQuery = api.communityForms.grabAll.useQuery(undefined, {

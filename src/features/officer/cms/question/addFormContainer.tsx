@@ -14,10 +14,10 @@ const AddFormContainer = () => {
   const utils = api.useUtils();
   const router = useRouter();
 
-  // ✅ Always call hooks before conditional return
+  // Always call hooks before conditional return
   const userId = session?.user?.id ?? "";
   const { data: memberships, isLoading: loadingMemberships } =
-    api.membership.findUserMemberships.useQuery(userId);
+    api.membership.findUserMemberships.useQuery({ id: userId });
 
   const addFormMutation = api.communityForms.createForm.useMutation({
     onSuccess: async (result) => {

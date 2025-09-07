@@ -19,7 +19,7 @@ interface PipelineContainerProps {
 const PipelineContainer = ({ pipelineId }: PipelineContainerProps) => {
   const { viewModels: columnViewModels, onCardDrop } =
     usePipelineContainerViewModel(pipelineId);
-  
+
   const [showAddSegmentForm, setShowAddSegmentForm] = useState(false);
   const [newSegmentName, setNewSegmentName] = useState("");
   const [insertPosition, setInsertPosition] = useState<number | undefined>(undefined);
@@ -35,10 +35,10 @@ const PipelineContainer = ({ pipelineId }: PipelineContainerProps) => {
       setInsertPosition(undefined);
       setIsCreating(false);
       setShowSuccessMessage(true);
-      
+
       // Hide success message after 3 seconds
       setTimeout(() => setShowSuccessMessage(false), 3000);
-      
+
       if (pipelineId) {
         await utils.crm.pipelines.getById.invalidate({ id: pipelineId });
         await utils.crm.leads.getByPipelineId.invalidate({ pipelineId });
@@ -47,12 +47,12 @@ const PipelineContainer = ({ pipelineId }: PipelineContainerProps) => {
     onError: (error) => {
       setIsCreating(false);
       console.error("Failed to create segment:", error.message);
-      
+
       // Show user-friendly error message
       const errorMessage = error.message.includes("name")
         ? "Column name already exists or is invalid"
         : "Failed to create column. Please try again.";
-      
+
       alert(errorMessage);
     },
   });
