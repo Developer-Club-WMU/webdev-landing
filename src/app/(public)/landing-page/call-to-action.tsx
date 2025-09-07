@@ -31,7 +31,7 @@ const CallToActionButtons = () => {
       </Link>
 
       <Link
-        href="https://discord.gg/your-invite"
+        href="https://discord.gg/G9yE5s6NFM"
         target="_blank"
         rel="noopener noreferrer"
         className={`${base} ${outline} w-full sm:w-48`}
