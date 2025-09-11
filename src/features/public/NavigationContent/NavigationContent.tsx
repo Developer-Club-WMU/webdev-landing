@@ -1,11 +1,11 @@
 "use client";
-import { links, simpleLinks } from "./navigation-content.config";
-import { useNavigationLinkOpenState } from "./useNavigationContent";
-import SidebarButton from "./SidebarButton";
-import SimpleNavigationLink from "./SimpleNavigationLink";
+import { SVG_DISCORD, SVG_INSTAGRAM, SVG_LINKEDIN, SVG_TIKTOK } from "@/features/shared/svgs/svg";
 import type { SideBarLink } from "@/models";
 import Link from "next/link";
-import { SVG_DISCORD, SVG_INSTAGRAM, SVG_LINKEDIN, SVG_TIKTOK } from "@/features/shared/svgs/svg";
+import { links, simpleLinks } from "./navigation-content.config";
+import SidebarButton from "./SidebarButton";
+import SimpleNavigationLink from "./SimpleNavigationLink";
+import { useNavigationLinkOpenState } from "./useNavigationContent";
 
 const NavigationContent = () => {
   return (

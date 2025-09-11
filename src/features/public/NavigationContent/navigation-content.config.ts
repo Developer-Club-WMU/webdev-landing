@@ -29,4 +29,9 @@ export const simpleLinks: SideBarLinkLeaf[] = [
   { title: "Contact", icon: "✉️", link: "/contact" },
   { title: "About Us", icon: "❓", link: "/about-us" },
   { title: "Events", icon: "📅", link: "/events" },
+  {
+    title: "Available Projects",
+    icon: "📅",
+    link: "https://docs.google.com/spreadsheets/d/1WGBq8J4SkkRWzZ46qglfDs9ZAR24NnfnMqvFmy4EtaM/edit?gid=900231331#gid=900231331",
+  },
 ];
