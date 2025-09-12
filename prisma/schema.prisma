@@ -1,0 +1,326 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id          Int      @id @default(autoincrement())
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+
+  @@index([name])
+}
+
+model Account {
+  id                       String  @id @default(cuid())
+  userId                   String
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String?
+  access_token             String?
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String?
+  session_state            String?
+  refresh_token_expires_in Int?
+  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id               String                @id @default(cuid())
+  name             String?
+  email            String?               @unique
+  emailVerified    DateTime?
+  image            String?
+  userRole         UserRole              @default(STANDARD)
+  accounts         Account[]
+  form             CommunityForm[]
+  memberships      CommunityMembership[]
+  questionsCreated CommunityQuestion[]
+  Lead             Lead[]
+  Pipeline         Pipeline[]
+  posts            Post[]
+  sessions         Session[]
+  tasks            Task[]
+  answers          UserAnswer[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Task {
+  id          Int          @id @default(autoincrement())
+  title       String
+  description String?
+  status      TaskStatus   @default(TODO)
+  priority    TaskPriority @default(MEDIUM)
+  dueDate     DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  createdById String
+  createdBy   User         @relation(fields: [createdById], references: [id])
+
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
+}
+
+model Pipeline {
+  id          String                @id @default(cuid())
+  name        String
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  createdById String
+  Lead        Lead[]
+  createdBy   User                  @relation(fields: [createdById], references: [id])
+  segments    PipelineSegment[]
+  segmentData PipelineSegmentData[]
+}
+
+model PipelineSegment {
+  id          String                @id @default(cuid())
+  name        String
+  deleted     Boolean               @default(false)
+  pipelineId  String
+  order       Int                   @default(0)
+  Lead        Lead[]
+  pipeline    Pipeline              @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  segmentData PipelineSegmentData[]
+
+  @@index([pipelineId, order])
+}
+
+model PipelineSegmentData {
+  id          String          @id @default(cuid())
+  pipelineId  String
+  segmentId   String
+  completedAt DateTime?
+  notes       String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  pipeline    Pipeline        @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  segment     PipelineSegment @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+
+  @@unique([pipelineId, segmentId])
+}
+
+model Lead {
+  id            String           @id @default(cuid())
+  title         String
+  description   String?
+  capitalValue  Int?             @default(0)
+  contactName   String
+  companyName   String
+  avatarURL     String?
+  addedOn       DateTime         @default(now())
+  dueDate       DateTime?
+  status        String           @default("new")
+  leadType      String           @default("customer")
+  pipelineStage String?
+  isArchived    Boolean          @default(false)
+  source        String?
+  tags          String[]
+  createdById   String
+  pipelineId    String?
+  segmentId     String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  order         Int              @default(0)
+  createdBy     User             @relation(fields: [createdById], references: [id])
+  pipeline      Pipeline?        @relation(fields: [pipelineId], references: [id])
+  segment       PipelineSegment? @relation(fields: [segmentId], references: [id])
+
+  @@index([status])
+  @@index([pipelineId])
+  @@index([segmentId])
+  @@index([segmentId, order])
+}
+
+model Community {
+  id                        String                     @id @default(cuid())
+  name                      CommunityName              @unique
+  description               String?
+  visible                   Boolean                    @default(false)
+  createdAt                 DateTime                   @default(now())
+  updatedAt                 DateTime                   @updatedAt
+  forms                     CommunityForm[]
+  members                   CommunityMembership[]
+  communityPermissionGrants CommunityPermissionGrant[]
+
+  metadata                  Json?
+}
+
+model CommunityMembership {
+  id                    String                 @id @default(cuid())
+  userId                String
+  communityId           String
+  joinedAt              DateTime               @default(now())
+  community             Community              @relation(fields: [communityId], references: [id])
+  user                  User                   @relation(fields: [userId], references: [id])
+  roles                 CommunityRole[]
+  membershipPermissions MembershipPermission[]
+
+  @@unique([userId, communityId], name: "userId_communityId")
+  @@index([userId])
+  @@index([communityId])
+}
+
+model CommunityForm {
+  id            String              @id @default(cuid())
+  title         String
+  description   String?
+  communityTag  CommunityName
+  communityId   String
+  createdById   String
+  isActive      Boolean             @default(false)
+  createdByName String              @default("Unknown")
+  createAt      DateTime            @default(now())
+  community     Community           @relation(fields: [communityId], references: [id])
+  createdBy     User                @relation(fields: [createdById], references: [id])
+  questions     CommunityQuestion[]
+  answers       UserAnswer[]
+
+  @@index([communityTag])
+}
+
+model CommunityQuestion {
+  id          String        @id @default(cuid())
+  createdById String
+  formId      String
+  label       String
+  type        QuestionType
+  options     String[]
+  required    Boolean       @default(false)
+  order       Int           @default(0)
+  createdAt   DateTime      @default(now())
+  createdBy   User          @relation(fields: [createdById], references: [id])
+  form        CommunityForm @relation(fields: [formId], references: [id])
+  answers     UserAnswer[]
+
+  @@index([formId])
+}
+
+model UserAnswer {
+  id          String            @id @default(cuid())
+  userId      String
+  questionId  String
+  communityId String
+  formId      String
+  value       String
+  answeredAt  DateTime          @default(now())
+  form        CommunityForm     @relation(fields: [formId], references: [id])
+  question    CommunityQuestion @relation(fields: [questionId], references: [id])
+  user        User              @relation(fields: [userId], references: [id])
+
+  @@unique([userId, questionId])
+  @@index([userId, communityId])
+}
+
+model CommunityRole {
+  id           String              @id @default(cuid())
+  membershipId String
+  role         MembershipRole      @default(MEMBER)
+  membership   CommunityMembership @relation(fields: [membershipId], references: [id])
+
+  @@unique([membershipId, role], name: "membershipId_role")
+}
+
+model Permission {
+  id           String                     @id @default(cuid())
+  key          String                     @unique
+  description  String?
+  grants       CommunityPermissionGrant[]
+  memberGrants MembershipPermission[]
+}
+
+model CommunityPermissionGrant {
+  communityId  String
+  role         MembershipRole
+  permissionId String
+  community    Community      @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  permission   Permission     @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([communityId, role, permissionId])
+  @@index([communityId, role])
+}
+
+model MembershipPermission {
+  membershipId String
+  permissionId String
+  membership   CommunityMembership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  permission   Permission          @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([membershipId, permissionId])
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  BLOCKED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum QuestionType {
+  TEXT
+  TEXTAREA
+  SELECT
+  MULTISELECT
+  NUMBER
+  DATE
+  BOOLEAN
+}
+
+enum MembershipRole {
+  MEMBER
+  OFFICER
+  CLIENT
+  ADMIN
+}
+
+enum CommunityName {
+  WEB
+  HACKATHON
+  AI
+  APPS
+  GAMES
+  SYSTEMS
+  MARKETING
+  EVENTS
+  FINANCE
+}
+
+enum UserRole {
+  ADMIN
+  STANDARD
+}

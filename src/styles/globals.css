@@ -1,109 +1,207 @@
 @import "tailwindcss";
 
 @theme {
-    --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
-        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans:
+    var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
-    /* 
-    https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklch
-    OKLCH stands for:
-    •	L: Lightness (0% to 100%)
-    •	C: Chroma (color intensity, 0 to ~0.4+)
-    •	H: Hue (angle around a color wheel, in degrees — 0 to 360)
-    */
-    --color-primary: oklch(64% 0.25 260);
-    --color-secondary: oklch(72% 0.15 180);
-    --color-accent: oklch(80% 0.20 40);
+  /*
+  https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklch
+  OKLCH stands for:
+  •	L: Lightness (0% to 100%)
+  •	C: Chroma (color intensity, 0 to ~0.4+)
+  •	H: Hue (angle around a color wheel, in degrees — 0 to 360)
+  */
+  --color-primary: oklch(64% 0.25 260);
+  --color-secondary: oklch(72% 0.15 180);
+  --color-accent: oklch(80% 0.2 40);
 
-    --color-bg: oklch(100% 0 0);
-    --color-bg-muted: oklch(95% 0.01 270);
-    --color-bg-inverted: oklch(0% 0.05 270);
+  --color-bg: oklch(100% 0 0);
+  --color-bg-muted: oklch(95% 0.01 270);
+  --color-bg-inverted: oklch(0% 0.05 270);
 
-    --color-text: oklch(20% 0 0);
-    --color-text-muted: oklch(40% 0.02 270);
-    --color-text-inverted: oklch(98% 0 0);
-    --color-link: oklch(60% 0.2 250);
+  --color-text: oklch(20% 0 0);
+  --color-text-muted: oklch(70% 0.02 270);
+  --color-text-inverted: oklch(98% 0 0);
+  --color-link: oklch(60% 0.2 250);
 
-    --color-border: oklch(85% 0.02 270);
-    --color-border-muted: oklch(90% 0.01 270);
-    --color-border-focus: oklch(65% 0.20 260);
+  --color-border: oklch(85% 0.02 270);
+  --color-border-muted: oklch(90% 0.01 270);
+  --color-border-focus: oklch(65% 0.2 260);
 
-    --color-success: oklch(70% 0.25 140);
-    --color-warning: oklch(85% 0.22 80);
-    --color-error: oklch(70% 0.22 20);
-    --color-info: oklch(75% 0.18 230);
-    --color-disabled: oklch(88% 0.01 270);
+  --color-success: oklch(70% 0.25 140);
+  --color-warning: oklch(85% 0.22 80);
+  --color-error: oklch(70% 0.22 20);
+  --color-info: oklch(75% 0.18 230);
+  --color-disabled: oklch(88% 0.01 270);
 
-    /* Club Colors */
-    --color-light-brown: #9c9391;
-    --color-mid-brown: #60524f;
-    --color-dark-brown: #49403e;
-    --color-bright-yellow: #ffe665;
-    --color-light-yellow: #ffec8b;
+  /* GitHub colors */
+  --color-github-lbg: oklch(18.33% 0.0055 264.75);
+  --color-github-dbg: oklch(10.17% 0.0035 263.83);
+  --color-github-muted: oklch(10.17% 0.0035 263.83);
 
-    --color-web: oklch(75% 0.25 250);  /* Vibrant blue-purple */
-    --color-ai: oklch(82% 0.29 145);   /* Electric green */
-    --color-app: oklch(80% 0.31 35);   /* Bright orange */
-    --color-games: oklch(70% 0.28 330);  /* Playful magenta-purple */
-    --color-systems: oklch(78% 0.23 200);  /* Cool steel blue */
+  /* Club Colors */
+  --color-light-brown: #9c9391;
+  --color-mid-brown: #60524f;
+  --color-dark-brown: #49403e;
+  --color-bright-yellow: #ffe665;
+  --color-light-yellow: #ffec8b;
+
+  --color-web: oklch(75% 0.25 250); /* Vibrant blue-purple */
+  --color-ai: oklch(82% 0.29 145); /* Electric green */
+  --color-app: oklch(80% 0.31 35); /* Bright orange */
+  --color-games: oklch(70% 0.28 330); /* Playful magenta-purple */
+  --color-systems: oklch(78% 0.23 200); /* Cool steel blue */
+  --color-hackathon: oklch(85% 0.34 100); /* Rich, high-energy yellow */
+  /*--color-hackathon: oklch(85% 0.28 75); /* High-energy yellow-green */
+
+  --color-text-inclusive: var(--color-text);
 }
 
 .text-web {
-    color: var(--color-web);
+  color: var(--color-web);
+}
+
+.text-hackathon {
+  color: var(--color-hackathon);
 }
 
 .text-ai {
-    color: var(--color-ai);
+  color: var(--color-ai);
 }
 
 .text-app {
-    color: var(--color-app);
+  color: var(--color-app);
 }
 
 .text-games {
-    color: var(--color-games);
+  color: var(--color-games);
 }
 
 .text-systems {
-    color: var(--color-systems);
+  color: var(--color-systems);
 }
 
 .text-bright-yellow {
-    color: var(--color-bright-yellow);
+  color: var(--color-bright-yellow);
 }
 
 .text-light-yellow {
-    color: var(--color-light-yellow);
+  color: var(--color-light-yellow);
 }
 
 .text-light-brown {
-    color: var(--color-light-brown);
+  color: var(--color-light-brown);
 }
 
 .text-mid-brown {
-    color: var(--color-mid-brown);
+  color: var(--color-mid-brown);
 }
 
 .text-dark-brown {
-    color: var(--color-dark-brown);
+  color: var(--color-dark-brown);
+}
+
+.aurora-bg {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(100px);
+  opacity: 0.9; /* increase visibility */
+  transform: scale(1.4);
+  transition: transform 4s ease-in-out;
+  animation: auroraShift 10s ease-in-out infinite alternate;
+  border-radius: 50%;
+}
+
+@keyframes auroraShift {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(30px, -20px) scale(1.1);
+  }
+}
+
+/* One aurora class per community color */
+.aurora-ai {
+  background: radial-gradient(circle at 30% 30%, #3b82f6, #9333ea);
+}
+.aurora-web {
+  background: radial-gradient(circle at 60% 40%, #06b6d4, #3b82f6);
+}
+.aurora-app {
+  background: radial-gradient(circle at 40% 60%, #ec4899, #f59e0b);
+}
+.aurora-games {
+  background: radial-gradient(circle at 50% 30%, #10b981, #8b5cf6);
+}
+.aurora-systems {
+  background: radial-gradient(circle at 20% 80%, #64748b, #0ea5e9);
+}
+.aurora-hackathon {
+  background: radial-gradient(circle at 70% 50%, #f43f5e, #f97316);
 }
 
 /* Custom tailwind classes */
 @layer components {
-    .page {
-        @apply flex flex-col w-full gap-20 md:gap-32 px-2 py-32 bg-bg dark:bg-bg-inverted
-    }
+  .text-inclusive {
+    @apply text-text dark:text-text-inverted;
+  }
 
-    .info-page {
-        @apply flex flex-col w-full py-10 gap-5 bg-bg dark:bg-bg-inverted px-4 sm:px-6 md:px-10
-    }
+  .standard-btn {
+    @apply py-1 px-2 bg-bg-inverted dark:bg-bg dark:text-black text-text-inverted rounded-sm w-full cursor-pointer;
+  }
 
-    .title {
-        @apply [letter-spacing:-.05em] text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase font-extrabold
-    }
+  .page {
+    /* @apply bg-bg dark:bg-bg-inverted flex w-full flex-col gap-20 px-2 py-32 md:gap-32; */
+    @apply bg-bg dark:bg-github-dbg flex w-full flex-col gap-20 px-2 py-32 md:gap-32;
+  }
+
+  .info-page {
+    /* @apply bg-bg dark:bg-bg-inverted flex w-full flex-col gap-5 px-4 py-10 sm:px-6 md:px-10; */
+    @apply bg-bg dark:bg-github-dbg flex w-full flex-col gap-5 px-4 py-10 sm:px-6 md:px-10;
+  }
+
+  .title {
+    @apply text-4xl font-extrabold [letter-spacing:-.05em] uppercase md:text-6xl lg:text-7xl xl:text-8xl;
+  }
+
+  .side-panel {
+    @apply fixed top-0 right-0 z-50 h-full w-80 bg-white shadow-lg transition-transform duration-300;
+    transform: translateX(100%);
+  }
+
+  .side-panel.visible {
+    transform: translateX(0);
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .text-inclusive {
+    color: var(--color-text-inclusive);
+  }
 }
 
 html,
 body {
   @apply bg-bg dark:bg-bg-inverted min-h-screen;
+}
+
+@media (prefers-color-scheme: dark) {
+  @theme {
+    --color-text-inclusive: var(--color-text-inverted);
+  }
 }

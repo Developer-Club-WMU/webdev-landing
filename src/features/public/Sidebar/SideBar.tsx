@@ -6,20 +6,21 @@ import { sidebarEmoji, sidebarTitle } from "./side-bar.config";
 import NavigationContent from "../NavigationContent/NavigationContent";
 
 const SideBar = () => {
-    const { clearOpenKey } = useSideBar();
+  const { clearOpenKey } = useSideBar();
 
-    return (
-        <div className="min-w-[300px] hidden lg:flex flex-col h-screen sticky top-0 z-20 bg-bg dark:bg-bg-inverted shadow-xl dark:border-r border-gray-500/50">
-            <div className="p-4 flex gap-2 items-center text-2xl border-b border-gray-500/10 dark:border-gray-500/50 text-text dark:text-text-inverted">
-                <Link href="/" className="flex items-center gap-1.5">
-                    <button onClick={clearOpenKey} className="cursor-pointer">
-                        {sidebarEmoji} <span className="font-black text-xl uppercase">{sidebarTitle}</span>
-                    </button>
-                </Link>
-            </div>
-            <NavigationContent />
-        </div>
-    );
+  return (
+    <div className="bg-bg dark:bg-bg-inverted sticky top-0 z-20 hidden h-screen min-w-[300px] flex-col border-gray-500/50 shadow-xl lg:flex dark:border-r">
+      <div className="text-text dark:text-text-inverted flex items-center gap-2 border-b border-gray-500/10 p-4 text-2xl dark:border-gray-500/50">
+        <Link href="/" className="flex items-center gap-1.5">
+          <button onClick={clearOpenKey} className="cursor-pointer">
+            {sidebarEmoji}{" "}
+            <span className="text-xl font-black uppercase">{sidebarTitle}</span>
+          </button>
+        </Link>
+      </div>
+      <NavigationContent />
+    </div>
+  );
 };
 
 export default SideBar;

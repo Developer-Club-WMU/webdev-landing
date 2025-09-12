@@ -1,13 +1,9 @@
-"use client";
+// import PageIsUnderConstruction from "@/features/shared/PageIsUnderConstruction";
+import OfficerClient from "./_components/OfficerClient";
 
-import WelcomeSummary from "@/features/shared/Dashboard/Greetings/WelcomeSummary";
+export const dynamic = "force-dynamic";
 
-const OfficerPage = () => {
-    return (
-        <div className="info-page">
-            <WelcomeSummary/>
-        </div>
-    );
-};
-
-export default OfficerPage;
+export default async function OfficerPage() {
+  return <OfficerClient />;
+  // return <PageIsUnderConstruction/>
+}

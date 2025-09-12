@@ -12,6 +12,7 @@
 
     /* Strictness */
     "strict": true,
+    "strictNullChecks": true,
     "noUncheckedIndexedAccess": true,
     "checkJs": true,
 
@@ -27,7 +28,8 @@
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@zod/*": ["./prisma/generated/zod/*"]
     }
   },
   "include": [
@@ -37,7 +39,8 @@
     "**/*.tsx",
     "**/*.cjs",
     "**/*.js",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "src/features/shared/AppSideBar/AppSideBarButton"
   ],
   "exclude": ["node_modules"]
 }
