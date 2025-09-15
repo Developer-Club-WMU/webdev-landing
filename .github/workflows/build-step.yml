@@ -15,7 +15,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: pnpm
+
+      - name: Generate dummy env
+        run: |
+          echo "NEXTAUTH_SECRET=dummy" >> .env.local
+          echo "NEXTAUTH_URL=http://localhost:3000" >> .env.local
+          echo "AUTH_DISCORD_ID=dummy" >> .env.local
+          echo "AUTH_DISCORD_SECRET=dummy" >> .env.local
+          echo "DATABASE_URL=postgresql://user:pass@localhost:5432/db" >> .env.local
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
