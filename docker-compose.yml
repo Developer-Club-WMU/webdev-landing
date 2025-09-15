@@ -1,13 +1,13 @@
 services:
   web:
-    image: webdev-landing
-    container_name: webdev-landing-dev
+    image: devclubwmu/devclub-prod:webdev-landing
+    container_name: webdev-landing-prod
     ports:
       - "3000:3000"
     environment:
       NODE_ENV: production
       DOCKER_BUILDKIT: 1
-      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_URL: https://devwmu.com
     secrets:
       - deploy_id
       - webapp_url
