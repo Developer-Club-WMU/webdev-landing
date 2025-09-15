@@ -16,7 +16,6 @@ services:
       - db_url
     networks:
       - devnet
-
 networks:
   devnet:
     external: true
