@@ -1,0 +1,37 @@
+services:
+  web:
+    image: webdev-landing
+    container_name: webdev-landing-dev
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      DOCKER_BUILDKIT: 1
+      NEXTAUTH_URL: http://localhost:3000
+    secrets:
+      - deploy_id
+      - webapp_url
+      - nextauth_secret
+      - discord_auth_id
+      - discord_auth_secret
+      - db_url
+    networks:
+      - devnet
+
+networks:
+  devnet:
+    external: true
+
+secrets:
+  deploy_id:
+    file: ./secrets/deploy_id.txt
+  webapp_url:
+    file: ./secrets/webapp_url.txt
+  nextauth_secret:
+    file: ./secrets/nextauth_secret.txt
+  discord_auth_id:
+    file: ./secrets/discord_auth_id.txt
+  discord_auth_secret:
+    file: ./secrets/discord_auth_secret.txt
+  db_url:
+    file: ./secrets/db_url.txt
