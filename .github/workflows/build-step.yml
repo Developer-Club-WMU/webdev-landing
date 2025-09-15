@@ -6,13 +6,6 @@ on:
   pull_request:
     branches: [dev]
 
-env:
-  NEXTAUTH_SECRET: ${{ vars.NEXTAUTH_SECRET }}
-  NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
-  AUTH_DISCORD_ID: ${{ vars.AUTH_DISCORD_ID }}
-  AUTH_DISCORD_SECRET: ${{ vars.AUTH_DISCORD_SECRET }}
-  DATABASE_URL: ${{ vars.DATABASE_URL }}
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,6 +15,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Generate dummy env
+  run: |
+    echo "NEXTAUTH_SECRET=dummy" >> .env.local
+    echo "NEXTAUTH_URL=http://localhost:3000" >> .env.local
+    echo "AUTH_DISCORD_ID=dummy" >> .env.local
+    echo "AUTH_DISCORD_SECRET=dummy" >> .env.local
+    echo "DATABASE_URL=postgresql://user:pass@localhost:5432/db" >> .env.local
+
 
 
       - name: Install pnpm
