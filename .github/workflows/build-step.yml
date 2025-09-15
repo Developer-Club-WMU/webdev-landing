@@ -2,20 +2,17 @@ name: Build
 
 on:
   push:
-    branches: [ dev ]
+    branches: [dev]
   pull_request:
-    branches: [ dev ]
+    branches: [dev]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
@@ -26,11 +23,11 @@ jobs:
           version: 10.6.1
           run_install: false
 
-      - name: Install dependencies
+      - name: Install deps
         run: pnpm install --frozen-lockfile
 
-      - name: Lint and Type Check
+      - name: Lint and typecheck
         run: pnpm check
 
-      - name: Build project
+      - name: Build
         run: pnpm build
