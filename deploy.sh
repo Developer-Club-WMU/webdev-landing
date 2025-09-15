@@ -1,7 +1,5 @@
 #!/bin/sh
 
-cd webdev-landing
-
 # Pull Latest Code from repo just in case of updated deploy script/docker-compose script
 git pull origin production
 
