@@ -6,7 +6,6 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: production
-      DOCKER_BUILDKIT: 1
       NEXTAUTH_URL: https://devwmu.com
     secrets:
       - deploy_id
