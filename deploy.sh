@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Change CWD to repo home
+cd /home/webdev/webdev-landing
+
 # Check if docker is available
 if ! command -v docker >/dev/null 2>&1; then
   echo "Docker is not installed"
