@@ -1,7 +1,10 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
+RUN corepack enable && corepack prepare pnpm --activate
 COPY package*.json ./
 COPY prisma ./prisma
+ENV NODE_ENV=production
+ENV SKIP_ENV_VALIDATION=1
 RUN npm ci --omit=dev
 COPY . .
 RUN npm run build
