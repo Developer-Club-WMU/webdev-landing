@@ -21,29 +21,33 @@ export const membershipRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { userId, communityId, role } = input;
 
-      // Prevent duplicates since @@unique([userId, communityId])
-      const existing = await ctx.db.communityMembership.findFirst({
-        where: {
-          userId,
-          communityId,
-        },
-      });
+      return ctx.db.$transaction(async (tx) => {
+        const existing = await tx.communityMembership.findUnique({
+          where: { userId_communityId: { userId, communityId } }, // requires @@unique([userId, communityId])
+          include: { roles: true },
+        });
 
-      if (existing) {
-        throw new Error("User is already a member of this community.");
-      }
+        if (existing) {
+          const hasRole = existing.roles.some((r) => r.role === role);
+          if (!hasRole) {
+            return tx.communityMembership.update({
+              where: { id: existing.id },
+              data: { roles: { create: [{ role }] } }, // requires @@unique([membershipId, role]) on roles table
+              include: { roles: true },
+            });
+          }
+          return existing;
+        }
 
-      const membership = await ctx.db.communityMembership.create({
-        data: {
-          userId,
-          communityId,
-          roles: {
-            create: [{ role }],
+        return tx.communityMembership.create({
+          data: {
+            userId,
+            communityId,
+            roles: { create: [{ role }] },
           },
-        },
+          include: { roles: true },
+        });
       });
-
-      return membership;
     }),
 
   findUserMemberships: publicProcedure
