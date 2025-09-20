@@ -185,6 +185,14 @@ export const membershipRouter = createTRPCRouter({
         },
       });
 
+      // Attach a role to the created membership
+      await ctx.db.communityRole.create({
+        data: {
+          membershipId: membership.id,
+          role: "MEMBER",
+        },
+      });
+
       return membership;
     }),
 
