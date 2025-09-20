@@ -1,8 +1,8 @@
 "use client";
 
-import { useCachedSession } from "@/hooks/userCachedSession";
 import { api } from "@/trpc/react";
-import { type QuestionType, type CommunityName } from "@prisma/client";
+import { type CommunityName, type MembershipRole, type QuestionType } from "@prisma/client";
+import { useSession } from "next-auth/react";
 import React, { useState } from "react";
 
 // --- Types ---
@@ -261,14 +261,14 @@ const JoinCommunityForm: React.FC = () => {
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [selectedCommunity, setSelectedCommunity] =
     useState<CommunityName | null>(null);
-  const session = useCachedSession();
+  const { data: session, update }  = useSession();
   const { data: forms, isLoading } =
     api.communityForms.getLatestPerCommunity.useQuery();
   const attachMembershipToUserByID =
     api.membership.attachMembershipToUserByID.useMutation();
 
-  if (!session?.data?.user) return <div>... You must be logged in</div>;
-  const userId = session.data.user.id;
+  if (!session?.user) return <div>... You must be logged in</div>;
+  const userId = session.user.id;
 
   const selectedForm = forms?.find(
     (form) => form.communityTag === selectedCommunity
@@ -322,8 +322,9 @@ const JoinCommunityForm: React.FC = () => {
       },
       {
         onSuccess: () => {
-          // Redirect only on success
-          window.location.href = "/member";
+          update({ user: { ...session.user, communityTag: selectedCommunity, role: "MEMBER" as MembershipRole } })
+            .then(() => window.location.assign("/auth/signin"))
+            .catch((err) => console.error("update failed", err));
         },
         onError: (error) => {
           console.error("Failed to attach membership:", error);

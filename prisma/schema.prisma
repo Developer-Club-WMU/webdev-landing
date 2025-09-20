@@ -171,7 +171,7 @@ model Community {
   members                   CommunityMembership[]
   communityPermissionGrants CommunityPermissionGrant[]
 
-  metadata                  Json?
+  metadata Json?
 }
 
 model CommunityMembership {

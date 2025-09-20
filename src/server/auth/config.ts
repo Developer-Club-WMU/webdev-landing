@@ -71,17 +71,20 @@ export const authConfig = {
   callbacks: {
     async jwt({ token, user, trigger, session }) {
       try {
+        console.error("Trigger callback");
         // On profile update from client: accept chosen communityTag if valid
-        if (trigger === "update" && session?.communityTag && token.id) {
+        if (trigger === "update" /* && session?.communityTag && token.id */) {
+          console.error("Trigger update");
           const membership = await db.communityMembership.findFirst({
             where: {
               userId: token.id,
               community: { name: session.communityTag },
             },
-            include: { community: true },
+            include: { community: true, roles: true },
           });
           if (membership) {
             token.communityTag = membership.community.name;
+            token.role = membership.roles[0]?.role;
           }
           return token;
         }
