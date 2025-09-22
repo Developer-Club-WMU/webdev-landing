@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAnalytics } from 'firebase/analytics';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+//import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
 // Firebase config
 const firebaseConfig = {
@@ -29,5 +29,5 @@ export const getAnalyticsInstance = () => {
 };
 
 // Export auth and Google provider for authentication flows
-export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
+//export const auth = getAuth(app);
+//export const googleProvider = new GoogleAuthProvider();

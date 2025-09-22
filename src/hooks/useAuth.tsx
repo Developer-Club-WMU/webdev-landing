@@ -1,4 +1,5 @@
 // src/hooks/useAuth.ts
+/*
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import type { User } from 'firebase/auth';
@@ -19,3 +20,4 @@ export const useAuth = () => {
 
   return { user, loading };
 };
+*/
