@@ -24,5 +24,8 @@ docker compose down
 # Pull latest image
 docker pull devclubwmu/devclub-prod:webdev-landing
 
+# Prune Old Images that arent tagged and keep only the tagged images
+docker image prune -a
+
 # Start with latest image in background
 docker compose up -d
