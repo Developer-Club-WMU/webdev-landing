@@ -1,8 +1,8 @@
 "use client";
 
-import { useCachedSession } from "@/hooks/userCachedSession";
 import { api } from "@/trpc/react";
-import { type QuestionType, type CommunityName } from "@prisma/client";
+import { type CommunityName, type MembershipRole, type QuestionType } from "@prisma/client";
+import { useSession } from "next-auth/react";
 import React, { useState } from "react";
 
 // --- Types ---
@@ -57,26 +57,32 @@ interface ProgressBarProps {
 
 // --- Sub-Components ---
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ currentQuestionIndex, totalQuestions }) => {
+const ProgressBar: React.FC<ProgressBarProps> = ({
+  currentQuestionIndex,
+  totalQuestions,
+}) => {
   const progressWidth = ((currentQuestionIndex + 1) / totalQuestions) * 100;
   return (
-    <div className="w-full mb-8">
-      <div className="h-2 bg-gray-500/20 rounded-full">
+    <div className="mb-8 w-full">
+      <div className="h-2 rounded-full bg-gray-500/20">
         <div
-          className="h-full bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full transition-all duration-500 ease-in-out"
+          className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-500 ease-in-out"
           style={{ width: `${progressWidth}%` }}
         ></div>
       </div>
-      <p className="text-sm text-gray-800 dark:text-gray-200 mt-2 text-right">
+      <p className="mt-2 text-right text-sm text-gray-800 dark:text-gray-200">
         Question {currentQuestionIndex + 1} of {totalQuestions}
       </p>
     </div>
   );
 };
 
-const CommunitySelection: React.FC<CommunitySelectionProps> = ({ communities, onSelect }) => (
-  <div className="w-full flex flex-col text-center p-4">
-    <h2 className="font-black text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em] text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-600 mb-8">
+const CommunitySelection: React.FC<CommunitySelectionProps> = ({
+  communities,
+  onSelect,
+}) => (
+  <div className="flex w-full flex-col p-4 text-center">
+    <h2 className="mb-8 bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-4xl font-black [letter-spacing:-.05em] text-transparent uppercase md:text-6xl lg:text-7xl xl:text-8xl">
       Choose a Community
     </h2>
     <div className="flex flex-col space-y-4">
@@ -84,7 +90,7 @@ const CommunitySelection: React.FC<CommunitySelectionProps> = ({ communities, on
         <button
           key={communityTag}
           onClick={() => onSelect(communityTag)}
-          className={`w-full dark:bg-white bg-black hover:bg-gray-900 dark:hover:bg-gray-100 text-text-text-inverted dark:text-black uppercase font-extrabold py-4 px-6 rounded-lg shadow-md transition duration-300 transform hover:scale-105`}
+          className={`text-text-text-inverted w-full transform rounded-lg bg-black px-6 py-4 font-extrabold uppercase shadow-md transition duration-300 hover:scale-105 hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100`}
         >
           {communityTag}
         </button>
@@ -93,7 +99,11 @@ const CommunitySelection: React.FC<CommunitySelectionProps> = ({ communities, on
   </div>
 );
 
-const ChoiceInput: React.FC<ChoiceInputProps> = ({ question, value, onChange }) => {
+const ChoiceInput: React.FC<ChoiceInputProps> = ({
+  question,
+  value,
+  onChange,
+}) => {
   const selectedOptions = Array.isArray(value) ? value : [value];
 
   const handleSelectChange = (option: string) => {
@@ -108,7 +118,7 @@ const ChoiceInput: React.FC<ChoiceInputProps> = ({ question, value, onChange }) 
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       {question.options?.map((option, i) => {
         const isSelected = selectedOptions.includes(option);
         const selectedClasses = isSelected
@@ -119,7 +129,7 @@ const ChoiceInput: React.FC<ChoiceInputProps> = ({ question, value, onChange }) 
           <button
             key={i}
             onClick={() => handleSelectChange(option)}
-            className={`p-4 rounded-lg shadow-md transition duration-300 ease-in-out ${selectedClasses} font-semibold`}
+            className={`rounded-lg p-4 shadow-md transition duration-300 ease-in-out ${selectedClasses} font-semibold`}
           >
             {option}
           </button>
@@ -129,17 +139,23 @@ const ChoiceInput: React.FC<ChoiceInputProps> = ({ question, value, onChange }) 
   );
 };
 
-const QuestionInputSlide: React.FC<QuestionInputSlideProps> = ({ question, value, onChange, isOptional }) => (
-  <div className="w-full flex flex-col text-center p-4">
-    <h2 className="font-black text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em] text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-600 mb-8">
-      {question.label} {isOptional && <span className="text-sm text-gray-500">(Optional)</span>}
+const QuestionInputSlide: React.FC<QuestionInputSlideProps> = ({
+  question,
+  value,
+  onChange,
+  isOptional,
+}) => (
+  <div className="flex w-full flex-col p-4 text-center">
+    <h2 className="mb-8 bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-4xl font-black [letter-spacing:-.05em] text-transparent uppercase md:text-6xl lg:text-7xl xl:text-8xl">
+      {question.label}{" "}
+      {isOptional && <span className="text-sm text-gray-500">(Optional)</span>}
     </h2>
     {question.type === "select" || question.type === "multiselect" ? (
       <ChoiceInput question={question} value={value} onChange={onChange} />
     ) : (
       <input
         type="text"
-        className="w-full p-4 text-lg text-gray-900 bg-white border border-gray-500/20 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-black/40 dark:text-gray-100 dark:border-gray-500/20"
+        className="w-full rounded-lg border border-gray-500/20 bg-white p-4 text-lg text-gray-900 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-500/20 dark:bg-black/40 dark:text-gray-100"
         value={value ?? ""}
         onChange={(e) => onChange({ target: { value: e.target.value } })}
         placeholder="Type your answer here..."
@@ -148,16 +164,25 @@ const QuestionInputSlide: React.FC<QuestionInputSlideProps> = ({ question, value
   </div>
 );
 
-const ReviewSlide: React.FC<ReviewSlideProps> = ({ questions = [], answers = {}, onSubmit }) => (
-  <div className="w-full flex flex-col max-w-xl mx-auto p-4">
-    <h2 className="font-black text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em] text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-600 text-center mb-8">
+const ReviewSlide: React.FC<ReviewSlideProps> = ({
+  questions = [],
+  answers = {},
+  onSubmit,
+}) => (
+  <div className="mx-auto flex w-full max-w-xl flex-col p-4">
+    <h2 className="mb-8 bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-center text-4xl font-black [letter-spacing:-.05em] text-transparent uppercase md:text-6xl lg:text-7xl xl:text-8xl">
       Review Your Answers
     </h2>
-    <div className="bg-white/50 dark:bg-black/40 p-6 rounded-xl shadow-xl space-y-4 text-left">
+    <div className="space-y-4 rounded-xl bg-white/50 p-6 text-left shadow-xl dark:bg-black/40">
       {questions.map((q) => (
-        <div key={q.id} className="border-b border-gray-500/20 pb-4 last:border-b-0 last:pb-0">
-          <p className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-1">{q.label}</p>
-          <p className="text-gray-900 dark:text-gray-100 text-base italic">
+        <div
+          key={q.id}
+          className="border-b border-gray-500/20 pb-4 last:border-b-0 last:pb-0"
+        >
+          <p className="mb-1 text-lg font-medium text-gray-800 dark:text-gray-200">
+            {q.label}
+          </p>
+          <p className="text-base text-gray-900 italic dark:text-gray-100">
             {(() => {
               const answer = answers[q.id];
               if (Array.isArray(answer)) return answer.join(", ");
@@ -169,7 +194,7 @@ const ReviewSlide: React.FC<ReviewSlideProps> = ({ questions = [], answers = {},
     </div>
     <button
       onClick={onSubmit}
-      className="w-full mt-8 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-blue-600 hover:to-cyan-700 text-white uppercase font-extrabold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
+      className="focus:ring-opacity-75 mt-8 w-full transform rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-3 font-extrabold text-white uppercase shadow-md transition duration-300 ease-in-out hover:scale-105 hover:from-blue-600 hover:to-cyan-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
     >
       Submit All Answers
     </button>
@@ -183,14 +208,14 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
   isLastQuestion,
   isNextDisabled,
 }) => (
-  <div className="flex justify-between w-full max-w-xl mt-8 space-x-4">
+  <div className="mt-8 flex w-full max-w-xl justify-between space-x-4">
     <button
       onClick={onPrevious}
       disabled={isFirstQuestion}
-      className={`flex-1 py-3 px-6 rounded text-white uppercase font-extrabold transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75 ${
+      className={`focus:ring-opacity-75 flex-1 transform rounded px-6 py-3 font-extrabold text-white uppercase transition duration-300 ease-in-out hover:scale-105 focus:ring-2 focus:ring-gray-400 focus:outline-none ${
         isFirstQuestion
-          ? "bg-gray-300 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-not-allowed"
-          : "bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200"
+          ? "cursor-not-allowed bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
+          : "bg-gray-300 text-gray-800 hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
       }`}
     >
       Previous
@@ -199,9 +224,9 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
     <button
       onClick={onNext}
       disabled={isLastQuestion || isNextDisabled}
-      className={`flex-1 py-3 px-6 rounded text-white uppercase font-extrabold transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 ${
+      className={`focus:ring-opacity-75 flex-1 transform rounded px-6 py-3 font-extrabold text-white uppercase transition duration-300 ease-in-out hover:scale-105 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
         isLastQuestion || isNextDisabled
-          ? "bg-blue-300 text-white cursor-not-allowed"
+          ? "cursor-not-allowed bg-blue-300 text-white"
           : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-blue-600 hover:to-cyan-700"
       }`}
     >
@@ -210,8 +235,9 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
   </div>
 );
 
-
-const mapQuestionTypeToUI = (type: QuestionType): "text" | "select" | "multiselect" => {
+const mapQuestionTypeToUI = (
+  type: QuestionType
+): "text" | "select" | "multiselect" => {
   switch (type) {
     case "TEXT":
     case "TEXTAREA":
@@ -233,15 +259,20 @@ const mapQuestionTypeToUI = (type: QuestionType): "text" | "select" | "multisele
 const JoinCommunityForm: React.FC = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
-  const [selectedCommunity, setSelectedCommunity] = useState<CommunityName | null>(null);
-  const session = useCachedSession();
-  const { data: forms, isLoading } = api.communityForms.getLatestPerCommunity.useQuery();
-  const attachMembershipToUserByID = api.membership.attachMembershipToUserByID.useMutation();
+  const [selectedCommunity, setSelectedCommunity] =
+    useState<CommunityName | null>(null);
+  const { data: session, update }  = useSession();
+  const { data: forms, isLoading } =
+    api.communityForms.getLatestPerCommunity.useQuery();
+  const attachMembershipToUserByID =
+    api.membership.attachMembershipToUserByID.useMutation();
 
-  if (!session || !session.data?.user) return <div>... You must be logged in</div>;
-  const userId = session.data.user.id;
+  if (!session?.user) return <div>... You must be logged in</div>;
+  const userId = session.user.id;
 
-  const selectedForm = forms?.find((form) => form.communityTag === selectedCommunity);
+  const selectedForm = forms?.find(
+    (form) => form.communityTag === selectedCommunity
+  );
   const questions: CommunityFormQuestion[] = selectedForm
     ? [...selectedForm.questions]
         .sort((a, b) => a.order - b.order)
@@ -291,8 +322,9 @@ const JoinCommunityForm: React.FC = () => {
       },
       {
         onSuccess: () => {
-          // Redirect only on success
-          window.location.href = "/member";
+          update({ user: { ...session.user, communityTag: selectedCommunity, role: "MEMBER" as MembershipRole } })
+            .then(() => window.location.assign("/auth/signin"))
+            .catch((err) => console.error("update failed", err));
         },
         onError: (error) => {
           console.error("Failed to attach membership:", error);
@@ -303,7 +335,8 @@ const JoinCommunityForm: React.FC = () => {
   };
 
   const renderContent = () => {
-    if (isLoading) return <div className="text-center text-lg">Loading forms...</div>;
+    if (isLoading)
+      return <div className="text-center text-lg">Loading forms...</div>;
 
     if (!selectedCommunity) {
       return (
@@ -315,11 +348,19 @@ const JoinCommunityForm: React.FC = () => {
     }
 
     if (isLastQuestion) {
-      return <ReviewSlide questions={questions} answers={answers} onSubmit={handleSubmit} />;
+      return (
+        <ReviewSlide
+          questions={questions}
+          answers={answers}
+          onSubmit={handleSubmit}
+        />
+      );
     }
 
     if (currentQuestion) {
-      const currentAnswer = answers[currentQuestion.id] ?? (currentQuestion.type === "multiselect" ? [] : "");
+      const currentAnswer =
+        answers[currentQuestion.id] ??
+        (currentQuestion.type === "multiselect" ? [] : "");
       return (
         <QuestionInputSlide
           question={currentQuestion}
@@ -333,17 +374,21 @@ const JoinCommunityForm: React.FC = () => {
     return null;
   };
 
-  const isNextDisabled = !isOptionalQuestion && (
-    !currentQuestionId ||
-    !answers[currentQuestionId] ||
-    (Array.isArray(answers[currentQuestionId]) && answers[currentQuestionId].length === 0)
-  );
+  const isNextDisabled =
+    !isOptionalQuestion &&
+    (!currentQuestionId ||
+      !answers[currentQuestionId] ||
+      (Array.isArray(answers[currentQuestionId]) &&
+        answers[currentQuestionId].length === 0));
 
   return (
-    <main className="bg-bg dark:bg-bg-inverted text-white h-screen flex items-center justify-center p-4 w-full">
-      <div className="bg-white/50 dark:bg-black/40 shadow-xl shadow-gray-500/20 rounded-xl p-8 w-full max-w-4xl flex flex-col items-center">
+    <main className="bg-bg dark:bg-bg-inverted flex h-screen w-full items-center justify-center p-4 text-white">
+      <div className="flex w-full max-w-4xl flex-col items-center rounded-xl bg-white/50 p-8 shadow-xl shadow-gray-500/20 dark:bg-black/40">
         {selectedCommunity && (
-          <ProgressBar currentQuestionIndex={currentQuestionIndex} totalQuestions={totalQuestions} />
+          <ProgressBar
+            currentQuestionIndex={currentQuestionIndex}
+            totalQuestions={totalQuestions}
+          />
         )}
         {renderContent()}
         {selectedCommunity && !isLastQuestion && (

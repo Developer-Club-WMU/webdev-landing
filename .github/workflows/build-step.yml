@@ -1,0 +1,40 @@
+name: Build
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generate dummy env
+        run: |
+          echo "NEXTAUTH_SECRET=dummy" >> .env.local
+          echo "NEXTAUTH_URL=http://localhost:3000" >> .env.local
+          echo "AUTH_DISCORD_ID=dummy" >> .env.local
+          echo "AUTH_DISCORD_SECRET=dummy" >> .env.local
+          echo "DATABASE_URL=postgresql://user:pass@localhost:5432/db" >> .env.local
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.6.1
+          run_install: true
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint and typecheck
+        run: pnpm check
+
+      - name: Build
+        run: pnpm build
