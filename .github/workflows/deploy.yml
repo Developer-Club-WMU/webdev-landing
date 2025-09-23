@@ -16,11 +16,11 @@ jobs:
     runs-on: ["self-hosted", "staging"]
     steps:
       - name: Run staging deployment script
-        run: /home/webdev/webdev-landing/deploy-staging.sh
+        run: DEPLOY_ENV=staging /home/webdev/webdev-landing/deploy-staging.sh
 
   deploy-prod:
     if: github.ref == 'refs/heads/production'
     runs-on: ["self-hosted", "prod"]
     steps:
       - name: Run production deployment script
-        run: /home/webdev/webdev-landing/deploy.sh
+        run: DEPLOY_ENV=production /home/webdev/webdev-landing/deploy.sh
