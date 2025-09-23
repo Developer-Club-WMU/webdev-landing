@@ -3,12 +3,24 @@ name: Deploy
 on:
   workflow_run:
     workflows: ["Build and Push Docker Image"]
+    branches: ["staging"]
     types:
       - completed
 
+  push:
+    branches: ["production"]
+
 jobs:
-  deploy:
-    runs-on: self-hosted
+  deploy-staging:
+    if: github.event_name == 'workflow_run'
+    runs-on: ["self-hosted", "staging"]
     steps:
-      - name: Run deployment script
+      - name: Run staging deployment script
+        run: /home/webdev/webdev-landing/deploy-staging.sh
+
+  deploy-prod:
+    if: github.ref == 'refs/heads/production'
+    runs-on: ["self-hosted", "prod"]
+    steps:
+      - name: Run production deployment script
         run: /home/webdev/webdev-landing/deploy.sh
