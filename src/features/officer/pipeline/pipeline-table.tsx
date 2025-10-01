@@ -117,15 +117,15 @@ export const PipelineTable = () => {
     return <p className="text-error">Error loading: {error.message}</p>;
 
   return (
-    <div className="border-border-muted bg-bg dark:bg-github-dbg overflow-auto rounded-xl border shadow-md">
-      <table className="text-text dark:text-text-inverted min-w-full text-left text-sm">
-        <thead className="bg-bg-muted dark:bg-github-muted">
+    <div className="data-table-container">
+      <table className="data-table">
+        <thead className="data-table-header">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="border-border-muted border-b px-4 py-3 text-xs font-semibold tracking-wide"
+                  className="data-container-header-cell"
                 >
                   {header.isPlaceholder
                     ? null
@@ -143,7 +143,7 @@ export const PipelineTable = () => {
             <tr>
               <td
                 colSpan={columns.length}
-                className="text-text-muted px-4 py-6 text-center"
+                className="data-table-empty-cell"
               >
                 No pipelines found.
               </td>
@@ -152,13 +152,13 @@ export const PipelineTable = () => {
             table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
-                className="hover:bg-bg-muted dark:hover:bg-github-muted cursor-pointer transition"
+                className="data-table-row data-table-row-clickable"
                 onClick={(e) => handleRowClick(row.original.id, e)}
               >
                 {row.getVisibleCells().map((cell) => (
                   <td
                     key={cell.id}
-                    className="border-border-muted border-t px-4 py-3"
+                    className="data-table-cell"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>

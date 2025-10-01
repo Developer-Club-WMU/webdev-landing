@@ -179,6 +179,46 @@
   .side-panel.visible {
     transform: translateX(0);
   }
+  /* Table Design System */
+  .data-table-container {
+    @apply overflow-auto rounded-xl border border-border-muted bg-bg dark:bg-github-dbg shadow-md;
+  }
+
+  .data-table {
+    @apply min-w-full text-left text-sm text-text dark:text-text-inverted;
+  }
+
+  .data-table-header {
+    @apply bg-bg-muted dark:bg-github-muted;
+  }
+
+  .data-table-header-cell {
+    @apply border-b border-border-muted px-4 py-3 text-xs font-semibold tracking-wide uppercase;
+  }
+
+  .data-table-header-cell-compact {
+    @apply border-b border-border-muted px-3 py-2 text-xs font-semibold tracking-wide uppercase;
+  }
+
+  .data-table-row {
+    @apply border-t border-border-muted transition-colors duration-150;
+  }
+
+  .data-table-row-clickable {
+    @apply cursor-pointer hover:bg-bg-muted dark:hover:bg-github-muted;
+  }
+
+  .data-table-cell {
+    @apply px-4 py-3;
+  }
+
+  .data-table-cell-compact {
+    @apply px-3 py-2;
+  }
+
+  .data-table-empty-cell {
+    @apply px-4 py-6 text-center text-text-muted;
+  }
 }
 
 @layer utilities {
