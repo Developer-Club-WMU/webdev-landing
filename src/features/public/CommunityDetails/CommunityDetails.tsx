@@ -79,19 +79,19 @@ const CommunityDetails = ({ content }: { content: Content }) => {
       {/* Team Leads */}
       <div className="mb-6">
         <h3 className="text-xl font-bold mb-3">🧑‍💼 Team Leads</h3>
-        <table className="w-full border border-gray-300 dark:border-gray-800 rounded-xl overflow-hidden shadow">
-          <thead className="bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-300 text-sm uppercase tracking-wider">
+        <table className="data-table-container">
+          <thead className="data-table-header">
             <tr>
-              <th className="px-4 py-3">Name</th>
+              <th className="data-table-header-cell">Name</th>
             </tr>
           </thead>
           <tbody>
             {content.teamLeads.map((lead) => (
               <tr
                 key={lead}
-                className="bg-gray-100 dark:bg-gray-900 border-t border-gray-300 dark:border-gray-800 hover:bg-gray-200 dark:hover:bg-gray-800 transition"
+                className="data-table-row data-table-row-clickable"
               >
-                <td className="px-4 py-2">{lead}</td>
+                <td className="data-table-cell">{lead}</td>
               </tr>
             ))}
           </tbody>

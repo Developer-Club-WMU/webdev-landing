@@ -80,13 +80,16 @@ const JoinCommunityFormTable = () => {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full border border-gray-300">
-        <thead>
+    <div className="data-table-container">
+      <table className="data-table">
+        <thead className="data-table-header">
           {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id} className="bg-bg dark:bg-bg-inverted">
+            <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <th key={header.id} className="px-4 py-2 text-left border-b">
+                <th
+                  key={header.id}
+                  className="data-table-header-cell"
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(header.column.columnDef.header, header.getContext())}
@@ -99,11 +102,14 @@ const JoinCommunityFormTable = () => {
           {table.getRowModel().rows.map((row) => (
             <tr
               key={row.id}
-              className="hover:bg-gray-100 cursor-pointer"
+              className="data-table-row data-table-row-clickable"
               onClick={() => router.push(`/officer/cms/questions/${row.original.id}`)}
             >
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="px-4 py-2 border-b">
+                <td
+                  key={cell.id}
+                  className="data-table-cell"
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
@@ -113,6 +119,6 @@ const JoinCommunityFormTable = () => {
       </table>
     </div>
   );
-};
+}
 
 export default JoinCommunityFormTable;

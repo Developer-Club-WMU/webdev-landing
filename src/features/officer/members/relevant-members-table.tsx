@@ -98,20 +98,20 @@ const OfficerRelevantMembersTable = () => {
 
   return (
     // Main container for the table (light = white bg / dark = black bg)
-    <div className="p-4 bg-white dark:bg-black rounded-lg shadow-lg font-sans">
+    <div className="data-table-container">
       {/* Responsive wrapper */}
       <div className="overflow-x-auto">
         {/* Table */}
-        <table className="w-full text-sm text-left rtl:text-right rounded-lg overflow-hidden">
+        <table className="data-table">
           {/* Header */}
-          <thead className="text-xs uppercase bg-gray-100 dark:bg-gray-900">
+          <thead className="data-table-header">
             {table.getHeaderGroups().map((hg) => (
               <tr key={hg.id}>
                 {hg.headers.map((header) => (
                   <th
                     key={header.id}
                     scope="col"
-                    className="px-6 py-3 font-semibold text-black dark:text-white"
+                    className="data-table-header-cell"
                   >
                     {header.isPlaceholder
                       ? null
@@ -130,11 +130,14 @@ const OfficerRelevantMembersTable = () => {
             {table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
-                className="bg-white dark:bg-black border-b border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-200"
+                className="data-table-row data-table-row-clickable"
                 onClick={() => router.push(`/officer/members/${row.original.user.id}`)}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-6 py-4 text-black dark:text-white">
+                  <td
+                    key={cell.id}
+                    className="data-table-cell"
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
