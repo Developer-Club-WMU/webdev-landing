@@ -125,7 +125,7 @@ export const PipelineTable = () => {
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="data-container-header-cell"
+                  className="data-table-header-cell"
                 >
                   {header.isPlaceholder
                     ? null
