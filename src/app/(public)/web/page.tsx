@@ -18,6 +18,7 @@ const content = {
     "Benwin George",
     "Shaga Sresthaa",
     "Arriza F. Wibowo",
+    "Jack Carlson",
   ],
   contact: {
     email: "julio.c.florescercado@wmich.edu",
