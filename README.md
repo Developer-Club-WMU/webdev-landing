@@ -47,6 +47,10 @@ cp .env.example .env
 
 Open `.env` in your editor and fill in the required values (e.g., database URL, authentication secrets, etc.).
 
+### 3.a For login, click on this [link](https://create.t3.gg/en/usage/next-auth) and scroll to the very bottom and follow the steps starting at
+
+Setting up the default DiscordProvider - This will allow you to login into the web app.
+
 ### 4. Run the Development Server
 
 ```bash

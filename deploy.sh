@@ -15,14 +15,22 @@ if ! docker compose version >/dev/null 2>&1 && ! command -v docker-compose >/dev
   exit 1
 fi
 
-# Pull Latest Code from repo just in case of updated deploy script/docker-compose script
-git pull origin production
+# Pull Latest Code from the appropriate branch of repo PROD or DEV (PROD set to default)
+ENV="${DEPLOY_ENV:-production}"
+echo "Using environment: $ENV"
+
+git fetch origin
+git checkout $ENV
+git pull origin $ENV
 
 # Stop running services
 docker compose down
 
 # Pull latest image
 docker pull devclubwmu/devclub-prod:webdev-landing
+
+# Prune Old Images that arent tagged and keep only the tagged images
+docker image prune -a
 
 # Start with latest image in background
 docker compose up -d
