@@ -3,40 +3,59 @@ import CommunityHero from "@/features/public/CommunityHero/CommunityHero";
 import type { HeroDetails } from "@/models";
 
 const systemsHero: HeroDetails = {
-  title: "systems",
-  description: "Low-level, high impact",
+  title: "Systems",
+  description: "Engineering what everything else runs on!",
   secondDescription:
-    "From compilers to operating systems, this community is all about performance, control, and a deeper understanding of how things work.",
+    "Our focus is on understanding how systems are designed, optimized, and maintained to perform efficiently and remain stable, bridging theory with practical engineering",
   color: "systems",
 };
 
 const content = {
   header: "SYSTEMS",
   description: {
-    main: "We are a community dedicated to helping Developer Club members explore mobile-first application development.",
-    sub: "Whether you're a complete beginner or already building apps, we have something for you, starting with challenges at our coding meetups and progressing to advanced features like camera access, animations, GPS, maps, and graphing.",
+    main: "We are a community dedicated to understanding and engineering the systems that keep technology running.",
+    sub: "We primarily focus on areas such as Systems Administration,  Cloud Administration , Embedded Systems, System Design and Architecture, Networking and Automation. We work on supporting the Club Infrastructure and also learn by hands on with our resources such as Rick (Proxmox Server) and Mac Minis. We also do hardware projects with various industry grade hardware like ESP-32, STM-32, ARM, Arduino and also FPGA's and try to apply them in areas such as IoT, Robotics, Smart World, etc. In general our goal is to learn and teach others how to design systems that are reliable, highly available and how to plan for incidents by the means of Disaster Management or Business Continuity Plans. We see things as a complex ecosystem driven by various moving components that are software and hardware based and look for ways to improve upon the system or eliminate any blind spots in the system. Whether you are scripting servers, programming microcontrollers, or learning how technology works under the hood, this is the place to build practical skills and a strong systems mindset.",
   },
   technologies: {
-    languages: ["Dart", "JavaScript", "Swift", "Kotlin"],
-    frameworks: ["Flutter", "React Native", "Swift UI", "Springboot"],
+    languages: ["C", "C++", "Java", "Python", "Bash", "Go"],
+    frameworks: [
+      "FreeRTOS",
+      "Terraform",
+      "Docker",
+      "Kubernetes",
+      "GitHub Actions",
+      "Proxmox",
+      "QEMU/KVM",
+      "AWS",
+      "Cloudflare",
+      "Arduino",
+      "STM32",
+      "ESP32",
+    ],
   },
-  meetingInfo: "TBD time/day @ Parkview Campus break room",
-  teamLeads: ["Khang Nguyen", "Jordan Johnson"],
+
+  meetingInfo:
+    "Bi-weekly Friday 6:00PM @ Virtual Teams/Discord (or) Parkview Campus Common Area",
+  teamLeads: ["Sresthaa Shaga"],
   contact: {
-    email: "dsy1090@wmich.edu",
+    email: "sresthaa.shaga@wmich.edu",
     discord: "https://discord.gg/R9ewFdGa",
   },
   tags: [
-    "app",
-    "frontend",
-    "dart",
-    "flutter",
-    "javascript",
-    "reactnative",
-    "swift",
-    "swiftui",
-    "kotlin",
-    "springboot",
+    "iot",
+    "devops",
+    "cloud",
+    "containerization",
+    "virtualization",
+    "linux",
+    "rtos",
+    "automation",
+    "infrastructure",
+    "networking",
+    "monitoring",
+    "security",
+    "homelab",
+    "proxmox",
   ],
 };
 
