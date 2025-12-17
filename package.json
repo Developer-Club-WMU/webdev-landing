@@ -31,7 +31,7 @@
     "@tanstack/react-query": "^5.90.12",
     "@tanstack/react-table": "^8.21.3",
     "@trpc/client": "^11.5.1",
-    "@trpc/react-query": "^11.7.2",
+    "@trpc/react-query": "^11.8.0",
     "@trpc/server": "^11.5.1",
     "firebase": "^11.10.0",
     "next": "^15.5.9",
@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
-    "@types/node": "^20.19.26",
+    "@types/node": "^20.19.27",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.39.2",
@@ -59,7 +59,7 @@
     "prisma": "^6.19.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.49.0"
+    "typescript-eslint": "^8.50.0"
   },
   "ct3aMetadata": {
     "initVersion": "7.39.3"
